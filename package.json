@@ -1,0 +1,26 @@
+{
+  "name": "business-book",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "dev": "concurrently --kill-others --names backend,frontend,scheduler \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:scheduler\"",
+    "dev:backend": "php84 backend/artisan serve --host=127.0.0.1 --port=8000",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "dev:scheduler": "php84 backend/artisan schedule:work --no-interaction",
+    "build": "npm run build --workspace frontend",
+    "lint": "npm run lint --workspace frontend",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "composer84 --working-dir=backend run test",
+    "test:frontend": "npm run test.unit --workspace frontend -- --run",
+    "install:backend": "composer84 --working-dir=backend install --no-interaction --prefer-dist"
+  },
+  "devDependencies": { "jsdom": "^22.1.0" },
+  "overrides": {
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4"
+  },
+  "engines": { "node": ">=22.12.0", "npm": ">=8.0.0" }
+}

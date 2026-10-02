@@ -1,0 +1,14 @@
+import { useState } from 'react';
+import { IonButton } from '@ionic/react';
+import { useData } from '../lib/api';
+import { useWorkspace } from '../lib/context';
+import type { Item, Lookup, Party } from '../lib/types';
+import { currency, format } from '../lib/money';
+import { Field, Loading } from './ui';
+
+export default function Picker({ kind, onPick, customer, role, payable = false, stockOnly = false }: { kind: 'items' | 'contacts'; onPick: (row: Item | Party) => void; customer?: boolean; role?: 'employee' | 'rent'; payable?: boolean; stockOnly?: boolean }) {
+  const { base, t } = useWorkspace(); const partyRole = role || (payable ? 'payable' : customer === undefined ? '' : customer ? 'customer' : 'supplier'); const [query, setQuery] = useState(''); const [open, setOpen] = useState(false); const { data, error, loading } = useData<{ data: Lookup }>(open ? `${base}/lookup?q=${encodeURIComponent(query)}&party_role=${partyRole}` : null);
+  const rows = (data?.data[kind] || []).filter(row => kind === 'items' ? !stockOnly || (row as Item).kind === 'stock' : !(row as Party).is_system);
+  function choose(row: Item | Party) { onPick(row); setQuery(''); setOpen(false); }
+  return <div className="picker"><Field label={kind === 'items' ? t('Add item') : t(role === 'employee' ? 'Employee' : role === 'rent' ? 'Rent payee' : payable || customer === undefined ? 'Party' : customer ? 'Customer' : 'Supplier')} value={query} placeholder={kind === 'items' ? 'Search item name…' : 'Search contact name…'} onFocus={() => setOpen(true)} onChange={e => { setQuery(e.target.value); setOpen(true); }} onKeyDown={event => { if (['Enter','ArrowDown','Escape'].includes(event.key)) { event.preventDefault(); event.stopPropagation(); if (event.key === 'Escape') { setOpen(false); return; } if (!open) { setOpen(true); return; } const exact = rows.filter(row => row.name.toLowerCase() === query.toLowerCase()); if (event.key === 'Enter' && !loading && (exact.length === 1 || rows.length === 1)) { choose(exact[0] || rows[0]); } else { event.currentTarget.closest('.picker')?.querySelector<HTMLButtonElement>('.picker-option')?.focus(); } } }} />{open && <div className="picker-results">{loading || error ? <Loading error={error} /> : rows.length ? rows.map(row => <button type="button" key={row.id} className="picker-option" onClick={() => choose(row)}><strong>{row.name}</strong><small>{kind === 'items' ? `${currency((row as Item).sale_price_paisa)} · ${(row as Item).kind === 'service' ? 'Service' : format((row as Item).qty_milli, 3) + ' ' + (row as Item).unit_label}` : (row as Party).phone || 'Contact'}</small></button>) : <p className="subtle">No matches. Add {kind === 'items' ? 'item' : 'party'} first.</p>}<IonButton fill="clear" size="small" onClick={() => setOpen(false)}>Close search</IonButton></div>}</div>;
+}
