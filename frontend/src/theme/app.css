@@ -170,3 +170,61 @@ body { margin: 0; } a { color: #20574c; text-decoration: none; } button,input,se
   .auth-form .field { margin-bottom: 8px; }
   .auth-form .auth-footer, .auth-form .privacy-note { margin: 8px 0; }
 }
+
+.more-tools .page-heading > div:first-child { min-width: 0; }
+.more-manual { display: flex; align-items: center; min-height: 44px; }
+.more-sections { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
+.more-sections button { min-height: 44px; padding: 8px; border: 1px solid #dfe5d8; border-radius: 8px; background: #fff; color: #20574c; font-size: 13px; }
+.more-sections button[aria-pressed="true"] { background: #20574c; border-color: #20574c; color: #fff; }
+.more-section-title { font-size: 15px; margin: 0 0 12px; }
+.more-tools .more-card { min-height: 76px; padding: 16px; gap: 10px; }
+.more-tools .more-card ion-icon { flex-shrink: 0; font-size: 20px; }
+.more-tools .more-card span { overflow-wrap: anywhere; }
+.home-sections { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
+.home-sections button, .home-pager button { min-height: 44px; padding: 8px; border: 1px solid #dfe5d8; border-radius: 8px; background: white; color: #20574c; font-size: 13px; }
+.home-sections button[aria-pressed="true"] { background: #20574c; border-color: #20574c; color: white; }
+.home-pager { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.home-pager button:disabled { opacity: .55; }
+.home-expense, .home-opening { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 0; }
+.home-expense { margin-top: 12px; }
+.home-opening { margin-bottom: 8px; }
+.home-tools .activity-row > div:nth-child(2), .home-tools .stock-row > div { min-width: 0; overflow-wrap: anywhere; }
+.home-tools .metrics { margin-bottom: 0; }
+.home-tools .page-heading > div:first-child { min-width: 0; }
+.home-tools .metric > strong { overflow-wrap: anywhere; }
+.money-sections { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
+.money-sections button { min-height: 44px; padding: 8px; border: 1px solid #dfe5d8; border-radius: 8px; background: white; color: #20574c; font-size: 13px; }
+.money-sections button[aria-pressed="true"] { background: #20574c; border-color: #20574c; color: white; }
+.money-sections button:disabled { opacity: .65; }
+.regular-tools .page-heading > div:first-child { min-width: 0; }
+.regular-setup .entry-form { display: block; }
+.regular-setup .form-main { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.regular-edit .form-main { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.regular-setup .panel { min-width: 0; }
+.regular-review { font-size: 12px; margin: 6px 0 10px; overflow-wrap: anywhere; }
+.regular-setup .regular-date-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media screen and (max-width: 767px) {
+  .page-wrap:has(> .regular-tools) { padding-top: 18px; padding-bottom: 18px; }
+  .page-wrap:has(.regular-setup) + .app-footer { display: none; }
+  .regular-setup .form-main { display: block; }
+  .regular-setup .entry-form { padding-bottom: 64px; }
+  .regular-setup .panel { padding: 12px; }
+  .regular-setup h2 { margin-bottom: 10px; }
+  .regular-setup .field { margin-bottom: 12px; }
+  .regular-setup .optional-details { margin: 12px 0 0; }
+  .regular-setup .regular-submit { position: fixed; right: 18px; bottom: calc(81px + env(safe-area-inset-bottom)); z-index: 7; }
+  .page-wrap:has(> .money-tools) { padding-top: 18px; padding-bottom: 18px; }
+  .money-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-bottom: 12px; }
+  .page-wrap:has(> .home-tools) { padding-top: 18px; padding-bottom: 18px; }
+  .home-tools .page-heading p { margin-top: 6px; }
+  .home-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-bottom: 12px; }
+  .home-tools .metric { padding: 12px; }
+  .home-tools .metric-top { margin-bottom: 6px; }
+  .home-tools .metric > strong { margin: 4px 0; font-size: 20px; }
+  .home-tools .activity-row { padding: 12px 0; }
+  .home-tools .stock-row { padding: 10px 0; }
+  .page-wrap:has(> .more-tools) { padding-top: 18px; padding-bottom: 18px; }
+  .more-sections { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 12px; }
+  .more-tools .more-card { min-height: 68px; padding: 12px; font-size: 13px; }
+  .more-tools .more-grid { gap: 10px; margin-bottom: 12px; }
+}

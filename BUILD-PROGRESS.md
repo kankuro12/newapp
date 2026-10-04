@@ -1065,3 +1065,84 @@ artifacts/screen-fit-frontend.txt. Final copy is display text only. Final types/
 screen-fit-final-lint.txt, screen-fit-final-web.txt, screen-fit-diff-check.txt.
 Build retains its existing large-chunk warning (1711.63KB / 391.88KB gzip). Broad
 competitor scope and C2–C6/D–H remain active.
+## 4 October 2026 — C1b retry ownership and package backend first pass
+
+Billed delivery original UUID replay had a verified access discrepancy: a
+previously privileged actor downgraded to cashier could replay a physical
+posting from another staff member's bill while its fresh preview denied access.
+RED: c1b4-source-replay-red.txt, 1 failed / 13 assertions / 18326ms (expected403,
+received200). FulfilmentService now checks current parent and historical billed
+allocation creator/type/workflow before AccountingService returns cashier replay.
+Membership, role, parent ownership and changed/cross-actor UUID cases pass.
+Final direct + delivery-first billing regression: 34 tests / 1031 assertions /
+60310ms, c1b4-security-final.txt. Initial added security cases: 21/645/115762ms.
+
+Package endpoints added under existing FulfilmentService/FulfilmentController:
+review/save pack, show, review/save ship, review/save deliver, undo delivery and
+cancel. Pack reserves exact billed-line capacity without journal/stock mutation;
+other daily sales still use that pool. Ship rechecks real stock and posts an
+owned physical stage plus inventory-to-transit; deliver posts transit-to-COGS
+and held-base-to-sales with no second stock move. Direct bill-first physical
+posting shares its existing prepared posting body; purchase/legacy behavior kept.
+
+Package and parent versions, source bill versions, dates, carrier/tracking and
+stock cost context bind reviewed proof. Packed lines/snapshots remain immutable.
+Delivery undo retains journal references and explicit BS/date/reason audit even
+for zero-valued journals. Reconfirmation uses distinct source events and cannot
+precede undo history. Cancelling shipment uses existing later-stock and return
+dependency rules. Progress distinguishes packed/shipped/confirmed quantities;
+unconfirmed shipment has zero customer-returnable quantity. Cashier preview and
+reply omit cost/journals; revoked original retries and foreign branches denied.
+
+Package RED: four missing-preview404 failures, c1b5-package-red.txt (16776ms).
+Initial package + direct/legacy regression: 38/1200/51476ms, c1b5-package-core.txt.
+Safety run: 8/9; ordinary-sale fixture used a nonexistent route, corrected to
+existing documents/sale. Final safety: 9/370/41992ms. Final package security and
+penny cases: 12/492/44063ms, c1b5-package-security-final.txt. Scoped Pint passed.
+Full backend suite passed: 174 tests / 4409 assertions / 506539ms,
+c1b5-backend-full.txt, terminal exit0. No schema/dev DB/dairy/Git changes in this
+backend checkpoint. Subsequent screen-fit frontend changes are recorded below.
+
+Package flow remains incomplete and has no Ionic controls yet. Before exposure:
+dedicated undelivered-shipment returns (including later stock activity), explicit
+source modes and safe recognition/cancellation dependencies; real package races;
+zero/mixed-source checks; policy-aware compact Ionic forms, source-return UI,
+backorder/full slip printing and live authenticated QA. C1B-IMPLEMENTATION.md
+records this gap. Existing in-app manual correctly marks the flow pending.
+All C2–C6, D–H and SCREEN-FIT.md protected-screen audit remain active.
+
+## 4 October — compact Home and More checkpoint
+
+Owner requested minimal scrolling across screens. Signup country/required phone
+remain one row; previous compact auth/common mobile spacing and manual height
+adjustment remain. More moved from Workspace into More.tsx, showing one of five
+tool sections with role filtering, remembered URL section and persistent guide
+link. Existing links remain; POS shortcut added. Workspace sidebar icon import
+was restored and unused Heading removed after type/lint found extraction errors.
+
+Dashboard now opens daily actions, with separate balances/activity/stock views.
+Cashiers cannot select balances. Recent/stock previews page all returned rows,
+two per page; each page persists across view changes and clamps on shorter data.
+Exact currency, source links and backend permissions are unchanged. Starting
+balance link remains on initial daily-actions view; expense shortcut remains.
+Guide edition4 explains Home/More sections and necessary scrolling cases.
+
+Browser fixture proof: all Home views EN/NE320x667 without page overflow; initial
+Nepali starting link also fit. Stock view360x740,390x844,1280x800 fit. Longest
+More Money section EN/NE320x667 fit; default Sales fit larger sizes. Role views
+and next sample pages checked. Real More plus current Dashboard source/API-data
+stub used existing Ionic shell/CSS. Public screenshots archived, temporary
+fixtures removed from frontend and browser overrides reset. No account or
+financial browser writes; actual authenticated routes/long data remain unverified.
+
+More RED2 and Home RED3 observed against old screens. Home currency assertion
+was corrected to existing rupee label; product currency unchanged. Final full
+frontend:76 tests/30 files/91.24s, screen-fit-navigation-frontend.txt. Final
+product TypeScript/lint/build passed (screen-fit-navigation-final-*); temporary
+fixture-hook type mismatch was removed when fixtures were archived. Web main
+bundle1716.78KB/392.96KB gzip retains size warning. Scoped diff check exit0.
+Full backend already passed174/4409/506539ms; no backend changes for screen fit.
+
+SCREEN-FIT.md records remaining route-by-route work. No all-screen, complete C1
+or competitor parity claim. C1 transit returns/package races/UI and C2–C6/D–H
+remain active. No dairy/database/Git mutations in this screen-fit checkpoint.

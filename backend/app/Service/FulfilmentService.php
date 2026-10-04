@@ -668,11 +668,25 @@ class FulfilmentService
             return $row;
         })->all();
         $data['shipment'] = $package->fulfilment_id ? $this->data($actor, (int) $package->fulfilment_id) : null;
+        $data['delivery_reversals'] = $this->a->rows('audit_logs')->where('subject_type', 'workflow_packages')->where('subject_id', $id)->where('action', 'package.delivery.undo')->orderBy('id')->get()->map(fn ($row) => ['actor_id' => (int) $row->actor_id, ...json_decode($row->metadata, true)])->all();
         if ($this->a->role($actor) === 'cashier') {
             unset($data['delivery_journal_id']);
         }
 
         return $data;
+    }
+
+    private function packageHistoryDate(object $package): int
+    {
+        $last = max($package->business_date_bs, $package->shipped_date_bs ?? 0, $package->delivered_date_bs ?? 0);
+        if ($package->fulfilment_id) {
+            $last = max($last, (int) $this->a->rows('journal_entries')->where('source_type', 'fulfilment_delivery')->where('source_id', $package->fulfilment_id)->max('business_date_bs'));
+        }
+        foreach ($this->a->rows('audit_logs')->where('subject_type', 'workflow_packages')->where('subject_id', $package->id)->where('action', 'package.delivery.undo')->get(['metadata']) as $row) {
+            $last = max($last, (int) json_decode($row->metadata, true)['business_date_bs']);
+        }
+
+        return $last;
     }
 
     private function packPlan(int $actor, int $workflow, array $input): array
@@ -779,17 +793,22 @@ class FulfilmentService
         $order = $this->packageOrder($actor, (int) $package->workflow_id);
         abort_unless($package->status === 'shipped' && $package->version == $input['version'] && $order->version == $input['workflow_version'], 409, 'Package or order changed.');
         abort_unless(($input['handover_confirmed'] ?? false) === true, 422, 'Confirm actual customer delivery.');
-        $this->packageSources($actor, $package);
+        $sources = $this->packageSources($actor, $package);
+        $billVersions = $sources->map(function ($line) {
+            $billLine = $this->a->requireRow('document_lines', $line->document_line_id);
+            $bill = $this->a->requireRow('documents', $billLine->document_id);
+
+            return ['document_line_id' => (int) $billLine->id, 'document_id' => (int) $bill->id, 'version' => (int) $bill->version];
+        })->all();
         $stage = $this->a->requireRow('workflow_fulfilments', $package->fulfilment_id);
         abort_unless($stage->status === 'posted' && ! $stage->handover_confirmed, 409, 'Use an active unconfirmed shipment.');
         $date = NepaliDate::normalize($input['business_date_bs']);
         $this->a->assertOpenDate(Tenant::findOrFail(app(CurrentTenant::class)->id()), $date);
-        $last = (int) $this->a->rows('journal_entries')->where('source_type', 'fulfilment_delivery')->where('source_id', $stage->id)->max('business_date_bs');
-        if ($date < max($package->shipped_date_bs, $last)) {
+        if ($date < $this->packageHistoryDate($package)) {
             $this->a->fail('Delivery date precedes shipment or its delivery history.', 'business_date_bs');
         }
         $allocations = $this->a->rows('workflow_dispatch_allocations')->whereIn('fulfilment_line_id', $this->a->rows('workflow_fulfilment_lines')->where('fulfilment_id', $stage->id)->select('id'))->orderBy('id')->get();
-        $plan = ['package_id' => $id, 'package_version' => (int) $package->version, 'workflow_id' => (int) $order->id, 'workflow_version' => (int) $order->version, 'fulfilment_id' => (int) $stage->id, 'fulfilment_version' => (int) $stage->version, 'business_date_bs' => $date, 'inventory_cost_paisa' => (int) $allocations->sum('inventory_cost_paisa'), 'sales_base_paisa' => (int) $allocations->sum('sales_base_paisa'), 'qty_milli' => (int) $allocations->sum('qty_milli')];
+        $plan = ['package_id' => $id, 'package_version' => (int) $package->version, 'workflow_id' => (int) $order->id, 'workflow_version' => (int) $order->version, 'fulfilment_id' => (int) $stage->id, 'fulfilment_version' => (int) $stage->version, 'business_date_bs' => $date, 'bill_versions' => $billVersions, 'inventory_cost_paisa' => (int) $allocations->sum('inventory_cost_paisa'), 'sales_base_paisa' => (int) $allocations->sum('sales_base_paisa'), 'qty_milli' => (int) $allocations->sum('qty_milli')];
         $plan['fingerprint'] = hash_hmac('sha256', json_encode($plan, JSON_THROW_ON_ERROR), config('app.key'));
 
         return $plan;
@@ -840,12 +859,13 @@ class FulfilmentService
             $date = NepaliDate::normalize($input['business_date_bs']);
             $this->a->assertOpenDate($tenant, (int) $package->delivered_date_bs);
             $this->a->assertOpenDate($tenant, $date);
-            if ($date < $package->delivered_date_bs) {
+            if ($date < $this->packageHistoryDate($package)) {
                 $this->a->fail('Reversal precedes delivery.', 'business_date_bs');
             }
             if ($package->delivery_journal_id) {
                 $this->a->reverse($actor, (int) $package->delivery_journal_id, $date, $input['reason'], sourceEvent: 'reverse.'.$package->version);
             }
+            $this->a->audit($actor, 'package.delivery.undo', 'workflow_packages', $id, ['business_date_bs' => $date, 'reason' => $input['reason']]);
             $this->a->rows('workflow_packages')->where('id', $id)->update(['status' => 'shipped', 'version' => $package->version + 1, 'updated_at' => now()]);
             $this->a->rows('workflow_fulfilments')->where('id', $stage->id)->update(['handover_confirmed' => false, 'version' => $stage->version + 1, 'updated_at' => now()]);
             $this->a->rows('business_workflows')->where('id', $order->id)->update(['version' => $order->version + 1, 'updated_at' => now()]);
@@ -864,7 +884,7 @@ class FulfilmentService
             $date = NepaliDate::normalize($input['business_date_bs']);
             $this->a->assertOpenDate($tenant, (int) $package->business_date_bs);
             $this->a->assertOpenDate($tenant, $date);
-            if ($date < max($package->business_date_bs, $package->shipped_date_bs ?? 0, $package->delivered_date_bs ?? 0)) {
+            if ($date < $this->packageHistoryDate($package)) {
                 $this->a->fail('Cancellation precedes package history.', 'business_date_bs');
             }
             if ($package->status === 'shipped') {

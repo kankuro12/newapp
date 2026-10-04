@@ -140,13 +140,13 @@ composer84 --working-dir=backend run test
 
 Backend tests recreate/use `business_book_testing`; startup rejects every other
 named database. No SQLite claim for financial concurrency. Latest checks:
-backend full151/3599 before final C1b rounding fix; final targeted33/938 after fix. Final frontend71 tests/28 files after signup/manual changes;
+backend full174/4409 after package/security changes. Frontend76 tests/30 files after compact Home/More;
 TypeScript/build/lint and PHP formatting pass.
 4 October C1a adds delivery-first partial delivery/receipt/service completion,
 exact source-order bills, returns/reversals and Ionic quantity entry/progress/
 slips. Original full billing remains available before staging. Mobile visual QA
 uses posting-disabled fixtures; live authenticated end-to-end QA remains
-unverified. Signup requires separate country/phone fields; More opens the guide within the app. C1b direct backend added; new race checks, packages/backorders and Ionic controls remain required. See
+unverified. Signup requires separate country/phone fields; More opens the guide within the app. C1b direct and package backend first pass added; dedicated transit returns, package races, backorders and Ionic controls remain required. See
 NICHE-FEATURES.md and BUILD-PROGRESS.md.
 Frontend output: `frontend/dist`. Browser shell caching requires production
 build; development does not register a service worker.

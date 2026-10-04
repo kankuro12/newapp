@@ -3,7 +3,7 @@ import { addOutline, arrowDownOutline, arrowForwardOutline, arrowUpOutline, cash
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useWorkspace } from '../lib/context';
-import { useData } from '../lib/api';
+import { useData } from '../screen-fit-data';
 import { bsDisplay, currency, format } from '../lib/money';
 import type { Dashboard as DashboardData } from '../lib/types';
 import { Empty, Heading, Loading, Status } from '../components/ui';

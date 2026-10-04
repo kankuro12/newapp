@@ -116,8 +116,16 @@ uses existing later-stock/reversal gates and reverses its transit journal;
 packing cancellation has no stock/journal effect. Never silently revert one
 package when a different one consumed later item activity. In-transit goods
 cannot be credited as unfulfilled or returned as confirmed customer delivery;
-cancel a reversible shipment first, or confirm actual delivery and use its
-named physical return. Progress must distinguish packed, shipped, delivered
+cancel a reversible shipment first, or confirm actual delivery when it happened
+and use its named physical return. A dedicated undelivered-shipment return is
+still required before enabling package controls: actual returned goods can
+arrive after later stock activity made original-shipment reversal unavailable.
+It must receive original source cost from transit, clear only the actual credit
+base from held sales and never invent customer delivery. Freeze the return's
+unfulfilled/transit/completed source mode, recognize only the remaining package
+quantity/cost/base and avoid cyclic undo/cancel dependencies. Include zero-paisa
+and partial-return residuals, late stock activity and return reversal tests.
+Progress must distinguish packed, shipped, delivered
 and credited quantity; an unconfirmed shipment has zero customer-returnable
 quantity. Cashier retry must recheck original source-bill ownership as well as
 current membership and parent ownership.
@@ -186,6 +194,26 @@ dispatch competing with unfulfilled credit, now pass on the isolated database
 stock, deferred value, revenue and receivable balances match its winner.
 Evidence: artifacts/c1b4-concurrency.txt, 146177ms.
 
-Further cashier/revoked-replay/source security cases, packages/shipping/delivery,
-backorder printing and bill-first Ionic controls remain required. The public
+Cashier privacy, revoked membership, changed parent ownership, purchase-role
+downgrade and cross-actor/changed-UUID cases now pass. A RED source-bill ownership
+replay test found a fresh-preview/retry discrepancy; billed fulfilment retry now
+rechecks each historical source bill's current cashier ownership. Targeted
+bill-first plus delivery-first billing: 34 tests / 1031 assertions, 60310ms,
+artifacts/c1b4-security-final.txt.
+
+Reviewed packing, manual shipment, explicit delivery, delivery undo and package
+cancellation now have a backend first pass. Shared physical posting moves stock
+to transit on shipment and posts recognition only on actual confirmation.
+Package/date/source versions bind review; multiple packages and exact held/cost
+residuals reconcile. Return dependencies and later-stock reversal gates remain.
+Original snapshots, stage/return/journal history and zero-value delivery undo
+dates are retained. Package cashier privacy and revoked retries are tested.
+Package safety/security: 12 tests / 492 assertions, 44063ms,
+artifacts/c1b5-package-security-final.txt. Earlier package/core regression:
+38 tests / 1200 assertions, 51476ms, artifacts/c1b5-package-core.txt.
+
+Full backend verification passed: 174 tests / 4409 assertions / 506539ms,
+artifacts/c1b5-backend-full.txt. Dedicated undelivered-shipment returns, package terminal races,
+additional zero-value/mixed-source gates, backorder printing and bill-first
+Ionic controls remain required. The public
 guide still marks this flow in progress; no complete C1 or parity claim.

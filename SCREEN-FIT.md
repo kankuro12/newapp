@@ -23,12 +23,40 @@ eliminating all vertical scrolling.
 - Manual iframe uses available height with a smaller minimum, avoiding its old
   480px minimum forcing additional outer-page scrolling on short phones.
 - Existing mobile sale/purchase/order form steps and optional fields remain.
+- More shows Sales, Money, Stock, Business or Account tools one section at a
+  time. Manual remains visible; section selection is kept in the URL. Existing
+  tool links and role filtering are retained, with a POS shortcut added.
+- Home opens daily actions first. Balances, recent activity and low stock have
+  separate views; cashier balance view remains unavailable. Recent/stock
+  previews page every returned row, two per page. Section changes retain each
+  preview's page; shorter refreshed lists clamp to their current last page.
+- Manual edition4 explains the new navigation and necessary scrolling cases.
 
 Live read-only signup measurements: 320x667, 360x740, 390x844 and 1280x800
 showed content height equal to visible height and no page horizontal overflow.
 Country/phone had equal top coordinates; phone remained required. Final
 equal-width country adjustment was included. Sign-in and recovery also fit at
 320x667 and 1280x800 in live read-only checks. Viewport override was reset.
+
+Read-only browser fixtures used the real More component and a current copy of
+Dashboard with only its API hook replaced by fixed public sample data. Ionic
+shell classes, app CSS, translations and navigation were unchanged. All four
+Home views in EN/NE fit 320x667: scroll height equalled client height and width
+equalled viewport width. Nepali initial starting-balance link also fit. Low-stock
+view additionally fit 360x740, 390x844 and 1280x800. More's longest Money section
+fit EN/NE at 320x667; Nepali default Sales fit the larger sizes. Cashier section
+visibility was inspected. Paging exposed subsequent sample records.
+Screenshots: artifacts/screen-fit-home-320-ne.png and
+artifacts/screen-fit-more-320-ne.png. Fixture source archived under artifacts/
+screen-fit-fixture*; no fixture route/source remains in frontend. Temporary
+tabs closed and viewport overrides reset. No browser financial/account writes.
+
+Verification: frontend76 tests/30 files, 91.24s
+(artifacts/screen-fit-navigation-frontend.txt); final product TypeScript, lint
+and web build passed. Navigation RED was observed against the old screens;
+More2 and Home3 interaction cases cover section links, role restriction,
+exact balance display and access to every preview page. Build retains an
+existing large main-bundle warning (392.96KB gzip).
 
 ## Remaining screen audit
 
@@ -41,7 +69,7 @@ records through the browser.
 | --- | --- |
 | Sign in / recovery / verification / account | Sign-in/recovery initial state verified; long errors, large text, verification and authenticated account forms remain |
 | Business selection / branch setup | Few/many branches, primary setup/save visible |
-| Dashboard / More | Primary actions first, secondary cards/tabs, short phone proof |
+| Dashboard / More | EN/NE short-phone fixture proof recorded above; real authenticated data, long names/amounts, access/offline banners and larger text still need audit |
 | Parties / products | New form, edit balances, expanded details; list paging and search at short height |
 | Sale / purchase / expense / order | Every mobile step with selected party and multiple lines; review/post visible; no lost input |
 | Industry POS | Each niche primary entry, cart, payment and measures; restaurant waiter/kitchen and salon schedule |

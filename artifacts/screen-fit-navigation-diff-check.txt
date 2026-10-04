@@ -1,0 +1,22 @@
+warning: LF will be replaced by CRLF in BUILD-PROGRESS.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in C1B-IMPLEMENTATION.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in COMPETITOR-RESEARCH.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in MONOREPO-CONTRACT.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in NICHE-FEATURES.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in README.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/public/help/user-manual.html.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/lib/i18n.ts.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/pages/Dashboard.tsx.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/pages/Workspace.tsx.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/theme/app.css.
+The file will have its original line endings in your working directory

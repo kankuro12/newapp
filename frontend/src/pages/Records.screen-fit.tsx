@@ -5,7 +5,7 @@ import { addOutline, arrowDownOutline, printOutline, returnDownBackOutline } fro
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useWorkspace } from '../lib/context';
-import { request, useData, useSave } from '../lib/api';
+import { request, useData, useSave } from '../screen-fit-data';
 import { bsDisplay, currency, format } from '../lib/money';
 import type { Doc, Page, Payment } from '../lib/types';
 import { Empty, Errors, Field, Heading, Loading, Select, Status, Submit } from '../components/ui';

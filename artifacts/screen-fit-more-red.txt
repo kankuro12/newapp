@@ -1,0 +1,573 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+stderr | src/pages/More.test.tsx > shows a small section at a time, keeps manual available and retains all tools through sections
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/pages/More.test.tsx (2 tests | 2 failed) 509ms
+   × shows a small section at a time, keeps manual available and retains all tools through sections 389ms
+   × restores linked section and prevents cashier from opening hidden tool groups 113ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/More.test.tsx > shows a small section at a time, keeps manual available and retains all tools through sections
+TestingLibraryElementError: Unable to find an accessible element with the role "link" and name "POS"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "More":
+  <h1 />
+
+  --------------------------------------------------
+  link:
+
+  Name "Basket offers":
+  <a
+    class="panel more-card"
+    href="/app/shop/basket-offers"
+  />
+
+  Name "Price lists":
+  <a
+    class="panel more-card"
+    href="/app/shop/price-lists"
+  />
+
+  Name "Quotes / orders / jobs":
+  <a
+    class="panel more-card"
+    href="/app/shop/workflows"
+  />
+
+  Name "Collections / payments":
+  <a
+    class="panel more-card"
+    href="/app/shop/collections"
+  />
+
+  Name "Follow-ups":
+  <a
+    class="panel more-card"
+    href="/app/shop/followups"
+  />
+
+  Name "Reorder stock":
+  <a
+    class="panel more-card"
+    href="/app/shop/reorders"
+  />
+
+  Name "Import CSV":
+  <a
+    class="panel more-card"
+    href="/app/shop/imports"
+  />
+
+  Name "Purchases":
+  <a
+    class="panel more-card"
+    href="/app/shop/purchases"
+  />
+
+  Name "Expenses":
+  <a
+    class="panel more-card"
+    href="/app/shop/expenses"
+  />
+
+  Name "Regular payments":
+  <a
+    class="panel more-card"
+    href="/app/shop/regular"
+  />
+
+  Name "Money":
+  <a
+    class="panel more-card"
+    href="/app/shop/money"
+  />
+
+  Name "Reports":
+  <a
+    class="panel more-card"
+    href="/app/shop/reports"
+  />
+
+  Name "Settings":
+  <a
+    class="panel more-card"
+    href="/app/shop/settings"
+  />
+
+  Name "Count stock":
+  <a
+    class="panel more-card"
+    href="/app/shop/stock/count"
+  />
+
+  Name "User manual":
+  <a
+    class="panel more-card"
+    href="/app/shop/help"
+  />
+
+  Name "My account":
+  <a
+    class="panel more-card"
+    href="/account"
+  />
+
+  Name "Switch business":
+  <a
+    class="panel more-card"
+    href="/businesses"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <h1>
+          More
+        </h1>
+      </div>
+      <div
+        class="heading-actions"
+      />
+    </div>
+    <div
+      class="more-grid"
+    >
+      <a
+        class="panel more-card"
+        href="/app/shop/basket-offers"
+      >
+        <span>
+          Basket offers
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/price-lists"
+      >
+        <span>
+          Price lists
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/workflows"
+      >
+        <span>
+          Quotes / orders / jobs
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/collections"
+      >
+        <span>
+          Collections / payments
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/followups"
+      >
+        <span>
+          Follow-ups
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/reorders"
+      >
+        <span>
+          Reorder stock
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/imports"
+      >
+        <span>
+          Import CSV
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/purchases"
+      >
+        <span>
+          Purchases
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/expenses"
+      >
+        <span>
+          Expenses
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/regular"
+      >
+        <span>
+          Regular payments
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/money"
+      >
+        <span>
+          Money
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/reports"
+      >
+        <span>
+          Reports
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/settings"
+      >
+        <span>
+          Settings
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/stock/count"
+      >
+        <span>
+          Count stock
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/help"
+      >
+        <span>
+          User manual
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/account"
+      >
+        My account
+      </a>
+      <a
+        class="panel more-card"
+        href="/businesses"
+      >
+        Switch business
+      </a>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/More.test.tsx:17:17
+     15|   render(page());
+     16|   expect(screen.getByRole('link', {name:'User manual'})).toHaveAttribu…
+     17|   expect(screen.getByRole('link', {name:'POS'})).toHaveAttribute('href…
+       |                 ^
+     18|   expect(screen.queryByRole('link', {name:'Purchases'})).not.toBeInThe…
+     19|   fireEvent.click(screen.getByRole('button', {name:'Money tools'}));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/pages/More.test.tsx > restores linked section and prevents cashier from opening hidden tool groups
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Stock tools"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "More":
+  <h1 />
+
+  --------------------------------------------------
+  link:
+
+  Name "Basket offers":
+  <a
+    class="panel more-card"
+    href="/app/shop/basket-offers"
+  />
+
+  Name "Price lists":
+  <a
+    class="panel more-card"
+    href="/app/shop/price-lists"
+  />
+
+  Name "Quotes / orders / jobs":
+  <a
+    class="panel more-card"
+    href="/app/shop/workflows"
+  />
+
+  Name "Collections / payments":
+  <a
+    class="panel more-card"
+    href="/app/shop/collections"
+  />
+
+  Name "Follow-ups":
+  <a
+    class="panel more-card"
+    href="/app/shop/followups"
+  />
+
+  Name "Reorder stock":
+  <a
+    class="panel more-card"
+    href="/app/shop/reorders"
+  />
+
+  Name "Import CSV":
+  <a
+    class="panel more-card"
+    href="/app/shop/imports"
+  />
+
+  Name "Purchases":
+  <a
+    class="panel more-card"
+    href="/app/shop/purchases"
+  />
+
+  Name "Expenses":
+  <a
+    class="panel more-card"
+    href="/app/shop/expenses"
+  />
+
+  Name "Regular payments":
+  <a
+    class="panel more-card"
+    href="/app/shop/regular"
+  />
+
+  Name "Money":
+  <a
+    class="panel more-card"
+    href="/app/shop/money"
+  />
+
+  Name "Reports":
+  <a
+    class="panel more-card"
+    href="/app/shop/reports"
+  />
+
+  Name "Settings":
+  <a
+    class="panel more-card"
+    href="/app/shop/settings"
+  />
+
+  Name "User manual":
+  <a
+    class="panel more-card"
+    href="/app/shop/help"
+  />
+
+  Name "My account":
+  <a
+    class="panel more-card"
+    href="/account"
+  />
+
+  Name "Switch business":
+  <a
+    class="panel more-card"
+    href="/businesses"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <h1>
+          More
+        </h1>
+      </div>
+      <div
+        class="heading-actions"
+      />
+    </div>
+    <div
+      class="more-grid"
+    >
+      <a
+        class="panel more-card"
+        href="/app/shop/basket-offers"
+      >
+        <span>
+          Basket offers
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/price-lists"
+      >
+        <span>
+          Price lists
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/workflows"
+      >
+        <span>
+          Quotes / orders / jobs
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/collections"
+      >
+        <span>
+          Collections / payments
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/followups"
+      >
+        <span>
+          Follow-ups
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/reorders"
+      >
+        <span>
+          Reorder stock
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/imports"
+      >
+        <span>
+          Import CSV
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/purchases"
+      >
+        <span>
+          Purchases
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/expenses"
+      >
+        <span>
+          Expenses
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/regular"
+      >
+        <span>
+          Regular payments
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/money"
+      >
+        <span>
+          Money
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/reports"
+      >
+        <span>
+          Reports
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/settings"
+      >
+        <span>
+          Settings
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/app/shop/help"
+      >
+        <span>
+          User manual
+        </span>
+      </a>
+      <a
+        class="panel more-card"
+        href="/account"
+      >
+        My account
+      </a>
+      <a
+        class="panel more-card"
+        href="/businesses"
+      >
+        Switch business
+      </a>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/More.test.tsx:39:17
+     37| it('restores linked section and prevents cashier from opening hidden t…
+     38|   const view=render(page('accountant','/app/shop/more?section=stock'));
+     39|   expect(screen.getByRole('button', {name:'Stock tools'})).toHaveAttri…
+       |                 ^
+     40|   expect(screen.getByRole('link', {name:'Reorder stock'})).toBeInTheDo…
+     41|   expect(screen.queryByRole('link', {name:'Count stock'})).not.toBeInT…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  15:13:26
+   Duration  6.14s (transform 227ms, setup 798ms, import 640ms, tests 509ms, environment 3.40s)
+

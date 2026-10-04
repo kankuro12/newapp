@@ -295,3 +295,36 @@ prints, new terminal races and revoked replay cases remain required. C1 remains
 in progress; C2–C6 and D–H remain in scope. Guide edition3 embeds within the app
 and adds separate country/required phone signup instructions; billing-first
 still appears pending until its controls ship.
+
+## C1b security and packages first pass — 4 October 2026
+
+Verified again from full official pages: Zoho supports multiple packages and
+separate packed/shipped/delivered phases, manual carrier/tracking and marking
+manual delivery undelivered after an error:
+[packages](https://www.zoho.com/in/inventory/help/sales-orders/packages.html),
+[shipments](https://www.zoho.com/in/inventory/help/sales-orders/shipments.html).
+Its [sales-return guide](https://www.zoho.com/us/inventory/help/sales-returns/sales-returns-overview.html)
+also separates return authorization, actual receipt, credit note and refund;
+credit-only quantities are not received into physical stock. These are workflow
+facts. Our held sales and transit journals are local bookkeeping policy, not
+claims about vendor journal implementations. Odoo18 returns HTML failed during
+this follow-up and is not claimed as fully verified here.
+
+Our new backend first pass now reviews/records immutable packages, manual
+shipping, actual delivery, delivery undo and source-dependent cancellation.
+Stock moves once at shipment into transit; delivery recognizes agreed sales
+base and original shipped cost. Package/source versions bind review; carrier
+changes require a new review. Progress distinguishes packed, shipped and
+confirmed quantities. Unshipped packing does not protect the stock pool from
+other daily sales. Privacy, membership/parent/source replay, foreign branches,
+multiple packages, pennies, repeated undo and actual-return dependencies are
+covered. Source-bill ownership replay discrepancy was reproduced and fixed.
+
+Actual checks: direct/legacy regression34/1031; package security12/492. Full
+backend passed174/4409 (506539ms), c1b5-backend-full.txt. Existing in-app guide correctly
+keeps billing-first/packages unavailable until Ionic controls and full gates
+ship. Before exposure, implement real undelivered-shipment returns without
+pretending goods reached the customer, package terminal races, remaining
+zero/mixed-source gates, compact source-aware UI and complete backorder/slip
+printing. This is progress on C1; all C2–C6 and D–H remain required. Manual
+provider integrations, native releases and statutory gates remain unverified.

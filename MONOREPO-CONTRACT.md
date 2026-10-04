@@ -44,7 +44,8 @@ journal/DR-CR input is prohibited. Balanced journals remain internal effects.
 | Auth/profile/verification | frontend/src/pages/Auth.tsx |
 | Business selection/invitation | frontend/src/pages/Businesses.tsx |
 | Desktop/mobile shell | frontend/src/pages/Workspace.tsx, frontend/src/App.tsx |
-| Dashboard | frontend/src/pages/Dashboard.tsx |
+| Dashboard sections and paged previews | frontend/src/pages/Dashboard.tsx |
+| More tool sections and in-app manual | frontend/src/pages/More.tsx, UserManual.tsx |
 | Contacts/items | frontend/src/pages/Masters.tsx |
 | Sale/purchase/expense editor | frontend/src/pages/DocumentForm.tsx |
 | Quotes/orders/jobs | frontend/src/pages/Workflows.tsx, shared DocumentForm workflow mode |
@@ -145,7 +146,7 @@ require their own milestone rather than speculative mobile scaffolding.
 
 ## Evidence and release gates
 
-Actual checks in BUILD-PROGRESS.md: backend full151/3599 before final C1b rounding correction, final targeted33/938 after correction, frontend71 tests,
+Actual checks in BUILD-PROGRESS.md: backend full174/4409 after package/security changes, frontend76 tests/30 files after compact Home/More,
 build/lint/formatting, live cookie-CSRF browser posting, mobile/desktop layout,
 production assets-only offline PWA and separate-process MariaDB locking/FK test.
 Latest C1a mobile visual QA uses isolated posting-disabled fixtures; live C1a

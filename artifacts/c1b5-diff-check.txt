@@ -1,0 +1,8 @@
+warning: LF will be replaced by CRLF in BUILD-PROGRESS.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in C1B-IMPLEMENTATION.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in COMPETITOR-RESEARCH.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in NICHE-FEATURES.md.
+The file will have its original line endings in your working directory

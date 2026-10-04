@@ -1,0 +1,1 @@
+src/pages/Dashboard.screen-fit.tsx(14,77): error TS2554: Expected 0 arguments, but got 2.

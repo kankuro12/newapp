@@ -1,0 +1,181 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+stderr | src/pages/Dashboard.test.tsx > opens daily actions first and shows exact balances only when selected
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/pages/Dashboard.test.tsx (3 tests | 1 failed) 877ms
+   × opens daily actions first and shows exact balances only when selected 543ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/Dashboard.test.tsx > opens daily actions first and shows exact balances only when selected
+TestingLibraryElementError: Unable to find an element with the text: NPR 1,200.50. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="home-tools"
+    >
+      <div
+        class="page-heading"
+      >
+        <div>
+          <h1>
+            Home
+          </h1>
+          <p>
+            2083-01-03 BS
+          </p>
+        </div>
+        <div
+          class="heading-actions"
+        >
+          <button>
+            New sale
+          </button>
+        </div>
+      </div>
+      <nav
+        aria-label="Home sections"
+        class="home-sections"
+      >
+        <button
+          aria-pressed="false"
+          type="button"
+        >
+          Daily actions
+        </button>
+        <button
+          aria-pressed="true"
+          type="button"
+        >
+          Balances
+        </button>
+        <button
+          aria-pressed="false"
+          type="button"
+        >
+          Recent activity
+        </button>
+        <button
+          aria-pressed="false"
+          type="button"
+        >
+          Low stock
+        </button>
+      </nav>
+      <section
+        aria-label="Balances"
+        role="region"
+      >
+        <div
+          class="metrics"
+        >
+          <div
+            class="metric panel"
+          >
+            <div
+              class="metric-top"
+            >
+              <span>
+                Today’s sales
+              </span>
+              <span
+                class="icon-chip green"
+              />
+            </div>
+            <strong>
+              रु 1,200.50
+            </strong>
+            <small>
+              Sales after returns, before tax
+            </small>
+          </div>
+          <div
+            class="metric panel"
+          >
+            <div
+              class="metric-top"
+            >
+              <span>
+                Cash & bank
+              </span>
+              <span
+                class="icon-chip blue"
+              />
+            </div>
+            <strong>
+              रु 3,400.99
+            </strong>
+            <small>
+              Money available in your business
+            </small>
+          </div>
+          <div
+            class="metric panel"
+          >
+            <div
+              class="metric-top"
+            >
+              <span>
+                Customers owe
+              </span>
+              <span
+                class="icon-chip orange"
+              />
+            </div>
+            <strong>
+              रु 100.25
+            </strong>
+            <small>
+              Money you still need to collect
+            </small>
+          </div>
+          <div
+            class="metric panel"
+          >
+            <div
+              class="metric-top"
+            >
+              <span>
+                Still to pay
+              </span>
+              <span
+                class="icon-chip purple"
+              />
+            </div>
+            <strong>
+              रु 240.00
+            </strong>
+            <small>
+              Supplier bills still outstanding
+            </small>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/Dashboard.test.tsx:23:17
+     21|   fireEvent.click(screen.getByRole('button',{name:'Balances'}));
+     22|   expect(screen.getByText('Today’s sales')).toBeInTheDocument();
+     23|   expect(screen.getByText('NPR 1,200.50')).toBeInTheDocument();
+       |                 ^
+     24|   expect(screen.queryByRole('link',{name:'Pay party'})).not.toBeInTheD…
+     25| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  15:27:17
+   Duration  4.09s (transform 348ms, setup 410ms, import 636ms, tests 877ms, environment 1.80s)
+

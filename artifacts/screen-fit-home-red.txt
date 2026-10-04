@@ -1,0 +1,1541 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+stderr | src/pages/Dashboard.test.tsx > opens daily actions first and shows exact balances only when selected
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/pages/Dashboard.test.tsx (3 tests | 3 failed) 1062ms
+   × opens daily actions first and shows exact balances only when selected 575ms
+   × pages every recent record and stock alert, preserving page when switching sections 274ms
+   × rejects cashier balance section while retaining sales and stock views 205ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/Dashboard.test.tsx > opens daily actions first and shows exact balances only when selected
+Error: expect(element).not.toBeInTheDocument()
+
+expected document not to contain element, found <span>
+  Today’s sales
+</span> instead
+ ❯ src/pages/Dashboard.test.tsx:19:51
+     17|   render(page());
+     18|   expect(screen.getByRole('link',{name:'Pay party'})).toHaveAttribute(…
+     19|   expect(screen.queryByText('Today’s sales')).not.toBeInTheDocument();
+       |                                                   ^
+     20|   expect(screen.queryByText('Customer 1')).not.toBeInTheDocument();
+     21|   fireEvent.click(screen.getByRole('button',{name:'Balances'}));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/pages/Dashboard.test.tsx > pages every recent record and stock alert, preserving page when switching sections
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Recent activity"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Home":
+  <h1 />
+
+  Name "A little action goes a long way":
+  <h2 />
+
+  Name "Recent activity":
+  <h2 />
+
+  Name "Low stock":
+  <h2 />
+
+  Name "Little expenses add up.":
+  <h3 />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  button:
+
+  Name "New sale":
+  <button />
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  --------------------------------------------------
+  link:
+
+  Name "New sale":
+  <a
+    class="quick-action panel"
+    href="/app/shop/documents/sale/new"
+  />
+
+  Name "New purchase":
+  <a
+    class="quick-action panel"
+    href="/app/shop/documents/purchase/new"
+  />
+
+  Name "Receive money":
+  <a
+    class="quick-action panel"
+    href="/app/shop/money/receipt/new"
+  />
+
+  Name "Pay party":
+  <a
+    class="quick-action panel"
+    href="/app/shop/money/supplier_payment/new"
+  />
+
+  Name "See all":
+  <a
+    href="/app/shop/sales"
+  />
+
+  Name "Customer 1 SALE-1 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/1"
+  />
+
+  Name "Customer 2 SALE-2 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/2"
+  />
+
+  Name "Customer 3 SALE-3 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/3"
+  />
+
+  Name "Customer 4 SALE-4 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/4"
+  />
+
+  Name "Customer 5 SALE-5 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/5"
+  />
+
+  Name "Customer 6 SALE-6 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/6"
+  />
+
+  Name "Customer 7 SALE-7 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/7"
+  />
+
+  Name "Item 1 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/1"
+  />
+
+  Name "Item 2 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/2"
+  />
+
+  Name "Item 3 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/3"
+  />
+
+  Name "Item 4 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/4"
+  />
+
+  Name "Item 5 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/5"
+  />
+
+  Name "Item 6 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/6"
+  />
+
+  Name "Item 7 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/7"
+  />
+
+  Name "Record expense":
+  <a
+    href="/app/shop/documents/expense/new"
+  />
+
+  --------------------------------------------------
+  complementary:
+
+  Name "":
+  <aside />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <span
+          class="eyebrow"
+        >
+          YOUR BUSINESS AT A GLANCE
+        </span>
+        <h1>
+          Home
+        </h1>
+        <p>
+          2083-01-03 BS · A good day to keep things in order.
+        </p>
+      </div>
+      <div
+        class="heading-actions"
+      >
+        <button>
+          New sale
+        </button>
+      </div>
+    </div>
+    <div
+      class="metrics"
+    >
+      <div
+        class="metric panel"
+      >
+        <div
+          class="metric-top"
+        >
+          <span>
+            Today’s sales
+          </span>
+          <span
+            class="icon-chip green"
+          />
+        </div>
+        <strong>
+          रु 1,200.50
+        </strong>
+        <small>
+          Sales after returns, before tax
+        </small>
+      </div>
+      <div
+        class="metric panel"
+      >
+        <div
+          class="metric-top"
+        >
+          <span>
+            Cash & bank
+          </span>
+          <span
+            class="icon-chip blue"
+          />
+        </div>
+        <strong>
+          रु 3,400.99
+        </strong>
+        <small>
+          Money available in your business
+        </small>
+      </div>
+      <div
+        class="metric panel"
+      >
+        <div
+          class="metric-top"
+        >
+          <span>
+            Customers owe
+          </span>
+          <span
+            class="icon-chip orange"
+          />
+        </div>
+        <strong>
+          रु 100.25
+        </strong>
+        <small>
+          Money you still need to collect
+        </small>
+      </div>
+      <div
+        class="metric panel"
+      >
+        <div
+          class="metric-top"
+        >
+          <span>
+            Still to pay
+          </span>
+          <span
+            class="icon-chip purple"
+          />
+        </div>
+        <strong>
+          रु 240.00
+        </strong>
+        <small>
+          Supplier bills still outstanding
+        </small>
+      </div>
+    </div>
+    <section
+      class="section"
+    >
+      <div
+        class="section-title"
+      >
+        <h2>
+          A little action goes a long way
+        </h2>
+        <span
+          class="subtle"
+        >
+          Everyday essentials
+        </span>
+      </div>
+      <div
+        class="quick-actions"
+      >
+        <a
+          class="quick-action panel"
+          href="/app/shop/documents/sale/new"
+        >
+          <span
+            class="icon-chip green"
+          />
+          <span>
+            New sale
+          </span>
+        </a>
+        <a
+          class="quick-action panel"
+          href="/app/shop/documents/purchase/new"
+        >
+          <span
+            class="icon-chip blue"
+          />
+          <span>
+            New purchase
+          </span>
+        </a>
+        <a
+          class="quick-action panel"
+          href="/app/shop/money/receipt/new"
+        >
+          <span
+            class="icon-chip orange"
+          />
+          <span>
+            Receive money
+          </span>
+        </a>
+        <a
+          class="quick-action panel"
+          href="/app/shop/money/supplier_payment/new"
+        >
+          <span
+            class="icon-chip purple"
+          />
+          <span>
+            Pay party
+          </span>
+        </a>
+      </div>
+    </section>
+    <div
+      class="dashboard-columns"
+    >
+      <section
+        class="panel activity-panel"
+      >
+        <div
+          class="section-title"
+        >
+          <h2>
+            Recent activity
+          </h2>
+          <a
+            href="/app/shop/sales"
+          >
+            See all
+             
+          </a>
+        </div>
+        <div
+          class="activity-list"
+        >
+          <a
+            class="activity-row"
+            href="/app/shop/document/1"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 1
+              </strong>
+              <small>
+                SALE-1
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+          <a
+            class="activity-row"
+            href="/app/shop/document/2"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 2
+              </strong>
+              <small>
+                SALE-2
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+          <a
+            class="activity-row"
+            href="/app/shop/document/3"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 3
+              </strong>
+              <small>
+                SALE-3
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+          <a
+            class="activity-row"
+            href="/app/shop/document/4"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 4
+              </strong>
+              <small>
+                SALE-4
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+          <a
+            class="activity-row"
+            href="/app/shop/document/5"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 5
+              </strong>
+              <small>
+                SALE-5
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+          <a
+            class="activity-row"
+            href="/app/shop/document/6"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 6
+              </strong>
+              <small>
+                SALE-6
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+          <a
+            class="activity-row"
+            href="/app/shop/document/7"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 7
+              </strong>
+              <small>
+                SALE-7
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+        </div>
+      </section>
+      <aside>
+        <section
+          class="panel stock-attention"
+        >
+          <div
+            class="section-title"
+          >
+            <h2>
+              Low stock
+            </h2>
+            <span
+              class="count-badge"
+            >
+              7
+            </span>
+          </div>
+          <a
+            class="stock-row"
+            href="/app/shop/items/1"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 1
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+          <a
+            class="stock-row"
+            href="/app/shop/items/2"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 2
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+          <a
+            class="stock-row"
+            href="/app/shop/items/3"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 3
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+          <a
+            class="stock-row"
+            href="/app/shop/items/4"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 4
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+          <a
+            class="stock-row"
+            href="/app/shop/items/5"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 5
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+          <a
+            class="stock-row"
+            href="/app/shop/items/6"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 6
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+          <a
+            class="stock-row"
+            href="/app/shop/items/7"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 7
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+        </section>
+        <section
+          class="daily-note"
+        >
+          <span
+            class="eyebrow"
+          >
+            KEEP THE SMALL THINGS CLEAR
+          </span>
+          <h3>
+            Little expenses add up.
+          </h3>
+          <p>
+            Record today’s expenses while they’re fresh in your mind.
+          </p>
+          <a
+            href="/app/shop/documents/expense/new"
+          >
+            Record expense
+             
+          </a>
+        </section>
+      </aside>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/Dashboard.test.tsx:29:26
+     27| it('pages every recent record and stock alert, preserving page when sw…
+     28|   render(page());
+     29|   fireEvent.click(screen.getByRole('button',{name:'Recent activity'}));
+       |                          ^
+     30|   expect(screen.getByRole('link',{name:/Customer 1/})).toHaveAttribute…
+     31|   expect(screen.queryByText('Customer 4')).not.toBeInTheDocument();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/pages/Dashboard.test.tsx > rejects cashier balance section while retaining sales and stock views
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Daily actions"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Home":
+  <h1 />
+
+  Name "A little action goes a long way":
+  <h2 />
+
+  Name "Recent activity":
+  <h2 />
+
+  Name "Low stock":
+  <h2 />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  button:
+
+  Name "New sale":
+  <button />
+
+  --------------------------------------------------
+  link:
+
+  Name "New sale":
+  <a
+    class="quick-action panel"
+    href="/app/shop/documents/sale/new"
+  />
+
+  Name "See all":
+  <a
+    href="/app/shop/sales"
+  />
+
+  Name "Customer 1 SALE-1 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/1"
+  />
+
+  Name "Customer 2 SALE-2 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/2"
+  />
+
+  Name "Customer 3 SALE-3 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/3"
+  />
+
+  Name "Customer 4 SALE-4 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/4"
+  />
+
+  Name "Customer 5 SALE-5 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/5"
+  />
+
+  Name "Customer 6 SALE-6 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/6"
+  />
+
+  Name "Customer 7 SALE-7 · 2083-01-03 रु 100.00 posted":
+  <a
+    class="activity-row"
+    href="/app/shop/document/7"
+  />
+
+  Name "Item 1 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/1"
+  />
+
+  Name "Item 2 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/2"
+  />
+
+  Name "Item 3 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/3"
+  />
+
+  Name "Item 4 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/4"
+  />
+
+  Name "Item 5 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/5"
+  />
+
+  Name "Item 6 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/6"
+  />
+
+  Name "Item 7 1.250 kg left":
+  <a
+    class="stock-row"
+    href="/app/shop/items/7"
+  />
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  --------------------------------------------------
+  complementary:
+
+  Name "":
+  <aside />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <span
+          class="eyebrow"
+        >
+          YOUR BUSINESS AT A GLANCE
+        </span>
+        <h1>
+          Home
+        </h1>
+        <p>
+          2083-01-03 BS · A good day to keep things in order.
+        </p>
+      </div>
+      <div
+        class="heading-actions"
+      >
+        <button>
+          New sale
+        </button>
+      </div>
+    </div>
+    <section
+      class="section"
+    >
+      <div
+        class="section-title"
+      >
+        <h2>
+          A little action goes a long way
+        </h2>
+        <span
+          class="subtle"
+        >
+          Everyday essentials
+        </span>
+      </div>
+      <div
+        class="quick-actions"
+      >
+        <a
+          class="quick-action panel"
+          href="/app/shop/documents/sale/new"
+        >
+          <span
+            class="icon-chip green"
+          />
+          <span>
+            New sale
+          </span>
+        </a>
+      </div>
+    </section>
+    <div
+      class="dashboard-columns"
+    >
+      <section
+        class="panel activity-panel"
+      >
+        <div
+          class="section-title"
+        >
+          <h2>
+            Recent activity
+          </h2>
+          <a
+            href="/app/shop/sales"
+          >
+            See all
+             
+          </a>
+        </div>
+        <div
+          class="activity-list"
+        >
+          <a
+            class="activity-row"
+            href="/app/shop/document/1"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 1
+              </strong>
+              <small>
+                SALE-1
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+          <a
+            class="activity-row"
+            href="/app/shop/document/2"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 2
+              </strong>
+              <small>
+                SALE-2
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+          <a
+            class="activity-row"
+            href="/app/shop/document/3"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 3
+              </strong>
+              <small>
+                SALE-3
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+          <a
+            class="activity-row"
+            href="/app/shop/document/4"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 4
+              </strong>
+              <small>
+                SALE-4
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+          <a
+            class="activity-row"
+            href="/app/shop/document/5"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 5
+              </strong>
+              <small>
+                SALE-5
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+          <a
+            class="activity-row"
+            href="/app/shop/document/6"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 6
+              </strong>
+              <small>
+                SALE-6
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+          <a
+            class="activity-row"
+            href="/app/shop/document/7"
+          >
+            <span
+              class="icon-chip green"
+            />
+            <div>
+              <strong>
+                Customer 7
+              </strong>
+              <small>
+                SALE-7
+                 · 
+                2083-01-03
+              </small>
+            </div>
+            <div
+              class="activity-amount"
+            >
+              <strong>
+                रु 100.00
+              </strong>
+              <span
+                class="badge posted"
+              >
+                posted
+              </span>
+            </div>
+          </a>
+        </div>
+      </section>
+      <aside>
+        <section
+          class="panel stock-attention"
+        >
+          <div
+            class="section-title"
+          >
+            <h2>
+              Low stock
+            </h2>
+            <span
+              class="count-badge"
+            >
+              7
+            </span>
+          </div>
+          <a
+            class="stock-row"
+            href="/app/shop/items/1"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 1
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+          <a
+            class="stock-row"
+            href="/app/shop/items/2"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 2
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+          <a
+            class="stock-row"
+            href="/app/shop/items/3"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 3
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+          <a
+            class="stock-row"
+            href="/app/shop/items/4"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 4
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+          <a
+            class="stock-row"
+            href="/app/shop/items/5"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 5
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+          <a
+            class="stock-row"
+            href="/app/shop/items/6"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 6
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+          <a
+            class="stock-row"
+            href="/app/shop/items/7"
+          >
+            <span
+              class="icon-chip orange"
+            />
+            <div>
+              <strong>
+                Item 7
+              </strong>
+              <small>
+                1.250
+                 
+                kg
+                 left
+              </small>
+            </div>
+          </a>
+        </section>
+      </aside>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/Dashboard.test.tsx:50:17
+     48|   render(page('cashier','/app/shop?view=balances'));
+     49|   expect(screen.queryByRole('button',{name:'Balances'})).not.toBeInThe…
+     50|   expect(screen.getByRole('button',{name:'Daily actions'})).toHaveAttr…
+       |                 ^
+     51|   expect(screen.queryByRole('link',{name:'Pay party'})).not.toBeInTheD…
+     52|   expect(screen.queryByText('Cash & bank')).not.toBeInTheDocument();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  15:25:28
+   Duration  4.17s (transform 225ms, setup 410ms, import 526ms, tests 1.06s, environment 1.80s)
+

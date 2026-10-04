@@ -1,0 +1,515 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+stderr | src/pages/MoneyList.test.tsx > keeps every money action reachable through small groups and history separate
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/pages/MoneyList.test.tsx (3 tests | 3 failed) 885ms
+   × keeps every money action reachable through small groups and history separate 456ms
+   × retains cancellation date/reason payload and keeps context during correction 229ms
+   × keeps uncertain correction locked and retries its original action 192ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/MoneyList.test.tsx > keeps every money action reachable through small groups and history separate
+Error: expect(element).not.toBeInTheDocument()
+
+expected document not to contain element, found <strong>
+  PAY-
+  9
+</strong> instead
+ ❯ src/pages/MoneyList.test.tsx:18:43
+     16|   expect(screen.getByRole('link',{name:'Receive money'})).toHaveAttrib…
+     17|   expect(screen.getByRole('link',{name:'Pay party'})).toHaveAttribute(…
+     18|   expect(screen.queryByText('PAY-9')).not.toBeInTheDocument();
+       |                                           ^
+     19|   fireEvent.click(screen.getByRole('button',{name:'Transfers / owner m…
+     20|   expect(screen.getByRole('link',{name:'Move money'})).toHaveAttribute…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/pages/MoneyList.test.tsx > retains cancellation date/reason payload and keeps context during correction
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "History"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Money":
+  <h1 />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  link:
+
+  Name "Receive money":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/receipt/new"
+  />
+
+  Name "Pay party":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/supplier_payment/new"
+  />
+
+  Name "Move money":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/transfer/new"
+  />
+
+  Name "Add my money":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/contribution/new"
+  />
+
+  Name "Personal withdrawal":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/withdrawal/new"
+  />
+
+  Name "Customer refund":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/customer_refund/new"
+  />
+
+  Name "Payee refund":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/supplier_refund/new"
+  />
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  --------------------------------------------------
+  button:
+
+  Name "Cancel":
+  <button
+    color="danger"
+    fill="clear"
+    type="button"
+  />
+
+  Name "Previous":
+  <button
+    disabled=""
+    fill="clear"
+    type="button"
+  />
+
+  Name "Next":
+  <button
+    disabled=""
+    fill="clear"
+    type="button"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <span
+          class="eyebrow"
+        >
+          MONEY IN. MONEY OUT.
+        </span>
+        <h1>
+          Money
+        </h1>
+        <p>
+          Payments change balances. They don’t change your profit.
+        </p>
+      </div>
+      <div
+        class="heading-actions"
+      />
+    </div>
+    <div
+      class="money-actions"
+    >
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/receipt/new"
+      >
+        Receive money
+      </a>
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/supplier_payment/new"
+      >
+        Pay party
+      </a>
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/transfer/new"
+      >
+        Move money
+      </a>
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/contribution/new"
+      >
+        Add my money
+      </a>
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/withdrawal/new"
+      >
+        Personal withdrawal
+      </a>
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/customer_refund/new"
+      >
+        Customer refund
+      </a>
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/supplier_refund/new"
+      >
+        Payee refund
+      </a>
+    </div>
+    <div
+      class="panel"
+    >
+      <div
+        class="mini-row"
+      >
+        <div>
+          <strong>
+            PAY-
+            9
+          </strong>
+          <small>
+            receipt
+             · 
+            2083-01-03
+             BS
+          </small>
+        </div>
+        <strong>
+          रु 100.25
+        </strong>
+        <span
+          class="badge posted"
+        >
+          posted
+        </span>
+        <button
+          color="danger"
+          fill="clear"
+          type="button"
+        >
+          Cancel
+        </button>
+      </div>
+      <div
+        class="pagination"
+      >
+        <button
+          disabled=""
+          fill="clear"
+          type="button"
+        >
+          Previous
+        </button>
+        <span>
+          1
+           / 
+          1
+        </span>
+        <button
+          disabled=""
+          fill="clear"
+          type="button"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/MoneyList.test.tsx:33:41
+     31|
+     32| it('retains cancellation date/reason payload and keeps context during …
+     33|   render(page());fireEvent.click(screen.getByRole('button',{name:'Hist…
+       |                                         ^
+     34|   fireEvent.click(screen.getByRole('button',{name:'Cancel'}));
+     35|   expect(screen.getByRole('button',{name:'Receive / pay'})).toBeDisabl…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/pages/MoneyList.test.tsx > keeps uncertain correction locked and retries its original action
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "History"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Money":
+  <h1 />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  link:
+
+  Name "Receive money":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/receipt/new"
+  />
+
+  Name "Pay party":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/supplier_payment/new"
+  />
+
+  Name "Move money":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/transfer/new"
+  />
+
+  Name "Add my money":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/contribution/new"
+  />
+
+  Name "Personal withdrawal":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/withdrawal/new"
+  />
+
+  Name "Customer refund":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/customer_refund/new"
+  />
+
+  Name "Payee refund":
+  <a
+    class="panel quick-action"
+    href="/app/shop/money/supplier_refund/new"
+  />
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  --------------------------------------------------
+  button:
+
+  Name "Cancel":
+  <button
+    color="danger"
+    fill="clear"
+    type="button"
+  />
+
+  Name "Previous":
+  <button
+    disabled=""
+    fill="clear"
+    type="button"
+  />
+
+  Name "Next":
+  <button
+    disabled=""
+    fill="clear"
+    type="button"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <span
+          class="eyebrow"
+        >
+          MONEY IN. MONEY OUT.
+        </span>
+        <h1>
+          Money
+        </h1>
+        <p>
+          Payments change balances. They don’t change your profit.
+        </p>
+      </div>
+      <div
+        class="heading-actions"
+      />
+    </div>
+    <div
+      class="money-actions"
+    >
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/receipt/new"
+      >
+        Receive money
+      </a>
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/supplier_payment/new"
+      >
+        Pay party
+      </a>
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/transfer/new"
+      >
+        Move money
+      </a>
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/contribution/new"
+      >
+        Add my money
+      </a>
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/withdrawal/new"
+      >
+        Personal withdrawal
+      </a>
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/customer_refund/new"
+      >
+        Customer refund
+      </a>
+      <a
+        class="panel quick-action"
+        href="/app/shop/money/supplier_refund/new"
+      >
+        Payee refund
+      </a>
+    </div>
+    <div
+      class="panel"
+    >
+      <div
+        class="mini-row"
+      >
+        <div>
+          <strong>
+            PAY-
+            9
+          </strong>
+          <small>
+            receipt
+             · 
+            2083-01-03
+             BS
+          </small>
+        </div>
+        <strong>
+          रु 100.25
+        </strong>
+        <span
+          class="badge posted"
+        >
+          posted
+        </span>
+        <button
+          color="danger"
+          fill="clear"
+          type="button"
+        >
+          Cancel
+        </button>
+      </div>
+      <div
+        class="pagination"
+      >
+        <button
+          disabled=""
+          fill="clear"
+          type="button"
+        >
+          Previous
+        </button>
+        <span>
+          1
+           / 
+          1
+        </span>
+        <button
+          disabled=""
+          fill="clear"
+          type="button"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/MoneyList.test.tsx:42:52
+     40|
+     41| it('keeps uncertain correction locked and retries its original action'…
+     42|   const view=render(page());fireEvent.click(screen.getByRole('button',…
+       |                                                    ^
+     43|   state.uncertain=true;view.rerender(page());
+     44|   expect(screen.getByLabelText('Reason')).toBeDisabled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  15:44:17
+   Duration  6.34s (transform 384ms, setup 438ms, import 788ms, tests 885ms, environment 2.47s)
+

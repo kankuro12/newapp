@@ -333,4 +333,25 @@ Object.assign(ne, {
   'Quantity record only. Billing and payment are recorded separately.':'परिमाणको विवरण मात्र। बिल र भुक्तानी छुट्टै सुरक्षित गरिन्छ।',
   'Received by / date / signature':'बुझ्ने व्यक्ति / मिति / हस्ताक्षर',
 });
+Object.assign(ne, {'Sales tools':'बिक्रीका उपकरण', 'Money tools':'पैसाका उपकरण', 'Stock tools':'मौज्दातका उपकरण', 'Business tools':'व्यवसायका उपकरण', 'Tool sections':'उपकरणका खण्डहरू', 'My account':'मेरो खाता'});
+Object.assign(ne, {
+  'Daily actions':'दैनिक काम', 'Balances':'मौज्दात र बाँकी', 'Home sections':'गृहका खण्डहरू',
+  'Receive / pay':'लिनुहोस् / तिर्नुहोस्', 'Transfers / owner money':'रकम सार्ने / मालिकको रकम', 'Refunds':'रकम फिर्ता', 'Choose what happened.':'भएको कारोबार छान्नुहोस्।',
+  'Close correction':'सच्याउने काम बन्द', 'Confirm cancellation':'रद्द भएको पुष्टि गर्नुहोस्',
+  'Payee':'पाउने पक्ष', 'Schedule':'तालिका', 'Additional setup':'थप सेटिङ',
+  'History':'इतिहास',
+  'Paused':'रोकिएको',
+  'Choose existing party':'पहिलेको पक्ष छान्नुहोस्', 'Payment label':'भुक्तानीको नाम',
+  'First expense date (BS)':'पहिलो खर्च मिति (वि.सं.)', 'Following months: day':'अर्का महिनाको दिन', 'Month end':'महिनाको अन्त्य',
+  'Unpaid dues only. Pay separately.':'बाँकी मात्र लेखिन्छ। भुक्तानी छुट्टै गर्नुहोस्।', 'Salary, rent and regular bills.':'तलब, भाडा र नियमित खर्च।',
+  'Party can have several roles. Add matching role in Parties.':'पक्षका धेरै भूमिका हुन सक्छन्। पक्षहरूमा मिल्ने भूमिका थप्नुहोस्।',
+  'Monthly BS dates. Short months use last day; amount remains full monthly amount.':'मासिक वि.सं. मिति। छोटो महिनामा अन्तिम दिन प्रयोग हुन्छ; रकम पूरा मासिक रकम नै रहन्छ।',
+  'Automatic action records unpaid expense on due date. Money leaves cash/bank only when you pay. Pausing keeps existing dues; resuming catches up missed months.':'स्वतः कामले तोकिएको दिन नतिरेको खर्च लेख्छ। पैसा भुक्तानी गर्दा मात्र खाताबाट जान्छ। रोक्दा पुरानो बाँकी रहन्छ; फेरि सुरु गर्दा छुटेका महिनाको खर्च लेखिन्छ।',
+  'Amount changes affect future unrecorded months. Recorded expenses keep original amount.':'रकम बदल्दा लेख्न बाँकी आगामी महिनामा लागू हुन्छ। लेखिएको खर्चमा मूल रकम रहन्छ।',
+  'Previous':'अघिल्लो', 'Next':'अर्को', 'No stock alerts.':'कम मौज्दातको सूचना छैन।',
+  'Sales after returns, before tax':'फिर्ता घटाएर, करअघिको बिक्री',
+  'Money available in your business':'व्यवसायमा उपलब्ध रकम',
+  'Money you still need to collect':'उठाउन बाँकी रकम',
+  'Supplier bills still outstanding':'आपूर्तिकर्तालाई तिर्न बाँकी बिल',
+});
 export const translator = (locale: 'en' | 'ne') => (text: string) => locale === 'ne' ? ne[text] || text : text;
