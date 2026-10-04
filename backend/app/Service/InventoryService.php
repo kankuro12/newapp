@@ -82,7 +82,7 @@ class InventoryService
         $pool = $this->pool((int) $old->item_id);
         abort_unless($pool->qty_milli == $old->qty_after_milli && $pool->value_paisa == $old->value_after_paisa, 409, 'Stock changed; reverse later activity first.');
 
-        return $this->movement($actor, (int) $old->item_id, $date, -(int) $old->qty_delta_milli, -(int) $old->value_delta_paisa, ['document_line_id' => $old->document_line_id, 'stock_adjustment_id' => $old->stock_adjustment_id, 'opening_balance_id' => $old->opening_balance_id, 'source_event' => 'reverse', 'reversal_of_id' => $movement]);
+        return $this->movement($actor, (int) $old->item_id, $date, -(int) $old->qty_delta_milli, -(int) $old->value_delta_paisa, ['document_line_id' => $old->document_line_id, 'stock_adjustment_id' => $old->stock_adjustment_id, 'opening_balance_id' => $old->opening_balance_id, 'fulfilment_line_id' => $old->fulfilment_line_id, 'source_event' => 'reverse', 'reversal_of_id' => $movement]);
     }
 
     public function adjust(int $actor, array $input, string $uuid): array

@@ -1,0 +1,154 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/pages/FulfilmentDetail.test.tsx (2 tests | 1 failed) 327ms
+   × does not label a cancelled historical slip with the now-editable customer or offer cashier cancellation 204ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/FulfilmentDetail.test.tsx > does not label a cancelled historical slip with the now-editable customer or offer cashier cancellation
+TestingLibraryElementError: Found multiple elements with the text: cancelled
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+<span
+  class="badge cancelled"
+>
+  cancelled
+</span>
+
+Ignored nodes: comments, script, style
+<span
+  class="badge cancelled"
+>
+  cancelled
+</span>
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="no-print"
+    >
+      <div
+        class="page-heading"
+      >
+        <div>
+          <h1>
+            DEL-000008 · Delivery / work completion
+          </h1>
+        </div>
+        <div
+          class="heading-actions"
+        >
+          <span
+            class="badge cancelled"
+          >
+            cancelled
+          </span>
+          <a
+            href="/app/shop/workflow/9"
+          >
+            Source order
+             · 
+            SO-000009
+          </a>
+          <button
+            data-fill="outline"
+            type="button"
+          >
+            Print quantity slip
+          </button>
+        </div>
+      </div>
+    </div>
+    <section
+      class="panel invoice"
+    >
+      <header
+        class="invoice-header"
+      >
+        <div>
+          <span
+            class="eyebrow"
+          >
+            Delivery / work completion
+          </span>
+          <h2>
+            Shop today
+          </h2>
+        </div>
+        <div>
+          <strong>
+            DEL-000008
+          </strong>
+          <p>
+            2083-01-03
+             BS
+          </p>
+          <span
+            class="badge cancelled"
+          >
+            cancelled
+          </span>
+        </div>
+      </header>
+      <p>
+        Source order
+        : 
+        SO-000009
+      </p>
+      <div
+        class="invoice-lines"
+      >
+        <div
+          class="workflow-line"
+        >
+          <strong>
+            Milk
+          </strong>
+          <span>
+            1.250
+             
+            L
+          </span>
+        </div>
+      </div>
+      <p
+        class="delivery-signature"
+      >
+        Received by / date / signature
+        : __________________________
+      </p>
+      <p
+        class="print-label"
+      >
+        Quantity record only. Billing and payment are recorded separately.
+      </p>
+    </section>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/FulfilmentDetail.test.tsx:24:17
+     22|   expect(screen.queryByText('Original customer')).not.toBeInTheDocumen…
+     23|   expect(screen.queryByRole('button',{name:'Cancel recorded action'}))…
+     24|   expect(screen.getByText('cancelled')).toBeInTheDocument();
+       |                 ^
+     25| });
+     26|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 27 passed (28)
+      Tests  1 failed | 69 passed (70)
+   Start at  09:36:25
+   Duration  104.34s (transform 5.73s, setup 11.03s, import 16.28s, tests 20.23s, environment 45.25s)
+

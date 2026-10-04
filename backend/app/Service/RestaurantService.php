@@ -154,30 +154,45 @@ class RestaurantService
         });
     }
 
+    private function prepareCheckout(int $actor, int $id, array $input, bool $posting = false): array
+    {
+        $this->a->authorize($actor, ['owner', 'manager', 'cashier']);
+        $order = $this->open($id, $input);
+        $tickets = $this->data($id)['tickets'];
+        foreach ($tickets as $ticket) {
+            if (! in_array($ticket['status'], ['served', 'cancelled'], true)) {
+                $this->a->fail('Serve or resolve all kitchen tickets before checkout.');
+            }
+        }
+        $lines = $this->billLines($tickets);
+        if (! $lines) {
+            $this->a->fail('No served items to bill.');
+        }
+
+        return app(BasketService::class)->checkout($actor, $input, $lines, ['type' => 'restaurant_order', 'id' => $id, 'version' => (int) $order->version], $posting);
+    }
+
+    public function preview(int $actor, int $id, array $input): array
+    {
+        return $this->prepareCheckout($actor, $id, $input)['preview'];
+    }
+
     public function checkout(int $actor, int $id, array $input, string $uuid): array
     {
         return $this->a->mutate($actor, $uuid, 'pos.restaurant.checkout.'.$id, $input, function (Tenant $tenant) use ($actor, $id, $input) {
             $this->a->authorize($actor, ['owner', 'manager', 'cashier']);
             $order = $this->open($id, $input);
-            $lines = [];
+            $review = $this->prepareCheckout($actor, $id, $input, true);
             $snapshots = [];
             foreach ($this->data($id)['tickets'] as $ticket) {
                 if ($ticket['status'] === 'cancelled') {
                     continue;
-                } if ($ticket['status'] !== 'served') {
-                    $this->a->fail('Serve or resolve all kitchen tickets before checkout.');
                 } foreach ($ticket['lines'] as $row) {
                     $item = $row['item_id'];
-                    $qty = (int) $row['qty_milli'] + (isset($lines[$item]) ? Money::quantity($lines[$item]['qty']) : 0);
-                    if ($qty > 1000000000) {
-                        $this->a->fail('Quantity exceeds bill limit.');
-                    } $lines[$item] = ['item_id' => $item, 'qty' => Money::format($qty, 3), 'unit_price' => Money::format((int) $row['unit_price_paisa']), 'tax_category' => $row['tax_category'], 'tax_bps' => (int) $row['tax_bps']];
                     $snapshots[$item][] = ['mode' => 'quantity', 'value' => Money::format((int) $row['qty_milli'], 3), 'qty_milli' => $row['qty_milli'], 'note' => $row['note'], 'ticket_id' => (string) $ticket['id']];
                 }
             }
-            if (! $lines) {
-                $this->a->fail('No served items to bill.');
-            } $bill = app(DocumentService::class)->save($actor, [...$input, 'type' => 'sale', 'lines' => array_values($lines), 'notes' => 'Restaurant order #'.$id.' · '.$this->data($id)['resource_name']], (string) Str::uuid());
+            $bill = app(DocumentService::class)->save($actor, [...$input, ...$review['input'], 'type' => 'sale', 'notes' => 'Restaurant order #'.$id.' · '.$this->data($id)['resource_name']], (string) Str::uuid(), true, $review['preview']['basket_offer']);
             app(PosService::class)->attachSnapshots($bill['id'], $snapshots);
             $this->a->rows('restaurant_orders')->where('id', $id)->update(['status' => 'closed', 'document_id' => $bill['id'], 'version' => $order->version + 1, 'updated_at' => now()]);
 

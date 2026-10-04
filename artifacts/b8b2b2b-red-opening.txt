@@ -1,0 +1,31 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/pages/DraftOfferPosting.test.tsx (3 tests | 1 failed) 1753ms
+   × requires starting balances before posting a reviewed draft 348ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/DraftOfferPosting.test.tsx > requires starting balances before posting a reviewed draft
+Error: expect(element).toBeDisabled()
+
+Received element is not disabled:
+  <button
+  type="submit"
+/>
+ ❯ src/pages/DraftOfferPosting.test.tsx:34:57
+     32|   state.uncertain=false; state.request.mockReset().mockResolvedValue(p…
+     33|   await waitFor(()=>expect(screen.getByText('Save ten')).toBeInTheDocu…
+     34|   expect(screen.getByRole('button',{name:'Post bill'})).toBeDisabled();
+       |                                                         ^
+     35|   expect(screen.getByRole('link',{name:'Complete starting balances to …
+     36| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  18:15:17
+   Duration  7.06s (transform 402ms, setup 815ms, import 643ms, tests 1.75s, environment 3.26s)
+

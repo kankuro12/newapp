@@ -259,6 +259,46 @@ Line algorithm, in order:
 
 VAT recoverable purchase: inventory/service expense base excludes tax; input VAT tracked separately. Non-recoverable tax increases item inventory cost or expense. `vat_recoverable` is an explicit snapshotted decision per purchase/expense, only available with business tax recording enabled; it is never inferred solely from supplier PAN. Tax-recording setting does not enable statutory invoice mode. Tax default starts 0; illustrative test rate 1300 requires explicit tax setting. Changing a tax rate never changes old documents.
 
+### 6.1.1 Staged source-order billing extension — bookkeeping implementation verified
+
+For the authorised C1 partial-bill extension, agreed source-order components
+must reconcile exactly across all active partial bills. This is an explicit
+bookkeeping source-allocation exception to fresh-bill arithmetic above, analogous
+to original-value returns in section10.2. Ordinary bills retain the existing
+algorithm. Delivery-first partial-bill posting and Ionic entry/progress/slips
+now pass financial/security/replay and UI checks. Live authenticated end-to-end
+browser QA remains unverified; 390px visual proof uses isolated fixtures with
+posting disabled. Billing-first/packages/backorders remain separate C1b work.
+
+Allocate original net base, tax, line discount and invoice discount cumulatively
+by billed quantity, subtract previously active allocated amounts, and derive
+allocated gross as net base plus both discounts. Final quantity consumes exact
+source residuals. Preserve agreed unit price and tax rate as source terms;
+show the source-order allocation and any difference from fresh quantity × rate
+and fresh tax arithmetic in review and print. Reports use stored allocated
+components. Never silently present allocation as newly calculated statutory tax.
+Nepal regulatory issuance remains a separate release gate.
+
+Required integer examples: an original gross2p, line discount1p, invoice
+discount1p and net0p line would produce negative1p if each half's gross and
+discounts were independently rounded. Allocate half's net0p and discounts1p+1p,
+derive gross2p, then consume zero residual on the other half. Include another
+positive line in this source/bill; zero-total bills still reject. Another source
+line has net4p/tax1p across quantity2: two fresh half-bill taxes round to0p each,
+while source allocation assigns1p then0p and recovers the agreed5p exactly.
+
+Physical receipt cost and allocated supplier-bill base/tax can round differently.
+Clear the exact allocated received-awaiting-bill amount, keep physical inventory
+unchanged, and disclose any penny variance through the existing inventory
+gain/loss posting path. Verify purchase recoverable/nonrecoverable cases, full
+residuals and cancellations before enabling posting. No arbitrary balancing
+amount or manual journal input. Billed stock returns retain their original bill
+amount/cost and do not silently reopen an order for replacement.
+Copies of allocated source bills retain unit rates/quantities but clear source
+discounts, offers and allocation links for a new canonical draft review. Copying
+must not reapply old bundle terms or produce a negative/zero rounded draft from
+source allocation offsets. Ordinary bill clones keep their existing policy.
+
 ### 6.2 BS business dates
 
 Store business dates as BS integer `YYYYMMDD` on documents/journals/movements/payments. Accept integer string or exact `YYYY-MM-DD` after Nepali-digit normalization. Validate exact format, supported calendar year, month and actual days using `NepaliDate`/`NepaliDateHelper`. No Carbon arithmetic for business dates. `20830115` is month 01 (Baisakh), not Magh; do not inherit incorrect examples from old instruction prose.

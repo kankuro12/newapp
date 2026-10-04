@@ -62,6 +62,11 @@ class WorkflowTest extends TestCase
         $order = $this->state($s, $order, 'ready');
         $order = $this->state($s, $order, 'fulfilled');
         $bill = $this->checkout($s, $order);
+        DB::table('items')->where('id', $s['item'])->update(['unit_label' => 'changed']);
+        $this->postJson($s['base'].'/workflow/'.$order['id'].'/bill', $bill)->assertUnprocessable();
+        $this->assertSame(0, DB::table('documents')->count());
+        DB::table('items')->where('id', $s['item'])->update(['unit_label' => 'job']);
+        $bill = [...$bill, 'contact_id' => 999999, 'type' => 'expense', 'invoice_discount' => '180', 'lines' => []];
         $doc = $this->postJson($s['base'].'/workflow/'.$order['id'].'/bill', $bill)->assertCreated()->assertJsonPath('data.lines.0.unit_price_paisa', '10000')->assertJsonPath('data.total_paisa', '18500')->json('data');
         $this->assertStringContainsString('Device ABC', $doc['notes']);
         $this->postJson($s['base'].'/workflow/'.$order['id'].'/bill', $bill)->assertOk()->assertJsonPath('data.id', $doc['id']);
@@ -86,6 +91,11 @@ class WorkflowTest extends TestCase
         $this->postJson($s['base'].'/workflow/'.$quote['id'].'/status', ['mutation_uuid' => (string) Str::uuid(), 'version' => $quote['version'], 'status' => 'cancelled'])->assertUnprocessable();
         $quote = $this->state($s, $quote, 'cancelled');
         $this->postJson($s['base'].'/workflow/'.$quote['id'].'/bill', $this->checkout($s, $quote))->assertConflict();
+        $quote = $this->postJson($s['base'].'/workflows', [...$input, 'mutation_uuid' => (string) Str::uuid(), 'due_date_bs' => 20830103])->assertCreated()->json('data');
+        $quote = $this->state($s, $quote, 'sent');
+        $quote = $this->state($s, $quote, 'rejected');
+        $this->assertFalse($quote['overdue']);
+        $this->getJson($s['base'].'/workflows?overdue=1')->assertOk()->assertJsonCount(0, 'data');
         $this->assertSame(0, DB::table('documents')->count());
     }
 
@@ -105,6 +115,10 @@ class WorkflowTest extends TestCase
         $this->postJson($s['base'].'/workflow/'.$order['id'].'/bill', [...$this->checkout($s, $order), 'expected_total_paisa' => '30000', 'paid_now' => '300'])->assertUnprocessable();
         $this->assertSame(1, DB::table('documents')->count());
         $this->getJson($s['base'].'/workflow/'.$order['id'])->assertOk()->assertJsonPath('data.status', 'open')->assertJsonPath('data.document_id', null);
+        DB::table('tenants')->where('id', $s['business']['id'])->update(['closed_through_bs' => 20830103]);
+        $this->postJson($s['base'].'/workflow/'.$order['id'].'/bill', [...$this->checkout($s, $order), 'expected_total_paisa' => '30000', 'paid_now' => '0'])->assertUnprocessable()->assertJsonValidationErrors('business_date_bs');
+        $this->assertSame(1, DB::table('documents')->count());
+        $this->assertSame(2000, (int) DB::table('inventory_balances')->where('item_id', $s['item'])->value('qty_milli'));
     }
 
     public function test_tenant_and_cashier_ownership_apply_to_reads_mutations_and_replay(): void
@@ -124,9 +138,9 @@ class WorkflowTest extends TestCase
         $this->postJson($s['base'].'/workflows', $this->entry($s, 'purchase_order'))->assertForbidden();
         $ownInput = $this->entry($s);
         $own = $this->postJson($s['base'].'/workflows', $ownInput)->assertCreated()->json('data');
-        $this->postJson($s['base'].'/workflows', $ownInput)->assertOk()->assertJsonPath('data.id',$own['id']);
-        $this->postJson($s['base'].'/workflows',[...$ownInput, 'title' => 'Changed'])->assertConflict();
-        DB::table('tenant_user')->where('user_id',$cashier->id)->update(['active' => false]);
-        $this->postJson($s['base'].'/workflows',$ownInput)->assertNotFound();
+        $this->postJson($s['base'].'/workflows', $ownInput)->assertOk()->assertJsonPath('data.id', $own['id']);
+        $this->postJson($s['base'].'/workflows', [...$ownInput, 'title' => 'Changed'])->assertConflict();
+        DB::table('tenant_user')->where('user_id', $cashier->id)->update(['active' => false]);
+        $this->postJson($s['base'].'/workflows', $ownInput)->assertNotFound();
     }
 }

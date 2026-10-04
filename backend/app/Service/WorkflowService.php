@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Models\Tenant;
 use App\NepaliDate;
+use App\Support\CurrentTenant;
 use App\Support\Money;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -34,9 +35,10 @@ class WorkflowService
         }
         $row['number'] = ['quote' => 'QUO', 'sales_order' => 'SO', 'purchase_order' => 'PO'][$row['kind']].'-'.str_pad((string) $row['sequence'], 6, '0', STR_PAD_LEFT);
         $row['expired'] = $row['kind'] === 'quote' && $row['valid_until_bs'] && $row['valid_until_bs'] < NepaliDate::today();
-        $row['overdue'] = $row['due_date_bs'] && $row['due_date_bs'] < NepaliDate::today() && ! in_array($row['status'], ['fulfilled', 'cancelled', 'converted']);
+        $row['overdue'] = $row['due_date_bs'] && $row['due_date_bs'] < NepaliDate::today() && ! in_array($row['status'], ['fulfilled', 'cancelled', 'converted', 'rejected']);
         $row['child_id'] = $this->a->rows('business_workflows')->where('source_id', $id)->value('id');
         $row['bill_status'] = $row['document_id'] ? $this->a->requireRow('documents', $row['document_id'])->status : null;
+        $row['fulfilment'] = app(FulfilmentService::class)->progress($actor, $id);
 
         return $row;
     }
@@ -53,12 +55,29 @@ class WorkflowService
         return DB::table('business_workflows')->insertGetId(['tenant_id' => $tenant->id, 'created_by' => $actor, 'created_at' => now(), 'updated_at' => now(), 'sequence' => $sequence, ...$data]);
     }
 
+    public function preview(int $actor, array $input, ?int $id = null): array
+    {
+        $this->authorizeKind($actor, $input['kind']);
+        $old = $id ? $this->row($actor, $id) : null;
+        if ($old) {
+            abort_unless($old->version == ($input['version'] ?? 0) && $old->kind === $input['kind'] && ! $old->source_id && in_array($old->status, ['draft', 'open']), 409, 'Record changed or approved. Revise a draft before editing.');
+        }
+        $tenant = Tenant::findOrFail(app(CurrentTenant::class)->id());
+
+        return $this->documents->review($actor, $tenant, [...$input, 'type' => $input['kind'] === 'purchase_order' ? 'purchase' : 'sale'], ['type' => 'workflow_'.$input['kind'], 'id' => $id, 'version' => (int) ($old?->version ?? 0)])['preview'];
+    }
+
     public function save(int $actor, array $input, string $uuid, ?int $id = null): array
     {
         $this->authorizeKind($actor, $input['kind']);
 
         return $this->a->mutate($actor, $uuid, 'workflow.save.'.($id ?? 'new'), $input, function (Tenant $tenant) use ($actor, $input, $id) {
             $old = $id ? $this->row($actor, $id) : null;
+            abort_if($old && app(FulfilmentService::class)->active($id), 409, 'Reverse fulfilment before editing an order.');
+            if (isset($input['reorder'])) {
+                abort_if($id, 422, 'Use ordinary editing for an existing order.');
+                app(CatalogService::class)->assertReorder($input);
+            }
             if ($old) {
                 abort_unless($old->version == ($input['version'] ?? 0) && $old->kind === $input['kind'] && ! $old->source_id && in_array($old->status, ['draft', 'open']), 409, 'Record changed or approved. Revise a draft before editing.');
             }
@@ -68,7 +87,7 @@ class WorkflowService
             if (($due && $due < $date) || ($valid && $valid < $date)) {
                 $this->a->fail('Validity and fulfilment date must follow record date.');
             }
-            [$party,$totals] = $this->documents->prepare($actor, $tenant, [...$input, 'type' => $input['kind'] === 'purchase_order' ? 'purchase' : 'sale']);
+            ['party' => $party, 'totals' => $totals, 'offer' => $offer] = $this->documents->review($actor, $tenant, [...$input, 'type' => $input['kind'] === 'purchase_order' ? 'purchase' : 'sale'], ['type' => 'workflow_'.$input['kind'], 'id' => $id, 'version' => (int) ($old?->version ?? 0)], true);
             abort_unless((string) $totals['total_paisa'] === (string) $input['expected_total_paisa'], 409, 'Total changed. Review calculated amount.');
             foreach ($totals['lines'] as &$line) {
                 $item = $this->a->requireRow('items', $line['item_id']);
@@ -76,6 +95,11 @@ class WorkflowService
                 $line['pos_unit'] = $item->pos_unit;
             } unset($line);
             $billInput = ['contact_id' => $party->id, 'lines' => array_map(fn ($line) => ['item_id' => $line['item_id'], 'qty' => Money::format($line['qty_milli'], 3), 'unit_price' => Money::format($line['unit_price_paisa']), 'discount' => Money::format($line['line_discount_paisa']), 'tax_bps' => $line['tax_bps'], 'tax_category' => $line['tax_category']], $totals['lines']), 'invoice_discount' => Money::format($totals['invoice_discount_paisa']), 'promotional_confirmed' => $input['promotional_confirmed'] ?? false];
+            if ($offer) {
+                $billInput['basket_offer_id'] = $offer['id'];
+                $billInput['basket_offer_snapshot'] = $offer;
+                $billInput['offer_input'] = array_intersect_key($input, array_flip(['contact_id', 'business_date_bs', 'lines', 'invoice_discount', 'invoice_discount_bps', 'basket_offer_id', 'promotional_confirmed']));
+            }
             $data = ['kind' => $input['kind'], 'status' => $input['kind'] === 'quote' ? 'draft' : 'open', 'business_date_bs' => $date, 'valid_until_bs' => $valid, 'due_date_bs' => $due, 'contact_id' => $party->id, 'niche' => $input['niche'] ?? 'general', 'title' => $input['title'] ?? null, 'reference' => $input['reference'] ?? null, 'specifications' => $input['specifications'] ?? null, 'notes' => $input['notes'] ?? null, 'bill_input' => json_encode($billInput), 'party_snapshot' => json_encode($party), 'business_snapshot' => json_encode($tenant->only(['name', 'address', 'phone', 'pan'])), 'lines' => json_encode($totals['lines']), ...array_diff_key($totals, ['lines' => true])];
             if ($old) {
                 $this->a->rows('business_workflows')->where('id', $id)->update([...$data, 'version' => $old->version + 1, 'updated_at' => now()]);
@@ -108,6 +132,13 @@ class WorkflowService
         return $this->a->mutate($actor, $uuid, 'workflow.status.'.$id, $input, function () use ($actor, $id, $input) {
             $row = $this->current($actor, $id, $input);
             $next = $input['status'];
+            if (app(FulfilmentService::class)->active($id)) {
+                abort_if($next === 'cancelled', 409, 'Reverse fulfilment before cancelling an order.');
+                if ($next === 'fulfilled') {
+                    $progress = app(FulfilmentService::class)->progress($actor, $id);
+                    abort_if(collect($progress['lines'])->contains(fn ($line) => $line['remaining_qty_milli'] > 0), 409, 'Complete remaining quantities first.');
+                }
+            }
             $states = $row->kind === 'quote' ? ['draft' => ['sent', 'cancelled'], 'sent' => ['draft', 'accepted', 'rejected', 'cancelled'], 'accepted' => ['cancelled']] : ['open' => ['in_progress', 'ready', 'fulfilled', 'cancelled'], 'in_progress' => ['ready', 'cancelled'], 'ready' => ['in_progress', 'fulfilled', 'cancelled'], 'fulfilled' => ['cancelled']];
             abort_unless(in_array($next, $states[$row->status] ?? [], true), 409, 'Status transition unavailable.');
             if ($next === 'accepted') {
@@ -141,6 +172,7 @@ class WorkflowService
     {
         return $this->a->mutate($actor, $uuid, 'workflow.bill.'.$id, $input, function (Tenant $tenant) use ($actor, $id, $input) {
             $row = $this->current($actor, $id, $input);
+            abort_if(app(FulfilmentService::class)->active($id), 409, 'Use staged billing for physically fulfilled orders.');
             if ($row->kind === 'quote') {
                 abort_unless($row->status === 'accepted', 409, 'Accept quote before billing.');
                 $this->validQuote($row);
@@ -157,14 +189,20 @@ class WorkflowService
                 }
             }
             $notes = $this->data($actor, $id)['number'].' · '.implode(' · ', array_filter([$row->title, $row->reference, $row->specifications, $row->notes]));
-            $bill = [...json_decode($row->bill_input, true), ...$input, 'type' => $row->kind === 'purchase_order' ? 'purchase' : 'sale', 'notes' => mb_substr($notes, 0, 1000)];
-            $result = $this->documents->save($actor, $bill, (string) Str::uuid());
+            $saved = json_decode($row->bill_input, true);
+            $offer = $saved['basket_offer_snapshot'] ?? null;
+            if ($offer) {
+                $offer['workflow_source'] = ['id' => $id, 'source_id' => $row->source_id, 'kind' => $row->kind, 'version' => (int) $row->version];
+            }
+            unset($saved['basket_offer_snapshot'], $saved['offer_input']);
+            $bill = [...$saved, ...$input, 'type' => $row->kind === 'purchase_order' ? 'purchase' : 'sale', 'notes' => mb_substr($notes, 0, 1000)];
+            $result = $this->documents->save($actor, $bill, (string) Str::uuid(), true, $offer);
             foreach ($this->a->rows('document_lines')->where('document_id', $result['id'])->get() as $line) {
                 $original = collect($snapshot)->firstWhere('item_id', $line->item_id);
                 $this->a->rows('document_lines')->where('id', $line->id)->update(['description' => $original['description'], 'unit_snapshot' => $original['unit_snapshot']]);
             }
-            $this->a->rows('documents')->where('id',$result['id'])->update(['party_snapshot' => $row->party_snapshot, 'business_snapshot' => $row->business_snapshot]);
-            $this->a->rows('business_workflows')->where('id',$id)->update(['status' => 'converted', 'document_id' => $result['id'], 'version' => $row->version + 1, 'updated_at' => now()]);
+            $this->a->rows('documents')->where('id', $result['id'])->update(['party_snapshot' => $row->party_snapshot, 'business_snapshot' => $row->business_snapshot]);
+            $this->a->rows('business_workflows')->where('id', $id)->update(['status' => 'converted', 'document_id' => $result['id'], 'version' => $row->version + 1, 'updated_at' => now()]);
 
             return $result;
         });

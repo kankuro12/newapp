@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 class DocumentService
 {
-    public function __construct(private AccountingService $a, private InventoryService $stock, private PaymentService $money) {}
+    public function __construct(private AccountingService $a, private InventoryService $stock, private PaymentService $money, private PartyService $parties) {}
 
     public function calculate(array $input): array
     {
@@ -81,10 +81,13 @@ class DocumentService
                 $row['unit_snapshot'] = 'expense';
             } else {
                 $item = $this->a->requireRow('items', $row['item_id']);
-                if ($item->archived_at || isset($seen[$item->id])) {
-                    $this->a->fail('Archived or duplicate item.', 'lines.'.$i.'.item_id');
+                if ($item->archived_at) {
+                    $this->a->fail('Item archived.', 'lines.'.$i.'.item_id');
                 }
-                $seen[$item->id] = true;
+                $seen[$item->id] = ($seen[$item->id] ?? 0) + Money::quantity($row['qty']);
+                if ($seen[$item->id] > 1000000000) {
+                    $this->a->fail('Combined item quantity exceeds limit.', 'lines.'.$i.'.qty');
+                }
                 $row['expense_category_id'] = null;
                 $row['description'] = $item->name;
                 $row['unit_snapshot'] = $item->unit_label;
@@ -107,19 +110,119 @@ class DocumentService
         return [$party, $this->calculate($input)];
     }
 
-    private function insert(int $actor, Tenant $tenant, array $input): int
+    public function review(int $actor, Tenant $tenant, array $input, array $context, bool $saving = false): array
     {
-        [$party, $totals] = $this->prepare($actor, $tenant, $input);
+        $this->a->authorize($actor, ['owner', 'manager', 'accountant', 'cashier']);
+        $offer = null;
+        $normal = $input;
+        if (! empty($input['basket_offer_id'])) {
+            if ($input['type'] !== 'sale') {
+                $this->a->fail('Named offers apply to sales only.', 'basket_offer_id');
+            }
+            if (Money::parse($input['invoice_discount'] ?? '0') || ($input['invoice_discount_bps'] ?? 0)) {
+                $this->a->fail('Remove separate bill discount before selecting an offer.', 'invoice_discount');
+            }
+            $review = app(BasketService::class)->checkout($actor, $input, $input['lines'], $context, $saving);
+            unset($normal['invoice_discount_bps']);
+            $normal = [...$normal, ...$review['input']];
+            $preview = $review['preview'];
+            $offer = $preview['basket_offer'];
+            if ($saving) {
+                abort_unless((string) ($input['expected_total_paisa'] ?? '') === (string) $preview['total_paisa'], 409, 'Bill total changed. Review current offer total.');
+            }
+        }
+        [$party, $totals] = $this->prepare($actor, $tenant, $normal);
+        if (! $offer) {
+            $preview = [...$totals, 'basket_offer' => null, 'fingerprint' => hash('sha256', json_encode(['source' => $context, 'party' => (int) $party->id, 'date' => NepaliDate::normalize($input['business_date_bs']), 'totals' => $totals], JSON_THROW_ON_ERROR))];
+        }
+
+        return compact('normal', 'party', 'totals', 'preview', 'offer');
+    }
+
+    private function draft(int $actor, int $id, int $version): object
+    {
+        $doc = $this->a->requireRow('documents', $id);
+        if ($this->a->role($actor) === 'cashier' && ($doc->created_by != $actor || $doc->type !== 'sale')) {
+            abort(403);
+        }
+        abort_unless($doc->status === 'draft' && $doc->version == $version, 409, 'Draft changed or posted.');
+
+        return $doc;
+    }
+
+    public function preview(int $actor, array $input, ?int $id = null): array
+    {
+        $doc = $id ? $this->draft($actor, $id, (int) $input['version']) : null;
+        $input['type'] = $doc?->type ?? $input['type'];
+        $tenant = Tenant::findOrFail(app(CurrentTenant::class)->id());
+
+        return $this->review($actor, $tenant, $input, ['type' => 'document', 'id' => $id, 'version' => (int) ($doc?->version ?? 0)])['preview'];
+    }
+
+    public function postPreview(int $actor, int $id, array $input, bool $posting = false): array
+    {
+        $doc = $this->draft($actor, $id, (int) $input['version']);
+        $raw = [...json_decode($doc->draft_input, true), 'type' => $doc->type];
+        unset($raw['expected_fingerprint'], $raw['expected_total_paisa']);
+        $tenant = Tenant::findOrFail(app(CurrentTenant::class)->id());
+        $review = $this->review($actor, $tenant, [...$raw, ...array_intersect_key($input, array_flip(['expected_fingerprint', 'expected_total_paisa']))], ['type' => 'document', 'id' => $id, 'version' => (int) $doc->version], $posting);
+        if ($doc->basket_offer_id) {
+            $saved = json_decode($doc->basket_offer_snapshot, true);
+            $current = $review['offer'];
+            unset($saved['checkout_source'], $current['checkout_source']);
+            abort_unless($saved === $current && (string) $review['totals']['total_paisa'] === (string) $doc->total_paisa, 409, 'Draft offer changed. Edit and review the draft before posting.');
+        }
+
+        return $review['preview'];
+    }
+
+    private function insert(int $actor, Tenant $tenant, array $input, ?array $trustedOffer = null): int
+    {
+        if ($trustedOffer) {
+            [$party, $totals] = $this->prepare($actor, $tenant, $input);
+            $offer = $trustedOffer;
+        } else {
+            ['party' => $party, 'totals' => $totals, 'offer' => $offer] = $this->review($actor, $tenant, $input, ['type' => 'document', 'id' => null, 'version' => 0], true);
+        }
+
+        return $this->insertPrepared($actor, $tenant, $input, $party, $totals, $offer);
+    }
+
+    private function insertPrepared(int $actor, Tenant $tenant, array $input, object $party, array $totals, ?array $offer): int
+    {
         $date = NepaliDate::normalize($input['business_date_bs']);
+        $input['due_date_bs'] = $this->parties->dueDate($party, $input['type'], $date, $input['due_date_bs'] ?? null);
         if (! empty($input['due_date_bs']) && NepaliDate::normalize($input['due_date_bs']) < $date) {
             $this->a->fail('Due date precedes bill date.');
         }
         $id = DB::table('documents')->insertGetId(['tenant_id' => $tenant->id, 'type' => $input['type'], 'contact_id' => $party->id, 'business_date_bs' => $date, 'due_date_bs' => ! empty($input['due_date_bs']) ? NepaliDate::normalize($input['due_date_bs']) : null, 'supplier_bill_number' => $input['supplier_bill_number'] ?? null, 'supplier_bill_date_bs' => ! empty($input['supplier_bill_date_bs']) ? NepaliDate::normalize($input['supplier_bill_date_bs']) : null, 'notes' => $input['notes'] ?? null, 'party_snapshot' => json_encode($party), 'business_snapshot' => json_encode($tenant->only(['name', 'address', 'phone', 'pan'])), 'vat_recoverable' => $input['vat_recoverable'] ?? false, 'created_by' => $actor, 'created_at' => now(), 'updated_at' => now(), 'draft_input' => json_encode($input), ...array_diff_key($totals, ['lines' => true])]);
+        $this->a->rows('documents')->where('id', $id)->update(['basket_offer_id' => $offer['id'] ?? null, 'basket_offer_snapshot' => $offer ? json_encode($offer) : null]);
         foreach ($totals['lines'] as $line) {
             DB::table('document_lines')->insert(['tenant_id' => $tenant->id, 'document_id' => $id, ...$line]);
         }
 
         return $id;
+    }
+
+    public function postStaged(int $actor, Tenant $tenant, object $order, array $plan): array
+    {
+        if (DB::transactionLevel() === 0) {
+            throw new \LogicException('Locked staged bill transaction required.');
+        }
+        $current = app(WorkflowService::class)->row($actor, (int) $order->id);
+        abort_unless($tenant->id == app(CurrentTenant::class)->id() && $current->version == $plan['workflow_version'] && $current->id == $plan['workflow_id'], 409);
+        $totals = array_intersect_key($plan, array_flip(['lines', 'subtotal_paisa', 'line_discount_paisa', 'invoice_discount_paisa', 'tax_paisa', 'total_paisa']));
+        $party = $this->a->requireRow('contacts', $current->contact_id);
+        $id = $this->insertPrepared($actor, $tenant, $plan['terms'], $party, $totals, null);
+        $this->a->rows('documents')->where('id', $id)->update(['workflow_id' => $current->id, 'fulfilment_policy' => $plan['fulfilment_policy'], 'workflow_version_at_post' => $current->version, 'source_order_snapshot' => json_encode($plan['source_order_snapshot'], JSON_THROW_ON_ERROR)]);
+        $lines = $this->a->rows('document_lines')->where('document_id', $id)->get()->keyBy('position');
+        foreach ($plan['allocations'] as $allocation) {
+            DB::table('workflow_bill_allocations')->insert(['tenant_id' => $tenant->id, 'workflow_id' => $current->id, 'document_line_id' => $lines[$allocation['invoice_position']]->id, 'fulfilment_line_id' => $allocation['fulfilment_line_id'], 'position' => $allocation['position'], 'qty_milli' => $allocation['qty_milli'], 'clearing_value_paisa' => $allocation['clearing_value_paisa']]);
+        }
+        $this->postDocument($actor, $tenant, $id, [...$plan['terms'], 'expected_total_paisa' => (string) $plan['total_paisa']]);
+        $this->a->rows('documents')->where('id', $id)->update(['party_snapshot' => $current->party_snapshot, 'business_snapshot' => $current->business_snapshot]);
+
+        return ['table' => 'documents', 'id' => $id];
     }
 
     private function number(Tenant $tenant, string $type, int $date): string
@@ -168,22 +271,32 @@ class DocumentService
                 $lines[] = $this->a->line((int) $category->account_id, (int) ($doc->vat_recoverable ? $line->net_base_paisa : $line->total_paisa));
             } else {
                 $item = $this->a->requireRow('items', $line->item_id);
-                if ($item->archived_at) {
+                if ($item->archived_at && ! $doc->workflow_id) {
                     $this->a->fail('Item archived.');
                 }
-                if ($doc->type === 'sale') {
+                $stagedCost = $doc->workflow_id ? (int) $this->a->rows('workflow_bill_allocations')->where('document_line_id', $line->id)->sum('clearing_value_paisa') : null;
+                if (($doc->fulfilment_policy ?? null) === 'bill_first') {
+                    // An invoice establishes dues and tax; goods/work remain physically unfulfilled.
+                    $held = $doc->type === 'sale' ? -(int) $line->net_base_paisa : (int) ($doc->vat_recoverable ? $line->net_base_paisa : $line->total_paisa);
+                    $lines[] = $this->a->line($doc->type === 'sale' ? 'sales_unfulfilled' : 'billed_unreceived', $held);
+                } elseif ($doc->type === 'sale') {
                     $lines[] = $this->a->line('sales', -(int) $line->net_base_paisa);
                     if ($item->kind === 'stock') {
-                        $issued = $this->stock->issue($actor, (int) $item->id, $doc->business_date_bs, (int) $line->qty_milli, ['document_line_id' => $line->id]);
-                        $cost = $issued['cost'];
+                        $cost = $stagedCost ?? $this->stock->issue($actor, (int) $item->id, $doc->business_date_bs, (int) $line->qty_milli, ['document_line_id' => $line->id])['cost'];
                         $lines[] = $this->a->line('cogs', $cost);
-                        $lines[] = $this->a->line('inventory', -$cost);
+                        $lines[] = $this->a->line($doc->workflow_id ? 'delivered_unbilled' : 'inventory', -$cost);
                     }
                 } else {
                     $cost = (int) ($doc->vat_recoverable ? $line->net_base_paisa : $line->total_paisa);
-                    $lines[] = $this->a->line($item->kind === 'stock' ? 'inventory' : 'general_expense', $cost);
+                    $lines[] = $this->a->line($item->kind === 'stock' ? ($doc->workflow_id ? 'received_unbilled' : 'inventory') : 'general_expense', $item->kind === 'stock' && $doc->workflow_id ? $stagedCost : $cost);
                     if ($item->kind === 'stock') {
-                        $this->stock->receive($actor, (int) $item->id, $doc->business_date_bs, (int) $line->qty_milli, $cost, ['document_line_id' => $line->id]);
+                        if ($doc->workflow_id) {
+                            $variance = $cost - $stagedCost;
+                            $lines[] = $this->a->line($variance >= 0 ? 'inventory_loss' : 'inventory_gain', $variance);
+                            $cost = $stagedCost;
+                        } else {
+                            $this->stock->receive($actor, (int) $item->id, $doc->business_date_bs, (int) $line->qty_milli, $cost, ['document_line_id' => $line->id]);
+                        }
                     }
                     $this->a->rows('items')->where('id', $item->id)->update(['last_purchase_price_paisa' => $line->unit_price_paisa]);
                 }
@@ -207,12 +320,15 @@ class DocumentService
         if ($paid > 0) {
             $this->money->create($actor, $tenant, ['kind' => $doc->type === 'sale' ? 'receipt' : 'supplier_payment', 'amount' => Money::format($paid), 'contact_id' => $doc->contact_id, 'money_account_id' => $input['money_account_id'] ?? 0, 'business_date_bs' => $doc->business_date_bs, 'overdraft_confirmed' => $input['overdraft_confirmed'] ?? false, 'allocations' => [['document_id' => $id, 'amount' => Money::format($paid)]]]);
         }
+        if ($doc->type === 'sale') {
+            $this->parties->assertCredit($party, $doc->business_date_bs, (int) $doc->total_paisa - $paid);
+        }
     }
 
-    public function save(int $actor, array $input, string $uuid, bool $post = true): array
+    public function save(int $actor, array $input, string $uuid, bool $post = true, ?array $trustedOffer = null): array
     {
-        return $this->a->mutate($actor, $uuid, $post ? 'document.post' : 'document.draft', $input, function (Tenant $tenant) use ($actor, $input, $post) {
-            $id = $this->insert($actor, $tenant, $input);
+        return $this->a->mutate($actor, $uuid, $post ? 'document.post' : 'document.draft', $input, function (Tenant $tenant) use ($actor, $input, $post, $trustedOffer) {
+            $id = $this->insert($actor, $tenant, $input, $trustedOffer);
             if ($post) {
                 $this->postDocument($actor, $tenant, $id, $input);
             }
@@ -224,8 +340,10 @@ class DocumentService
     public function post(int $actor, int $id, array $input, string $uuid): array
     {
         return $this->a->mutate($actor, $uuid, 'draft.post.'.$id, $input, function (Tenant $tenant) use ($actor, $id, $input) {
-            $doc = $this->a->requireRow('documents', $id);
-            abort_unless($doc->version == $input['version'], 409, 'Draft changed.');
+            $doc = $this->draft($actor, $id, (int) $input['version']);
+            if ($doc->basket_offer_id) {
+                $this->postPreview($actor, $id, $input, true);
+            }
             $this->postDocument($actor, $tenant, $id, $input);
 
             return ['table' => 'documents', 'id' => $id];
@@ -241,13 +359,14 @@ class DocumentService
                 abort(403);
             }
             $input['type'] = $old->type;
-            [$party, $totals] = $this->prepare($actor, $tenant, $input);
+            ['party' => $party, 'totals' => $totals, 'offer' => $offer] = $this->review($actor, $tenant, $input, ['type' => 'document', 'id' => $id, 'version' => (int) $old->version], true);
             $date = NepaliDate::normalize($input['business_date_bs']);
-            $due = ! empty($input['due_date_bs']) ? NepaliDate::normalize($input['due_date_bs']) : null;
+            $due = $this->parties->dueDate($party, $old->type, $date, $input['due_date_bs'] ?? null);
             if ($due && $due < $date) {
                 $this->a->fail('Due date precedes bill date.');
             } $this->a->rows('document_lines')->where('document_id', $id)->delete();
             $this->a->rows('documents')->where('id', $id)->update(['contact_id' => $party->id, 'business_date_bs' => $date, 'due_date_bs' => $due, 'supplier_bill_number' => $input['supplier_bill_number'] ?? null, 'supplier_bill_date_bs' => ! empty($input['supplier_bill_date_bs']) ? NepaliDate::normalize($input['supplier_bill_date_bs']) : null, 'vat_recoverable' => $input['vat_recoverable'] ?? false, 'business_snapshot' => json_encode($tenant->only(['name', 'address', 'phone', 'pan'])), 'notes' => $input['notes'] ?? null, 'party_snapshot' => json_encode($party), 'draft_input' => json_encode($input), 'version' => $old->version + 1, ...array_diff_key($totals, ['lines' => true])]);
+            $this->a->rows('documents')->where('id', $id)->update(['basket_offer_id' => $offer['id'] ?? null, 'basket_offer_snapshot' => $offer ? json_encode($offer) : null]);
             foreach ($totals['lines'] as $line) {
                 DB::table('document_lines')->insert(['tenant_id' => $tenant->id, 'document_id' => $id, ...$line]);
             }
@@ -271,6 +390,7 @@ class DocumentService
             }
             $type = $original->type.'_return';
             $newLines = [];
+            $returnAllocations = [];
             $journalLines = [];
             $seen = [];
             foreach ($input['lines'] as $i => $row) {
@@ -291,15 +411,39 @@ class DocumentService
                 foreach (['gross_paisa', 'line_discount_paisa', 'invoice_discount_paisa', 'net_base_paisa', 'tax_paisa', 'inventory_cost_paisa'] as $component) {
                     $new[$component] = Money::multiplyDivide((int) $line->$component, $returnedQty + $qty, (int) $line->qty_milli) - (int) $prior->sum($component);
                 }
+                if (($original->fulfilment_policy ?? null) === 'bill_first') {
+                    $allocation = app(FulfilmentService::class)->billFirstReturnPlan($original, $line, $row, $qty, $date, $new);
+                    $returnAllocations[$i + 1] = $allocation;
+                    $new['inventory_cost_paisa'] = $allocation['inventory_cost_paisa'];
+                }
                 $new['total_paisa'] = $new['net_base_paisa'] + $new['tax_paisa'];
                 $newLines[] = $new;
             }
             $total = array_sum(array_column($newLines, 'total_paisa'));
+            $sourceOrder = $original->source_order_snapshot ? json_decode($original->source_order_snapshot, true) : null;
+            if ($sourceOrder) {
+                $sourceOrder['allocation'] = 'cumulative_source_bill_return';
+                $sourceOrder['source_bill_id'] = $sourceId;
+                $sourcePositions = collect($sourceOrder['lines'])->keyBy('position');
+                $sourceLines = $this->a->rows('document_lines')->where('document_id', $sourceId)->get()->keyBy('id');
+                $sourceOrder['lines'] = array_map(fn ($line) => ['position' => $line['position'], 'order_position' => $sourcePositions[$sourceLines[$line['source_line_id']]->position]['order_position'], 'gross_rounding_paisa' => $line['gross_paisa'] - Money::multiplyDivide($line['qty_milli'], (int) $line['unit_price_paisa'], 1000), 'tax_rounding_paisa' => $line['tax_paisa'] - Money::multiplyDivide($line['net_base_paisa'], (int) $line['tax_bps'], 10000)], $newLines);
+            }
             $number = $this->number($tenant, $type, $date);
             $id = DB::table('documents')->insertGetId(['tenant_id' => $tenant->id, 'type' => $type, 'status' => 'posted', 'contact_id' => $original->contact_id, 'source_document_id' => $sourceId, 'business_date_bs' => $date, 'reason' => $input['reason'], 'party_snapshot' => $original->party_snapshot, 'business_snapshot' => $original->business_snapshot, 'total_paisa' => $total, 'subtotal_paisa' => array_sum(array_column($newLines, 'gross_paisa')), 'line_discount_paisa' => array_sum(array_column($newLines, 'line_discount_paisa')), 'invoice_discount_paisa' => array_sum(array_column($newLines, 'invoice_discount_paisa')), 'tax_paisa' => array_sum(array_column($newLines, 'tax_paisa')), 'vat_recoverable' => $original->vat_recoverable, 'number' => $number, 'fiscal_year_label' => NepaliDate::fiscalYearLabel($date), 'created_by' => $actor, 'posted_by' => $actor, 'posted_at' => now(), 'created_at' => now(), 'updated_at' => now()]);
+            if ($sourceOrder) {
+                $this->a->rows('documents')->where('id', $id)->update(['source_order_snapshot' => json_encode($sourceOrder, JSON_THROW_ON_ERROR)]);
+            }
+            if (($original->fulfilment_policy ?? null) === 'bill_first') {
+                $this->a->rows('documents')->where('id', $id)->update(['fulfilment_policy' => 'bill_first']);
+            }
             $journalLines[] = $this->a->line($original->type === 'sale' ? 'receivables' : 'payables', $original->type === 'sale' ? -$total : $total, (int) $original->contact_id);
             foreach ($newLines as $line) {
                 $lineId = DB::table('document_lines')->insertGetId(['tenant_id' => $tenant->id, 'document_id' => $id, ...$line]);
+                if (isset($returnAllocations[$line['position']])) {
+                    $journalLines = [...$journalLines, ...app(FulfilmentService::class)->recordBilledReturn($actor, $original, $line, $lineId, $returnAllocations[$line['position']], $date)];
+
+                    continue;
+                }
                 $item = $this->a->requireRow('items', $line['item_id']);
                 if ($original->type === 'sale') {
                     $journalLines[] = $this->a->line('sales_returns', $line['net_base_paisa']);
@@ -327,6 +471,7 @@ class DocumentService
             $nonzero = array_filter($journalLines, fn ($l) => $l['debit_paisa'] || $l['credit_paisa']);
             $journal = $nonzero ? $this->a->post($actor, $date, ['type' => 'document', 'id' => $id], $journalLines, $number) : null;
             $this->a->rows('documents')->where('id', $id)->update(['journal_id' => $journal]);
+            app(FulfilmentService::class)->documentChanged($original);
             if (! empty($input['refund_now'])) {
                 $credit = $this->money->invoiceBalance($sourceId)['credit_paisa'];
                 $amount = min($total, $credit);
@@ -347,8 +492,20 @@ class DocumentService
             if ($this->a->role($actor) === 'cashier' && ($old->type !== 'sale' || $old->created_by != $actor)) {
                 abort(403);
             }
-            $lines = $this->a->rows('document_lines')->where('document_id', $id)->orderBy('position')->get()->map(fn ($line) => ['item_id' => $line->item_id, 'expense_category_id' => $line->expense_category_id, 'qty' => Money::format((int) $line->qty_milli, 3), 'unit_price' => Money::format((int) $line->unit_price_paisa), 'discount' => Money::format((int) $line->line_discount_paisa), 'tax_category' => $line->tax_category, 'tax_bps' => $line->tax_bps])->all();
+            $offer = $old->basket_offer_snapshot ? json_decode($old->basket_offer_snapshot, true) : null;
+            $lines = $this->a->rows('document_lines')->where('document_id', $id)->orderBy('position')->get()->map(fn ($line) => ['item_id' => $line->item_id, 'expense_category_id' => $line->expense_category_id, 'qty' => Money::format((int) $line->qty_milli, 3), 'unit_price' => Money::format((int) $line->unit_price_paisa), 'discount' => Money::format((int) ($offer['line_bases'][$line->position - 1]['line_discount_paisa'] ?? $line->line_discount_paisa)), 'tax_category' => $line->tax_category, 'tax_bps' => $line->tax_bps])->all();
             $input = ['type' => $old->type, 'contact_id' => $old->contact_id, 'business_date_bs' => NepaliDate::today(), 'notes' => $old->notes, 'vat_recoverable' => (bool) $old->vat_recoverable, 'promotional_confirmed' => true, 'invoice_discount' => Money::format((int) $old->invoice_discount_paisa), 'lines' => $lines];
+
+            if ($offer) {
+                $input['invoice_discount'] = '0';
+            }
+            if ($old->workflow_id) {
+                $input['invoice_discount'] = '0';
+                foreach ($input['lines'] as &$line) {
+                    $line['discount'] = '0';
+                }
+                unset($line);
+            }
 
             return ['table' => 'documents', 'id' => $this->insert($actor, $tenant, $input)];
         });
@@ -383,11 +540,13 @@ class DocumentService
                     $this->a->fail('Cancel related refunds first.');
                 }
             }
+            app(FulfilmentService::class)->beforeBillCancellation($actor, $doc);
             foreach ($this->a->rows('stock_movements')->whereIn('document_line_id', $this->a->rows('document_lines')->where('document_id', $id)->select('id'))->where('source_event', 'post')->orderByDesc('id')->get() as $movement) {
                 $this->stock->reverse($actor, (int) $movement->id, $date);
             }
             $journal = $doc->journal_id ? $this->a->reverse($actor, (int) $doc->journal_id, $date, $input['reason']) : null;
             $this->a->rows('documents')->where('id', $id)->update(['status' => 'cancelled', 'cancelled_at' => now(), 'cancelled_by' => $actor, 'cancellation_reason' => $input['reason'], 'cancellation_date_bs' => $date, 'reversal_journal_id' => $journal]);
+            app(FulfilmentService::class)->documentChanged($doc);
 
             return ['table' => 'documents', 'id' => $id];
         });

@@ -1,0 +1,31 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/pages/DraftOfferPosting.test.tsx (2 tests | 2 failed) 177ms
+   × posts draft only with review of its current version and total 168ms
+   × changed or expired offer directs editing and blocks posting 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/DraftOfferPosting.test.tsx > posts draft only with review of its current version and total
+AssertionError: expected { …(2), [Symbol(Symbol.toStringTag)]: '…' } to have property "DraftPosting"
+ ❯ view src/pages/DraftOfferPosting.test.tsx:11:67
+
+ ❯ src/pages/DraftOfferPosting.test.tsx:19:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/pages/DraftOfferPosting.test.tsx > changed or expired offer directs editing and blocks posting
+AssertionError: expected { …(2), [Symbol(Symbol.toStringTag)]: '…' } to have property "DraftPosting"
+ ❯ view src/pages/DraftOfferPosting.test.tsx:11:67
+
+ ❯ src/pages/DraftOfferPosting.test.tsx:27:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  17:58:55
+   Duration  3.95s (transform 246ms, setup 807ms, import 422ms, tests 177ms, environment 2.14s)
+

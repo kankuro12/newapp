@@ -1,0 +1,56 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+stderr | src/pages/BasketOffers.test.tsx > saves exact spend, percentage cap and BS validity without resetting failed entry
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/pages/BasketOffers.test.tsx (2 tests | 2 failed) 72ms
+   × saves exact spend, percentage cap and BS validity without resetting failed entry 61ms
+   × preserves edit version and blocks uncertain edits with original retry 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/BasketOffers.test.tsx > saves exact spend, percentage cap and BS validity without resetting failed entry
+TestingLibraryElementError: Unable to find a label with the text of: Offer name
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/BasketOffers.test.tsx:18:27
+     16| it('saves exact spend, percentage cap and BS validity without resettin…
+     17|   state.detail=undefined;state.uncertain=false;state.save.mockClear();…
+     18|   fireEvent.change(screen.getByLabelText('Offer name'),{target:{value:…
+       |                           ^
+     19|   fireEvent.change(screen.getByLabelText('Discount type'),{target:{val…
+     20|   fireEvent.change(screen.getByLabelText('Discount (%)'),{target:{valu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/pages/BasketOffers.test.tsx > preserves edit version and blocks uncertain edits with original retry
+TestingLibraryElementError: Unable to find a label with the text of: Offer name
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/BasketOffers.test.tsx:31:17
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  11:37:21
+   Duration  3.03s (transform 120ms, setup 356ms, import 307ms, tests 72ms, environment 1.83s)
+

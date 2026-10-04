@@ -1,0 +1,10 @@
+
+> business-book@0.0.0 test:backend
+> composer84 --working-dir=backend run test
+
+> @php artisan config:clear --ansi
+
+ INFO Configuration cache cleared successfully. 
+
+> @php artisan test
+{"tool":"phpunit","result":"passed","tests":88,"passed":88,"assertions":1734,"duration_ms":99111}

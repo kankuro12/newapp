@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/pages/DocumentOffers.test.tsx (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/DocumentOffers.test.tsx [ src/pages/DocumentOffers.test.tsx ]
+Error: Failed to resolve import "./DocumentOffers" from "src/pages/DocumentOffers.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: E:/laravel pojects/dairy main/newapp/frontend/src/pages/DocumentOffers.test.tsx:9:44
+  22 |  } });
+  23 |  async function harness() {
+  24 |  	const { useReviewedOffer } = await import("./DocumentOffers");
+     |                                             ^
+  25 |  	function Review({ qty = "1", version = 1, selected = true, locked = false }) {
+  26 |  		const review = useReviewedOffer("/documents/sale/preview", {
+ ❯ TransformPluginContext._formatLog ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:8766:39
+ ❯ TransformPluginContext.error ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:8763:14
+ ❯ normalizeUrl ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:26423:18
+ ❯ ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:26493:30
+ ❯ TransformPluginContext.transform ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:26459:4
+ ❯ EnvironmentPluginContainer.transform ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:8545:14
+ ❯ loadAndTransform ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:19988:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  17:51:25
+   Duration  9.41s (transform 133ms, setup 2.48s, import 0ms, tests 0ms, environment 4.56s)
+

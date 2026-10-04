@@ -1,0 +1,722 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+stderr | src/pages/MeasurementSetup.test.tsx > configures a readable square-inch base and custom sheet without losing exact conversion
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/pages/MeasurementSetup.test.tsx (1 test | 1 failed) 857ms
+   × configures a readable square-inch base and custom sheet without losing exact conversion 851ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/MeasurementSetup.test.tsx > configures a readable square-inch base and custom sheet without losing exact conversion
+TestingLibraryElementError: Unable to find an accessible element with the role "option" and name "Square inch (in²)"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Add product":
+  <h1 />
+
+  --------------------------------------------------
+  link:
+
+  Name "Back":
+  <a
+    href="/app/glass/items"
+  />
+
+  Name "Manage categories":
+  <a
+    href="/app/glass/item-categories"
+  />
+
+  Name "Cancel":
+  <a
+    href="/app/glass/items"
+  />
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Name":
+  <input
+    aria-invalid="false"
+    maxlength="150"
+    name="name"
+    required=""
+    value=""
+  />
+
+  Name "Unit":
+  <input
+    aria-invalid="false"
+    name="unit_label"
+    required=""
+    value="sq_ft"
+  />
+
+  Name "Selling price":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    name="sale_price"
+    required=""
+    value="0"
+  />
+
+  Name "New category name":
+  <input
+    aria-invalid="false"
+    maxlength="150"
+    value=""
+  />
+
+  Name "SKU (optional)":
+  <input
+    aria-invalid="false"
+    name="sku"
+    value=""
+  />
+
+  Name "Low stock alert quantity":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    name="low_stock_qty"
+    value="0"
+  />
+
+  Name "Target stock quantity":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    name="reorder_target_qty"
+    value="0"
+  />
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Item type":
+  <select
+    aria-invalid="false"
+  />
+
+  Name "Billed base unit":
+  <select
+    aria-invalid="false"
+  />
+
+  --------------------------------------------------
+  option:
+
+  Name "Stock item":
+  <option
+    value="stock"
+  />
+
+  Name "Service":
+  <option
+    value="service"
+  />
+
+  Name "unit":
+  <option
+    value="unit"
+  />
+
+  Name "kg":
+  <option
+    value="kg"
+  />
+
+  Name "g":
+  <option
+    value="g"
+  />
+
+  Name "l":
+  <option
+    value="l"
+  />
+
+  Name "ml":
+  <option
+    value="ml"
+  />
+
+  Name "mm":
+  <option
+    value="mm"
+  />
+
+  Name "cm":
+  <option
+    value="cm"
+  />
+
+  Name "m":
+  <option
+    value="m"
+  />
+
+  Name "in":
+  <option
+    value="in"
+  />
+
+  Name "ft":
+  <option
+    value="ft"
+  />
+
+  Name "sq m":
+  <option
+    value="sq_m"
+  />
+
+  Name "sq ft":
+  <option
+    value="sq_ft"
+  />
+
+  Name "cu m":
+  <option
+    value="cu_m"
+  />
+
+  Name "cu ft":
+  <option
+    value="cu_ft"
+  />
+
+  Name "board ft":
+  <option
+    value="board_ft"
+  />
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "":
+  <details
+    class="optional-details"
+    open=""
+  />
+
+  Name "Enabled entry methods":
+  <fieldset
+    class="party-roles"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Create category":
+  <button
+    disabled=""
+    fill="outline"
+    type="button"
+  />
+
+  Name "Add custom unit":
+  <button
+    fill="outline"
+    type="button"
+  />
+
+  Name "Save":
+  <button
+    type="submit"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="subtle"
+  />
+
+  --------------------------------------------------
+  checkbox:
+
+  Name "Quantity":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Amount":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Pack / custom unit":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Length":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Area":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Volume":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <span
+          class="eyebrow"
+        >
+          PRODUCT DETAILS
+        </span>
+        <h1>
+          Add product
+        </h1>
+      </div>
+      <div
+        class="heading-actions"
+      >
+        <a
+          href="/app/glass/items"
+        >
+          Back
+        </a>
+      </div>
+    </div>
+    <form
+      class="panel narrow-form entry-master"
+      data-dirty="false"
+    >
+      <label
+        class="field "
+      >
+        <span>
+          Name
+        </span>
+        <input
+          aria-invalid="false"
+          maxlength="150"
+          name="name"
+          required=""
+          value=""
+        />
+      </label>
+      <div
+        class="form-grid"
+      >
+        <label
+          class="field "
+        >
+          <span>
+            Item type
+          </span>
+          <select
+            aria-invalid="false"
+          >
+            <option
+              value="stock"
+            >
+              Stock item
+            </option>
+            <option
+              value="service"
+            >
+              Service
+            </option>
+          </select>
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Unit
+          </span>
+          <input
+            aria-invalid="false"
+            name="unit_label"
+            required=""
+            value="sq_ft"
+          />
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Selling price
+          </span>
+          <input
+            aria-invalid="false"
+            inputmode="decimal"
+            name="sale_price"
+            required=""
+            value="0"
+          />
+        </label>
+      </div>
+      <details
+        class="optional-details"
+      >
+        <summary>
+          Item category
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              New category name
+            </span>
+            <input
+              aria-invalid="false"
+              maxlength="150"
+              value=""
+            />
+          </label>
+          <button
+            disabled=""
+            fill="outline"
+            type="button"
+          >
+            Create category
+          </button>
+          <a
+            href="/app/glass/item-categories"
+          >
+            Manage categories
+          </a>
+        </div>
+      </details>
+      <details
+        class="optional-details"
+      >
+        <summary>
+          Stock details (optional)
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              SKU (optional)
+            </span>
+            <input
+              aria-invalid="false"
+              name="sku"
+              value=""
+            />
+          </label>
+          <label
+            class="field "
+          >
+            <span>
+              Low stock alert quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              name="low_stock_qty"
+              value="0"
+            />
+          </label>
+        </div>
+      </details>
+      <details
+        class="optional-details"
+      >
+        <summary>
+          Reorder settings
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              Target stock quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              name="reorder_target_qty"
+              value="0"
+            />
+          </label>
+          <p>
+            Zero disables target reordering. Target must cover low-stock quantity.
+          </p>
+          <small>
+            Preferred supplier
+          </small>
+        </div>
+      </details>
+      <details
+        class="optional-details"
+        open=""
+      >
+        <summary>
+          POS measurements / scheduling
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              Billed base unit
+            </span>
+            <select
+              aria-invalid="false"
+            >
+              <option
+                value="unit"
+              >
+                unit
+              </option>
+              <option
+                value="kg"
+              >
+                kg
+              </option>
+              <option
+                value="g"
+              >
+                g
+              </option>
+              <option
+                value="l"
+              >
+                l
+              </option>
+              <option
+                value="ml"
+              >
+                ml
+              </option>
+              <option
+                value="mm"
+              >
+                mm
+              </option>
+              <option
+                value="cm"
+              >
+                cm
+              </option>
+              <option
+                value="m"
+              >
+                m
+              </option>
+              <option
+                value="in"
+              >
+                in
+              </option>
+              <option
+                value="ft"
+              >
+                ft
+              </option>
+              <option
+                value="sq_m"
+              >
+                sq m
+              </option>
+              <option
+                value="sq_ft"
+              >
+                sq ft
+              </option>
+              <option
+                value="cu_m"
+              >
+                cu m
+              </option>
+              <option
+                value="cu_ft"
+              >
+                cu ft
+              </option>
+              <option
+                value="board_ft"
+              >
+                board ft
+              </option>
+            </select>
+          </label>
+          <p>
+            One stock quantity uses this base unit. Custom conversions refer to this unit.
+          </p>
+          <fieldset
+            class="party-roles"
+          >
+            <legend>
+              Enabled entry methods
+            </legend>
+            <div
+              class="role-grid"
+            >
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Quantity
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Amount
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Pack / custom unit
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Length
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Area
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Volume
+                </span>
+              </label>
+            </div>
+          </fieldset>
+          <button
+            fill="outline"
+            type="button"
+          >
+            Add custom unit
+          </button>
+        </div>
+      </details>
+      <p
+        class="subtle"
+      >
+        Stock changes through purchases, returns, and stock counts.
+      </p>
+      <div
+        class="entry-actions"
+      >
+        <a
+          href="/app/glass/items"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+        >
+          <span>
+            Save
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/MeasurementSetup.test.tsx:20:17
+     18|   expect(screen.getByLabelText('Billed base unit')).toHaveValue('sq_ft…
+     19|   fireEvent.click(screen.getByText('POS measurements / scheduling'));
+     20|   expect(screen.getByRole('option',{name:'Square inch (in²)'})).toHave…
+       |                 ^
+     21|   expect(screen.getByRole('option',{name:'US gallon (gal US)'})).toHav…
+     22|   expect(screen.getByRole('option',{name:'Imperial gallon (gal UK)'}))…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  18:49:33
+   Duration  3.35s (transform 190ms, setup 343ms, import 467ms, tests 857ms, environment 1.32s)
+

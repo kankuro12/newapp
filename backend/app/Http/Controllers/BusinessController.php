@@ -6,6 +6,7 @@ use App\Models\Tenant;
 use App\NepaliDate;
 use App\Service\AccountingService;
 use App\Service\DocumentService;
+use App\Service\FulfilmentService;
 use App\Service\InventoryService;
 use App\Service\PaymentService;
 use App\Service\TenantService;
@@ -37,13 +38,21 @@ class BusinessController extends Controller
             return $value;
         }
         foreach ($value as $key => &$item) {
-            if ($item !== null && (preg_match('/(?:_paisa|_milli|_bps|_id)$/', (string) $key) || $key === 'id' || $key === 'next_number')) {
+            if ($key === 'basket_offer_snapshot' && $item !== null) {
+                $item = self::json(is_string($item) ? json_decode($item, true) : $item);
+            } elseif ($key === 'party_snapshot' && $item !== null) {
+                $item = (array) (is_string($item) ? json_decode($item, true) : $item);
+                unset($item['credit_limit_paisa'], $item['trading_version'], $item['sales_price_list_id'], $item['purchase_price_list_id']);
+                $item = self::json($item);
+            } elseif (in_array($key, ['item_ids', 'category_ids'], true) && is_array($item)) {
+                $item = array_map(fn ($id) => (string) $id, $item);
+            } elseif ($item !== null && (preg_match('/(?:_paisa|_milli|_bps|_id)$/', (string) $key) || $key === 'id' || $key === 'next_number' || $key === 'discount_value')) {
                 $item = (string) $item;
-            } elseif (in_array($key, ['is_customer', 'is_supplier', 'is_employee', 'is_rent', 'is_system', 'is_money', 'active', 'enabled', 'auto_generate', 'tax_recording_enabled', 'vat_recoverable'], true) && $item !== null) {
+            } elseif (in_array($key, ['is_customer', 'is_supplier', 'is_employee', 'is_rent', 'is_system', 'is_money', 'active', 'enabled', 'cashier_allowed', 'auto_generate', 'tax_recording_enabled', 'vat_recoverable'], true) && $item !== null) {
                 $item = (bool) $item;
             } elseif (is_array($item) || is_object($item)) {
                 $item = self::json($item);
-            } elseif (in_array($key, ['party_snapshot', 'business_snapshot', 'draft_input', 'metadata', 'measurement_snapshot', 'pos_methods', 'pos_custom_units']) && is_string($item)) {
+            } elseif (in_array($key, ['party_snapshot', 'business_snapshot', 'source_order_snapshot', 'draft_input', 'metadata', 'measurement_snapshot', 'pos_methods', 'pos_custom_units']) && is_string($item)) {
                 $item = self::json(json_decode($item, true));
             }
         } unset($item);
@@ -56,7 +65,7 @@ class BusinessController extends Controller
         $user = auth('tenant')->user();
         abort_if(! $user || $user->disabled_at, 401);
 
-        return response()->json(['data' => self::json($user->only(['id', 'name', 'email', 'email_verified_at', 'locale'])), 'today_bs' => NepaliDate::today()])->header('Cache-Control', 'no-store');
+        return response()->json(['data' => self::json($user->only(['id', 'name', 'email', 'email_verified_at', 'locale', 'phone', 'country_code'])), 'today_bs' => NepaliDate::today()])->header('Cache-Control', 'no-store');
     }
 
     public function businesses(): JsonResponse
@@ -89,7 +98,7 @@ class BusinessController extends Controller
 
     public function documentRules(): array
     {
-        return ['mutation_uuid' => 'required|uuid', 'contact_id' => 'nullable|integer|min:1', 'business_date_bs' => $this->dateRule(), 'due_date_bs' => ['nullable', ...array_slice($this->dateRule(), 1)], 'supplier_bill_number' => 'nullable|string|max:100', 'supplier_bill_date_bs' => ['nullable', ...array_slice($this->dateRule(), 1)], 'notes' => 'nullable|string|max:1000', 'lines' => 'required|array|min:1|max:100', 'lines.*.item_id' => 'nullable|integer|min:1', 'lines.*.expense_category_id' => 'nullable|integer|min:1', 'lines.*.qty' => 'required|string|max:20', 'lines.*.unit_price' => 'required|string|max:20', 'lines.*.discount' => 'sometimes|string|max:20', 'lines.*.discount_bps' => 'sometimes|integer|min:0|max:10000', 'lines.*.tax_category' => 'sometimes|in:standard,zero,exempt,outside_scope', 'lines.*.tax_bps' => 'sometimes|integer|min:0|max:10000', 'invoice_discount' => 'sometimes|string|max:20', 'invoice_discount_bps' => 'sometimes|integer|min:0|max:10000', 'vat_recoverable' => 'sometimes|boolean', 'promotional_confirmed' => 'sometimes|boolean', 'paid_now' => 'sometimes|string|max:20', 'money_account_id' => 'nullable|integer|min:1', 'expected_total_paisa' => 'sometimes|regex:/^\d{1,11}$/', 'version' => 'sometimes|integer|min:1', 'overdraft_confirmed' => 'sometimes|boolean'];
+        return ['mutation_uuid' => 'required|uuid', 'contact_id' => 'nullable|integer|min:1', 'business_date_bs' => $this->dateRule(), 'due_date_bs' => ['nullable', ...array_slice($this->dateRule(), 1)], 'supplier_bill_number' => 'nullable|string|max:100', 'supplier_bill_date_bs' => ['nullable', ...array_slice($this->dateRule(), 1)], 'notes' => 'nullable|string|max:1000', 'lines' => 'required|array|min:1|max:100', 'lines.*.item_id' => 'nullable|integer|min:1', 'lines.*.expense_category_id' => 'nullable|integer|min:1', 'lines.*.qty' => 'required|string|max:20', 'lines.*.unit_price' => 'required|string|max:20', 'lines.*.discount' => 'sometimes|string|max:20', 'lines.*.discount_bps' => 'sometimes|integer|min:0|max:10000', 'lines.*.tax_category' => 'sometimes|in:standard,zero,exempt,outside_scope', 'lines.*.tax_bps' => 'sometimes|integer|min:0|max:10000', 'basket_offer_id' => 'nullable|integer|min:1', 'expected_fingerprint' => 'sometimes|required|string|regex:/^[a-f0-9]{64}$/', 'invoice_discount' => 'sometimes|string|max:20', 'invoice_discount_bps' => 'sometimes|integer|min:0|max:10000', 'vat_recoverable' => 'sometimes|boolean', 'promotional_confirmed' => 'sometimes|boolean', 'paid_now' => 'sometimes|string|max:20', 'money_account_id' => 'nullable|integer|min:1', 'expected_total_paisa' => 'sometimes|regex:/^\d{1,11}$/', 'version' => 'sometimes|integer|min:1', 'overdraft_confirmed' => 'sometimes|boolean'];
     }
 
     public function cloneDraft(Request $r, string $tenant, int $document, DocumentService $service): JsonResponse
@@ -106,8 +115,9 @@ class BusinessController extends Controller
         if ($cashier && ($doc->type !== 'sale' || $doc->created_by != auth('tenant')->id())) {
             abort(403);
         }
-        $lines = $this->a->rows('document_lines')->where('document_id', $id)->orderBy('position')->get()->map(function ($line) use ($cashier) {
-            $line = (array) $line;
+        $lines = $this->a->rows('document_lines')->where('document_id', $id)->orderBy('position')->get()->map(function ($line) use ($cashier, $doc) {
+            $progress = ($doc->fulfilment_policy ?? null) === 'bill_first' && $doc->workflow_id ? app(FulfilmentService::class)->billLineProgress(auth('tenant')->id(), $doc, $line) : [];
+            $line = [...(array) $line, ...$progress];
             if ($cashier) {
                 unset($line['inventory_cost_paisa']);
             } $returned = (int) $this->a->rows('document_lines')->where('source_line_id', $line['id'])->whereIn('document_id', $this->a->rows('documents')->where('status', 'posted')->select('id'))->sum('qty_milli');
@@ -161,6 +171,28 @@ class BusinessController extends Controller
         return response()->json(['data' => $this->documentData($document)]);
     }
 
+    public function preview(Request $r, string $tenant, string $type, DocumentService $service): JsonResponse
+    {
+        abort_unless(in_array($type, ['sale', 'purchase', 'expense']), 404);
+        $input = $r->validate([...$this->documentRules(), 'mutation_uuid' => 'sometimes|uuid']);
+
+        return response()->json(['data' => $this->json($service->preview(auth('tenant')->id(), [...$input, 'type' => $type]))]);
+    }
+
+    public function draftPreview(Request $r, string $tenant, int $document, DocumentService $service): JsonResponse
+    {
+        $input = $r->validate([...$this->documentRules(), 'mutation_uuid' => 'sometimes|uuid', 'version' => 'required|integer|min:1']);
+
+        return response()->json(['data' => $this->json($service->preview(auth('tenant')->id(), $input, $document))]);
+    }
+
+    public function postPreview(Request $r, string $tenant, int $document, DocumentService $service): JsonResponse
+    {
+        $input = $r->validate(['version' => 'required|integer|min:1']);
+
+        return response()->json(['data' => $this->json($service->postPreview(auth('tenant')->id(), $document, $input))]);
+    }
+
     public function save(Request $r, string $tenant, string $type, DocumentService $service): JsonResponse
     {
         abort_unless(in_array($type, ['sale', 'purchase', 'expense']), 404);
@@ -177,7 +209,7 @@ class BusinessController extends Controller
 
     public function postDraft(Request $r, string $tenant, int $document, DocumentService $service): JsonResponse
     {
-        $input = $r->validate(['mutation_uuid' => 'required|uuid', 'version' => 'required|integer|min:1', 'paid_now' => 'required|string|max:20', 'money_account_id' => 'nullable|integer|min:1', 'expected_total_paisa' => 'required|regex:/^\d{1,11}$/', 'overdraft_confirmed' => 'sometimes|boolean']);
+        $input = $r->validate(['mutation_uuid' => 'required|uuid', 'version' => 'required|integer|min:1', 'expected_fingerprint' => 'sometimes|required|string|regex:/^[a-f0-9]{64}$/', 'paid_now' => 'required|string|max:20', 'money_account_id' => 'nullable|integer|min:1', 'expected_total_paisa' => 'required|regex:/^\d{1,11}$/', 'overdraft_confirmed' => 'sometimes|boolean']);
 
         return $this->result($service->post(auth('tenant')->id(), $document, $input, $input['mutation_uuid']));
     }
@@ -198,7 +230,7 @@ class BusinessController extends Controller
 
     public function returns(Request $r, string $tenant, int $document, DocumentService $service): JsonResponse
     {
-        $input = $r->validate(['mutation_uuid' => 'required|uuid', 'business_date_bs' => $this->dateRule(), 'reason' => 'required|string|min:5|max:500', 'lines' => 'required|array|min:1|max:100', 'lines.*.source_line_id' => 'required|integer|min:1', 'lines.*.qty' => 'required|string|max:20', 'refund_now' => 'sometimes|boolean', 'money_account_id' => 'nullable|integer|min:1', 'overdraft_confirmed' => 'sometimes|boolean']);
+        $input = $r->validate(['mutation_uuid' => 'required|uuid', 'business_date_bs' => $this->dateRule(), 'reason' => 'required|string|min:5|max:500', 'lines' => 'required|array|min:1|max:100', 'lines.*.source_line_id' => 'required|integer|min:1', 'lines.*.return_source' => ['sometimes', 'required', 'string', 'regex:/^(unfulfilled|[1-9][0-9]{0,18})$/'], 'lines.*.qty' => 'required|string|max:20', 'refund_now' => 'sometimes|boolean', 'money_account_id' => 'nullable|integer|min:1', 'overdraft_confirmed' => 'sometimes|boolean']);
 
         return $this->result($service->createReturn(auth('tenant')->id(), $document, $input, $input['mutation_uuid']));
     }

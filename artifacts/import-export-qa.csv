@@ -1,0 +1,6 @@
+﻿id,name,sku,kind,unit_label,sale_price,low_stock_qty,reorder_target_qty,category,preferred_supplier_id,preferred_supplier,pos_unit,pos_methods,pos_custom_units,service_minutes,default_tax_category,default_tax_bps
+1,"Test service",,service,unit,150.00,0.000,0.000,,,,unit,quantity|amount|pack|length|area|volume,[],30,outside_scope,0
+2,"QA Glass",,service,sq_ft,100.00,0.000,0.000,,,,sq_ft,quantity|amount|pack|length|area|volume,[],30,outside_scope,0
+3,"QA Juice",QA-JUICE,stock,bottle,100.00,4.000,10.000,"QA Drinks",3,"QA Multipurpose Party",unit,quantity|amount|pack|length|area|volume,[],30,outside_scope,0
+4,"QA CSV Milk",QA-CSV-MILK,stock,l,80.25,0.000,0.000,"QA CSV Drinks",3,"QA Multipurpose Party",l,quantity|amount|pack|length|area|volume,[],30,outside_scope,0
+5,"QA CSV Paneer",QA-CSV-PANEER,stock,kg,320.35,0.000,0.000,"QA CSV Drinks",3,"QA Multipurpose Party",kg,quantity|amount|pack|length|area|volume,[],30,outside_scope,0

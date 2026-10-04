@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#16614a">
+  <title>Business Book — user manual</title>
+  <style>
+    :root{color-scheme:light;--ink:#17352c;--muted:#53665e;--line:#d7e4de;--green:#16614a}
+    *{box-sizing:border-box}body{margin:0;background:#f5f8f5;color:var(--ink);font:16px/1.65 system-ui,sans-serif}
+    a{color:var(--green);text-underline-offset:3px}a:focus-visible,button:focus-visible{outline:3px solid #db8b23;outline-offset:3px}
+    .skip{position:absolute;left:1rem;top:-6rem}.skip:focus{top:1rem;background:white;padding:1rem;z-index:2}
+    header,main,footer{max-width:1050px;margin:auto;padding:24px}header{padding-top:36px}h1{font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.2;margin:8px 0}h2{font-size:1.4rem;margin-top:0}h3{font-size:1.08rem;margin-bottom:4px}
+    .eyebrow{color:var(--green);font-weight:700;letter-spacing:.08em;font-size:.8rem}p{margin:8px 0 16px}li{margin:7px 0}ul,ol{padding-left:24px}
+    nav{background:#e9f1eb;border:1px solid var(--line);border-radius:16px;padding:20px}nav ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 22px;margin:0;list-style:none;padding:0}
+    section{scroll-margin-top:20px;border:1px solid var(--line);background:white;border-radius:16px;padding:24px;margin-bottom:20px;overflow-wrap:anywhere}
+    .note{background:#edf5ef;border-left:4px solid var(--green);padding:12px 16px;border-radius:4px}.muted{color:var(--muted)}.tag{background:#e9f1eb;padding:3px 7px;border-radius:6px;font-size:.85rem}
+    .profiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.profiles article{border:1px solid var(--line);padding:14px;border-radius:10px}.profiles h3{margin-top:0}
+    figure{margin:16px 0}figure img{display:block;max-width:100%;width:310px;border:1px solid var(--line);border-radius:12px}figcaption{font-size:.85rem;color:var(--muted);margin-top:8px}
+    button{font:inherit;background:var(--green);color:white;border:0;border-radius:8px;padding:9px 16px;cursor:pointer}.actions{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+    @media(max-width:600px){header,main,footer{padding:16px}section{padding:18px}nav ul,.profiles{grid-template-columns:1fr}body{font-size:16px}}
+    @media print{body{background:white;color:#111;font-size:11pt}header,main,footer{max-width:none;padding:0}section{break-inside:auto;border:0;border-radius:0;padding:12px 0;margin:0}nav,.actions,.skip,.back{display:none}h2,h3{break-after:avoid}figure{break-inside:avoid}a{color:inherit}figure img{width:230px}.profiles{display:block}.profiles article{break-inside:avoid;margin-bottom:10px}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#start">Skip to instructions</a>
+  <header>
+    <span class="eyebrow">BUSINESS BOOK · NEPAL</span>
+    <h1>Your daily business guide</h1>
+    <p>Sales, purchases, salary, rent, stock and appointments. Use the same web app on phone or computer.</p>
+    <p class="muted">Edition 3 · 4 October 2026. English instructions include key Nepali screen labels. Covers features currently available; planned features are listed at the end.</p>
+    <div class="actions"><button type="button" onclick="window.print()">Print / save PDF</button><a href="#contents">Find a task</a></div>
+  </header>
+  <main>
+    <nav id="contents" aria-label="Manual contents"><h2>Find a task</h2><ul>
+      <li><a href="#start">1. First setup</a></li><li><a href="#phone">2. Phone entry and dates</a></li>
+      <li><a href="#parties">3. Customers, suppliers and employees</a></li><li><a href="#items">4. Items and measurements</a></li>
+      <li><a href="#pos">5. Choose your POS screen</a></li><li><a href="#restaurant">6. Waiter and kitchen</a></li>
+      <li><a href="#salon">7. Salon and barber appointments</a></li><li><a href="#bills">8. Regular bills and drafts</a></li>
+      <li><a href="#offers">9. Prices and offers</a></li><li><a href="#workflows">10. Quotes, orders and jobs</a></li>
+      <li><a href="#regular">11. Salary, rent and regular dues</a></li><li><a href="#payments">12. Pay later and collect dues</a></li>
+      <li><a href="#corrections">13. Returns and corrections</a></li><li><a href="#stock">14. Stock and reordering</a></li>
+      <li><a href="#records">15. Find, print and export</a></li><li><a href="#branches">16. Staff and branches</a></li>
+      <li><a href="#recovery">17. Connection problems and retries</a></li><li><a href="#limits">18. Availability and limits</a></li>
+    </ul></nav>
+
+    <section id="start"><h2>1. First setup</h2>
+      <p>Create an account with your name, country, required phone number, email and password. Country and phone have separate fields on the same row. Nepal (+977) is selected first; choose another country when needed. Enter your national phone number without country code, for example 9801234567, or your landline number. Nepali digits are accepted. A pasted international number must match the selected country. Verify your email before opening a business. Phone collection does not verify phone ownership.</p>
+      <p>Open this guide inside the app from <strong>More / थप → User manual / प्रयोगकर्ता पुस्तिका</strong>. Use <strong>Back</strong> to return to More. The guide's print button prints the instructions.</p>
+      <ol><li>Sign in using your business account. Create or choose your business.</li><li>Open <strong>Settings / सेटिङ</strong>. Check name, address, phone, PAN, language and the POS business type.</li><li>Add the parties, items and cash/bank accounts you need.</li><li>Open <strong>Starting balances / सुरुको मौज्दात</strong>. Choose your first BS business date. Enter actual money, stock quantity and stock cost, and amounts customers owe or you owe suppliers. Review before finalizing.</li><li>After starting balances are finalized, use POS or daily forms to record business.</li></ol>
+      <p class="note">Starting stock value means your cost, not selling price. Starting balances establish the beginning of these books; they do not record a new customer sale or supplier payment.</p>
+      <p>Use an empty starting balance only when this is a genuinely new business with no opening stock, money or dues. Add later stock through a purchase.</p>
+    </section>
+
+    <section id="phone"><h2>2. Phone entry and dates</h2>
+      <p>Bottom navigation keeps <strong>Home, POS, Sales, Parties and More</strong> close to your thumb. <strong>More / थप</strong> opens the other daily tools.</p>
+      <ol><li>Choose the business or branch first.</li><li>Choose the party and date.</li><li>Add items one at a time. Search by name/code or use a configured barcode.</li><li>Review quantity, price, discount, tax and total.</li><li>Choose paid amount and payment account. Save once; wait for the saved record.</li></ol>
+      <p>Money is <strong>NPR</strong>. Enter rupees, for example <strong>150.50</strong>. Quantity allows three decimal places, for example <strong>2.501 kg</strong>. Dates use <strong>BS</strong>; use the displayed BS date or its date picker, not an AD date. Appointments use Nepal time.</p>
+      <p>Optional fields stay in expandable sections. Use them for due dates, references, notes or other details needed for that entry. Change English/Nepali from the workspace language control.</p>
+    </section>
+
+    <section id="parties"><h2>3. One party, several roles</h2>
+      <p>Open <strong>Parties / पक्षहरू</strong> → add party. Enter a useful name, phone and address. Select every role that applies: customer, supplier, employee or rent payee.</p>
+      <p>A person may be both customer and supplier, or employee and customer. Keep one party record and select the right daily action. Avoid creating a duplicate for each role.</p>
+      <p>Use party trading settings for payment terms, credit controls and price lists. See collections for amounts due; record a payment against the correct bill. Archiving preserves old records.</p>
+    </section>
+
+    <section id="items"><h2>4. Items and measurements</h2>
+      <ol><li>Open <strong>Items / सामान</strong> → add item. Choose stock for goods you track, service for labour or appointments.</li><li>Set the billed base unit and selling price per base unit. Add category, tax settings and optional item code.</li><li>In item POS setup, enable only measurement methods you use. Configure custom packs/conversions where needed.</li><li>Test a small example in POS and review the billed base quantity before saving.</li></ol>
+      <p>Available methods include quantity, amount, pack, length, area and volume where compatible with the item's base unit. Base-unit choices are grouped for easy selection:</p>
+      <ul><li><strong>Count:</strong> piece/unit, pair, dozen.</li><li><strong>Weight:</strong> kg, g, mg, metric tonne, pound and ounce.</li><li><strong>Liquid:</strong> litre, millilitre, centilitre, US gallon and Imperial gallon. The two gallons are different; choose the named standard.</li><li><strong>Length:</strong> mm, cm, metre, inch, foot and yard.</li><li><strong>Area:</strong> square mm, cm, metre, inch, foot and yard.</li><li><strong>Volume:</strong> cubic mm, cm, metre, inch, foot, yard and board foot.</li></ul>
+      <p>Glass area uses length × width × pieces. Wood volume adds thickness. Choose a unit separately for each dimension; mixed metric and international inch/foot/yard measurements are supported. Board foot means 1 square foot × 1 inch thick.</p>
+      <p>For a bottle, tray, sheet, bundle or local measure, choose <strong>Add custom unit / आफ्नो एकाइ थप्नुहोस्</strong>. Give it a clear name and the quantity it represents in this item's billed base unit. Set a shop-agreed conversion; the app does not guess local measures. A custom pack uses that fixed conversion, not a new cutting or rounding formula.</p>
+      <p>For glass, enter length × width × pieces. For timber, use the configured length, area, volume or board-foot method. Select a unit beside each dimension. The bill records entered dimensions and the resulting base quantity.</p>
+      <p class="note">Define a bottle, tray, bundle, sheet or local measure by its exact base quantity. Distinguish US gallon from Imperial gallon. Do not use an unnamed regional wood formula; configure the conversion you actually trade with.</p>
+      <p>All converted quantities round once to 0.001 billed base unit. Choose a suitably small base unit for very small goods; a conversion that rounds to zero is rejected. Amount entry also uses this precision. Review the resulting bill amount; some requested amounts cannot match exactly after rounding. Existing stock history restricts base-unit changes; plan units before receiving stock. Changing only the displayed unit name does not convert stock or prices.</p>
+    </section>
+
+    <section id="pos"><h2>5. Choose your POS screen</h2>
+      <p>Open <strong>POS → POS setup / काउन्टर सेटिङ</strong>. Choose the business profile and configure items/resources. Profile changes the entry screen; your branch keeps the same books.</p>
+      <div class="profiles">
+        <article><h3>Meat shop</h3><p>Pick meat/cut, enter weight or amount, review quantity and price, collect payment. Configure scale-label parsing before scanning weighed labels.</p></article>
+        <article><h3>General store</h3><p>Search/scan items, add quantity or configured pack, review cart and payment. Use categories for quick item selection.</p></article>
+        <article><h3>Restaurant</h3><p>Choose table or takeaway, enter order and send tickets to kitchen. Serve tickets before final checkout.</p></article>
+        <article><h3>Barber</h3><p>Choose staff/chair and service. Use walk-in checkout or schedule an appointment; record arrival before appointment checkout.</p></article>
+        <article><h3>Salon</h3><p>Book service, resource and Nepal-time slot. Manage arrival, service and completion; review saved service prices at checkout.</p></article>
+        <article><h3>Milk sales</h3><p>Choose product, enter litres or configured bottle/pack. Review quantity and amount; save payment now or named-customer due.</p></article>
+        <article><h3>Glass sales</h3><p>Choose glass type, dimensions, pieces and measurement units. Add cutting notes; review area and price. Use a quote/job for later work.</p></article>
+        <article><h3>Wood sales</h3><p>Choose timber or sheet and your configured method. Enter dimensions/pieces; review billed length, area, volume or board feet.</p></article>
+      </div>
+      <p>For an ordinary cart, review the app-calculated total, choose cash/bank and save. Named customers may pay partly or later; unpaid walk-in sales are restricted.</p>
+    </section>
+
+    <section id="restaurant"><h2>6. Waiter and kitchen</h2>
+      <ol><li>Manager: add tables/resources and menu items in POS setup.</li><li>Waiter: open table/takeaway order, enter a useful customer or reference, add items and send to kitchen.</li><li>Kitchen: view new tickets and move each through the available preparation states.</li><li>Waiter: mark ready food served. Cancel unneeded tickets using the allowed action.</li><li>Cashier: open checkout once all active tickets are served. Select an optional offer; review total and payment. Save the bill.</li></ol>
+      <p>Waiter and kitchen views refresh while open and connected. Normal foreground refresh is about two seconds; a connection error means updates may be delayed. A changed order must be reviewed again.</p>
+      <p>Menu prices saved on tickets remain with the order. Checkout rechecks current offer terms. Sending tickets does not itself create the financial bill.</p>
+      <figure><img src="manual/restaurant-checkout.jpg" alt="Nepali restaurant checkout: original NPR 250.10, offer NPR 10, total NPR 240.10" loading="lazy"><figcaption>Example: 2.501 × NPR 100 − NPR 10 = NPR 240.10, before any configured tax.</figcaption></figure>
+    </section>
+
+    <section id="salon"><h2>7. Salon and barber appointments</h2>
+      <ol><li>Add staff/chairs, working hours and service duration/price in POS setup.</li><li>Choose <strong>Book appointment / बुकिङ गर्नुहोस्</strong>. Choose service, resource, BS date, Nepal-time slot and customer.</li><li>Review and save booking. The app rejects overlapping occupied slots.</li><li>On arrival, select the booking and choose <strong>Mark arrived / ग्राहक आएको</strong>. Continue service using available actions.</li><li>At checkout, choose an optional offer, review total, then save bill/payment. Successful checkout completes the appointment.</li></ol>
+      <p>Reschedule or cancel using the booking action instead of creating an unnoticed duplicate. Walk-in checkout is available separately. Saved booking prices remain fixed; checkout offers use current availability. Appointment billing must match the booked BS date.</p>
+      <figure><img src="manual/salon-checkout.jpg" alt="Nepali salon checkout showing NPR 150 service less NPR 10 offer, total NPR 140" loading="lazy"><figcaption>Example: booked service NPR 150 − checkout offer NPR 10 = NPR 140.</figcaption></figure>
+    </section>
+
+    <section id="bills"><h2>8. Regular bills and drafts</h2>
+      <p>Use <strong>Sales</strong> for customer bills, <strong>Purchases</strong> for supplier goods and <strong>Expenses</strong> for business costs. Choose party, BS date, lines and price. Add only applicable tax and discount. Review total and payment before posting.</p>
+      <p><strong>Save draft</strong> keeps an editable bill without changing money, stock or dues. Open the draft, edit it if needed, then review and post. Posting performs the financial and stock changes.</p>
+      <p><strong>Clone as draft</strong> helps repeat a bill. Review party, new date, quantities, prices, discounts and tax; never assume last bill's terms are still valid.</p>
+      <p>Supplier references and bill dates help identify purchase paperwork. Attach supporting files to the saved record where available. Tax recording and recoverability depend on enabled business settings.</p>
+      <p class="note">For a sale or sales draft, select an optional named offer in Review &amp; save. Wait for the current total before saving. Selecting an offer clears the separate bill discount; line discounts remain. Offers do not apply to purchases or expenses.</p>
+      <p>A draft with an offer rechecks its saved terms before posting. If the offer changed, expired or became unavailable, choose <strong>Edit draft</strong>, review the new terms or remove the offer, save changes, then post. Cloning restores pre-offer prices and removes the named offer; choose any new offer explicitly.</p>
+      <p>A bill showing <strong>Source order allocation</strong> uses agreed source amounts for its quantities. Its rounding notes explain any price, tax or receipt-cost difference. An agreed offer label does not mean the whole original bundle was delivered. Copying an allocated bill keeps its rates/quantities and clears source discounts; review today's discounts and offers before posting the new draft.</p>
+    </section>
+
+    <section id="offers"><h2>9. Prices and offers</h2>
+      <p><strong>More → Price lists</strong>: create reviewed item prices, party-specific lists and configured quantity pricing. Volume pricing applies a qualifying rate to the whole quantity; slab pricing splits quantity across configured bands. Review the calculated result.</p>
+      <p><strong>More → Basket offers</strong>: create a named fixed/percentage basket offer, selected-item/category offer, bundle or buy/get offer. Set minimum spend, validity, schedule and staff permission where needed. Compatible choice groups may accept several items sharing one billed base unit.</p>
+      <ol><li>At checkout select <strong>Bill offer (optional) / बिल छुट (ऐच्छिक)</strong>.</li><li>Read offer name, before-offer amount, discount, tax and final total.</li><li>If quantity, customer, date or offer changes, wait for the new review. Use <strong>Check total again / कुल रकम फेरि जाँच्नुहोस्</strong> when needed.</li><li>Choose payment from the reviewed total and save.</li></ol>
+      <p>Offers apply before tax. Bundle choices cannot count the same quantity twice. An unavailable offer must be removed or corrected. A selected named offer does not stack with a separate bill discount. Staff can use only permitted offers.</p>
+      <p>Returns use the original saved bill's prices and discount allocation. Changing an offer later does not change an already posted sale.</p>
+    </section>
+
+    <section id="workflows"><h2>10. Quotes, orders and jobs</h2>
+      <p>Open <strong>Quotes / orders / jobs</strong>. Choose quotation, sales order or purchase order; choose a business/job type for niche work. Select party, BS date, items and agreed prices. Add reference, specifications, validity and fulfilment date as needed.</p>
+      <ol><li>Save quotation, review it, then mark sent.</li><li>Record acceptance or rejection after the customer's decision. Acceptance records your decision; the app does not collect a public digital signature.</li><li>Create a sales order from an accepted quote, or create a sales/purchase order directly.</li><li>Use <strong>Delivery / receipt and billing</strong> for actual partial work. Progress shows ordered, completed, remaining, billed and ready-to-bill quantities.</li></ol>
+      <h3>Deliver or receive first; bill later</h3>
+      <ol><li>Choose <strong>Deliver goods / complete work</strong> or <strong>Receive goods / work</strong>. Enter only quantities completed now, using the displayed order units. Blank lines stay out of this action. <strong>Use available quantity</strong> fills the remaining amount.</li><li>Choose BS date. For a first purchase receipt, check recoverable tax under additional details if applicable; later receipts and bills keep this treatment.</li><li>Choose <strong>Review quantities</strong>, check the selected amounts, then confirm. Stock moves once now; party dues are created when the bill posts. Service completion does not move stock.</li><li>Choose <strong>Bill completed quantities</strong>. Select quantities from the listed delivery/receipt records. Enter actual paid amount and choose an account when paying; leave paid amount zero for later payment.</li><li>Review quantities, total, tax, original-order allocation and payment. Confirm bill and payment. Multiple partial bills retain agreed prices and consume exact remaining amounts; billing does not move this stock again.</li></ol>
+      <p>Changing quantity, date, payment or other terms requires a fresh review. If save cannot be confirmed, fields stay locked: reconnect and use <strong>Retry original action</strong>. Do not create another entry.</p>
+      <h3>Returns, corrections and slips</h3>
+      <p>For goods not yet billed, use <strong>Return unbilled quantities</strong> on their original recorded action. For billed goods, open the linked bill and use its normal return flow. Billed returns retain original amounts and costs and do not reopen order capacity for replacement.</p>
+      <p><strong>Open quantity slip</strong> prints the actual action quantities, separate from billing/payment. Owners, managers and accountants can cancel a mistaken action with a BS date and reason, subject to later stock activity and dependent bills/returns. Cancel related bills/returns first when prompted. Cancelling a staged bill releases billing capacity and leaves the physical delivery/receipt recorded. Cancelled slips keep their quantities/status and omit customer details from an order that may now be edited.</p>
+      <p>Status changes and order/job summaries do not move stock or collect money. Before partial work starts, <strong>Review + create bill</strong> remains available for the original full-bill flow. Once partial actions are active, use their separate bill controls; order edit/cancel and full-order delivery sheets are restricted. Billing before delivery, package dispatch and backorder documents are still in progress.</p>
+      <p>For a quote or sales order, select an optional named offer and review the current total before saving. An accepted quote and its linked sales order keep that agreed discount when billed, even if the offer later changes. Quote validity still applies. Copying a quote restores pre-offer values and asks you to choose an offer again.</p>
+      <p>For the original full-bill conversion, cancelling the linked bill leaves the order closed. Copy for a replacement and review it. Cancelling a staged partial bill instead releases its billing allocation; the recorded delivery/receipt remains.</p>
+    </section>
+
+    <section id="regular"><h2>11. Salary, rent and regular dues</h2>
+      <p>Open <strong>Regular payments / नियमित भुक्तानी</strong>. Select <strong>Employees</strong>, <strong>Rent</strong> or <strong>Other</strong>.</p>
+      <ol><li>Choose <strong>Add employee / कर्मचारी थप्नुहोस्</strong>, <strong>Add rent</strong> or add regular bill. Create a payee or choose an existing party.</li><li>Set monthly amount, first BS date and monthly day. Enable automatic dues only when wanted.</li><li>Open the regular record. Review the month's expense; generate it if manual, or check the automatically generated monthly entry.</li><li>Pay now or leave the month's amount payable. Pay later from that month's bill or regular record.</li></ol>
+      <p>One monthly expense creates the payable. Payment later reduces that payable; it must not create a second expense. Check this month's remaining amount and next date before repeating.</p>
+      <p>Automatic dues create expenses/payables, not automatic bank transfers. Deployment must run the regular-payment schedule. Check displayed errors and overdue months; pausing stops future generation.</p>
+    </section>
+
+    <section id="payments"><h2>12. Pay later and collect dues</h2>
+      <p>For a named customer sale, choose partial/later payment and enter actual amount paid now. Remaining bill amount becomes due, subject to party credit controls. Choose the correct cash/bank account.</p>
+      <p>Open <strong>Collections / payments</strong> to find dues by party/date. Review the bill and record money received from a customer or paid to a supplier/payee. Allocate to the intended bill; check its remaining amount afterward.</p>
+      <p><strong>Follow-ups</strong> records promised dates, notes and next actions. Saving a follow-up does not send a message or receive money. A customer or supplier advance remains separate until correctly used.</p>
+      <p><strong>Money</strong> also provides transfers between your accounts, personal money added and owner withdrawals. Choose the daily action that actually happened; transfers are not sales.</p>
+    </section>
+
+    <section id="corrections"><h2>13. Returns and corrections</h2>
+      <ol><li>Open the original posted sale/purchase.</li><li>Choose return, select original lines and return quantity, enter BS date and reason.</li><li>Review original-value refund/credit and save. Record actual refund money using the applicable payment action.</li></ol>
+      <p>Returns cannot exceed unreturned original quantity. They preserve original prices, discounts, tax and stock cost. Do not use today's selling price for an old return.</p>
+      <p>For an entire mistaken posted bill, use cancel with a reason and allowed date. Cancel related active payments/returns first when prompted. Reverse later partial returns before earlier ones when required.</p>
+      <p>Correct drafts by editing or deleting them. Correct posted records through return/cancellation paths. Check the replacement bill before posting; do not overwrite financial history.</p>
+    </section>
+
+    <section id="stock"><h2>14. Stock and reordering</h2>
+      <p>Ordinary posted purchases increase stock; ordinary posted sales decrease it. For staged orders, the delivery/receipt action moves stock first and its later bill does not move stock again. Services do not consume stock. Use <strong>Count stock</strong> for actual physical quantity, with the required adjustment reason and reviewed cost.</p>
+      <p>Set item categories and reorder settings. Open <strong>Reorder stock</strong>, review suggested items, quantities, supplier and price. Create the reviewed purchase order; use <strong>Receive goods / work</strong> for an actual partial receipt, then bill its completed quantities. The original full-bill flow remains available before staging starts.</p>
+      <p>Use reviewed CSV import for supported party/item fields. Download the template, preview errors and duplicates, then apply the confirmed import. CSV item import does not record a purchase or opening stock.</p>
+      <p>Configure alternate item codes, scale-label formats and printable Code128 labels before use. Scanner entry works with configured codes; direct physical scale readings and automatic printer/cash-drawer commands need separate device integration.</p>
+    </section>
+
+    <section id="records"><h2>15. Find, print and export</h2>
+      <p>Open Sales, Purchases, Expenses or Money. Filter/search available records; open a record to see payment, remaining due, source links and supporting files.</p>
+      <p>Use the record's print action and your browser's printer/PDF destination. Use label preview before printing item labels. Paper size and printer settings must match your hardware.</p>
+      <p>Reports show the selected business and BS period. Review sales, purchases, expenses, stock, cash/bank and party balances using available reports. Export supported lists/reports where shown.</p>
+      <p>Owners/managers can review activity in Audit and configure period locks. A locked period restricts changes; ask the responsible owner to review the correct correction date.</p>
+    </section>
+
+    <section id="branches"><h2>16. Staff and branches</h2>
+      <p>Owner creates a branch from business settings/selection. Each branch needs its own opening setup, items, staff access and books. Use the business switcher before entry; confirm branch name at the top.</p>
+      <p>Invite staff to the intended business and choose an appropriate role. Cashiers see permitted sales tools and their own protected records. Owner/manager/accountant permissions differ; waiter/kitchen staff use their permitted restaurant views.</p>
+      <p>Membership in one branch does not automatically grant access to siblings. Branch grouping currently does not perform shared-stock transfers or consolidated tax filing.</p>
+      <p>Platform administration uses a separate superadmin sign-in. Ordinary business staff should use the business sign-in.</p>
+    </section>
+
+    <section id="recovery"><h2>17. Connection problems and retries</h2>
+      <p class="note">If saving loses its reply, keep the current screen and use <strong>Retry original action</strong>. The app retries the same entry so it can recover an already saved record.</p>
+      <ol><li>Read the connection/status message. Do not immediately create a second bill.</li><li>Reconnect, then use the displayed original retry.</li><li>Wait for the saved record or a clear error. Review current records before starting a replacement.</li><li>If total or source changed before posting, recheck the total. If a draft offer changed, edit/review the draft before posting.</li></ol>
+      <p>While an outcome is uncertain, entry controls may stay locked. Restaurant/appointment views can show completion from another device while the retry is still needed to recover the original result.</p>
+      <p>Use stable internet for financial entry. The installed PWA currently does not accept offline financial writes. Closing the screen may lose an unsaved entry; resolve an uncertain save before leaving.</p>
+    </section>
+
+    <section id="limits"><h2>18. Availability and limits</h2>
+      <p><span class="tag">Available now</span> Ionic web/PWA, separate business books, eight POS profiles, configured measurements, waiter/kitchen views, appointments, quotes/orders/jobs, reviewed offers on sale bills/drafts/quotes and checkout, party prices, salary/rent dues and daily bookkeeping.</p>
+      <p><span class="tag">Available</span> Partial delivery/receipt, service completion, source unbilled returns, partial billing, progress and quantity slips. Use section 10 for the delivery-first flow.</p>
+      <p><span class="tag">In progress</span> Billing before delivery/receipt, packages, dispatch and backorders. Further niche features remain tracked in the project feature ledger; controls appear as each batch is verified.</p>
+      <p><span class="tag">Separate release work</span> Android/iOS native builds, offline financial entry, payment-provider collection, automated SMS/WhatsApp, public customer self-ordering, digital approval signatures, loyalty wallets and advanced industry production/dispatch features.</p>
+      <p>Current bill printouts are bookkeeping records. Nepal regulatory invoice issuance/certification is a separate release check. Enable tax settings only after reviewing your business's actual requirements.</p>
+      <p>Owner/operator must verify deployment, backups and restore procedures. Use the project's deployment guide for operating the installation. Keep staff accounts individual and review access when someone leaves.</p>
+      <p class="back"><a href="#contents">Back to contents</a></p>
+    </section>
+  </main>
+  <footer><p>Business Book · NPR · BS dates · Nepal time</p><p class="muted">Use your browser's Find to search this guide. Reopen from More → User manual.</p></footer>
+</body>
+</html>

@@ -1,0 +1,270 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+stderr | src/pages/PosOffers.test.tsx > invalidates previous preview when choosing an offer and sends only fresh reviewed saving
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/pages/PosOffers.test.tsx (1 test | 1 failed) 1106ms
+   × invalidates previous preview when choosing an offer and sends only fresh reviewed saving 1098ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/PosOffers.test.tsx > invalidates previous preview when choosing an offer and sends only fresh reviewed saving
+TestingLibraryElementError: Unable to find a label with the text of: Basket offer (optional)
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <span
+          class="eyebrow"
+        >
+          COUNTER
+        </span>
+        <h1>
+          General store
+        </h1>
+        <p>
+          Select → enter → review → save
+        </p>
+      </div>
+      <div
+        class="heading-actions"
+      >
+        <a
+          href="/app/shop/pos/setup"
+        >
+          POS setup
+        </a>
+        <a
+          href="/app/shop/sales"
+        >
+          Sales
+        </a>
+      </div>
+    </div>
+    <div
+      class="pos-branch"
+    >
+      <span>
+        Branch
+        : 
+        <strong />
+      </span>
+      <a
+        href="/businesses"
+      >
+        Switch business
+      </a>
+    </div>
+    <div
+      class="pos-mobile-tabs"
+    >
+      <button
+        aria-pressed="true"
+        type="button"
+      >
+        Products
+      </button>
+      <button
+        aria-pressed="false"
+        type="button"
+      >
+        Cart
+         (
+        1
+        )
+      </button>
+    </div>
+    <div
+      class="pos-counter pos-view-products"
+      data-dirty="true"
+    >
+      <div
+        class="pos-main"
+      >
+        <section
+          class="pos-catalog"
+        >
+          <label
+            class="field "
+          >
+            <span>
+              Search / barcode
+            </span>
+            <input
+              aria-invalid="false"
+              autocomplete="off"
+              placeholder="Name or exact SKU"
+              value=""
+            />
+          </label>
+          <div
+            class="pos-products"
+          >
+            <button
+              class="pos-product"
+              type="button"
+            >
+              <span
+                class="pos-product-symbol"
+              >
+                W
+              </span>
+              <strong>
+                Work
+              </strong>
+              <span>
+                रु 100.00
+                 / 
+                unit
+              </span>
+              <small>
+                30 min
+              </small>
+            </button>
+          </div>
+        </section>
+      </div>
+      <aside
+        class="panel pos-cart"
+      >
+        <h2>
+          Cart
+        </h2>
+        <div
+          class="pos-cart-row"
+        >
+          <div>
+            <strong>
+              Work
+            </strong>
+            <small>
+              1 unit
+            </small>
+          </div>
+          <button
+            aria-label="Remove Work"
+            type="button"
+          >
+            ×
+          </button>
+        </div>
+        <div
+          class="pos-calculated"
+        >
+          <div
+            class="mini-row"
+          >
+            <span>
+              Work
+              <small>
+                1.000
+                 
+                unit
+                 × 
+                रु 100.00
+              </small>
+            </span>
+            <strong>
+              रु 100.00
+            </strong>
+          </div>
+        </div>
+        <div
+          class="grand-total"
+        >
+          <span>
+            Total
+          </span>
+          <strong>
+            रु 100.00
+          </strong>
+        </div>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Customer (optional)
+          </summary>
+          <div />
+        </details>
+        <form
+          class="pos-checkout"
+        >
+          <p
+            class="subtle"
+          >
+            2083-01-03
+             BS · NPR
+          </p>
+          <label
+            class="check"
+          >
+            <input
+              type="checkbox"
+            />
+            <span>
+              Partial payment / pay later
+            </span>
+          </label>
+          <label
+            class="field "
+          >
+            <span>
+              Payment account
+            </span>
+            <select
+              aria-invalid="false"
+            >
+              <option
+                value="1"
+              >
+                Cash
+              </option>
+            </select>
+          </label>
+          <button
+            type="submit"
+          >
+            <span>
+              Save bill + payment
+            </span>
+          </button>
+        </form>
+      </aside>
+    </div>
+    <button
+      class="pos-cart-dock"
+      type="button"
+    >
+      <span>
+        Cart
+         · 
+        1
+      </span>
+      <strong>
+        रु 100.00
+      </strong>
+    </button>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/PosOffers.test.tsx:17:27
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  11:40:43
+   Duration  5.54s (transform 407ms, setup 886ms, import 775ms, tests 1.11s, environment 2.34s)
+

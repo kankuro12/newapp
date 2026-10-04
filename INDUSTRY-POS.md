@@ -15,7 +15,7 @@
 
 ## Measurement contract
 
-Common quantity, amount, pack, length, area and volume entry methods can be enabled per item. Base units: count, kg/g, litre/ml, mm/cm/m/in/ft, square metre/foot, cubic metre/foot and board foot. Custom units name a positive quantity of that item's base unit, supporting bottles, trays, bundles, sheets and locally defined measures. Metric/imperial dimensions can be mixed by selecting a unit for each dimension. US/Imperial gallons must use distinct custom labels and explicit conversion; ambiguous “gallon” is never guessed.
+Common quantity, amount, pack, length, area and volume entry methods can be enabled per item. 33 named base units: unit/pair/dozen; kg/g/mg/metric tonne/pound/ounce; litre/ml/cl/US gallon/Imperial gallon; mm/cm/m/in/ft/yd; square and cubic mm/cm/m/in/ft/yd; board foot. Custom units name a positive quantity of that item's base unit, supporting bottles, trays, bundles, sheets and locally defined measures. Metric/international inch/foot/yard dimensions can be mixed by selecting a unit for each dimension. US/Imperial gallons have separate built-in codes and readable labels; ambiguous “gallon” is never guessed. Regional units require shop-defined conversions.
 
 Exact international lengths follow [NIST](https://www.nist.gov/pml/us-surveyfoot): foot = 0.3048m; inch = 25.4mm. Board foot is 1ft × 1ft × 1in. Integer rational conversions, half-up rounding to 0.001 base unit; bill price rounds to integer paisa. Server recomputes measurement; frozen snapshot prints actual dimensions plus billed base quantity. Amount entry shows its rounded bill total for confirmation; cannot guarantee arbitrary amount equals a representable 0.001 quantity.
 

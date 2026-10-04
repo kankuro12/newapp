@@ -1,0 +1,5 @@
+
+ INFO Running migrations. 
+
+ 2026_10_03_062555_extend_basket_offer_item_promotions .. 76.40ms DONE
+

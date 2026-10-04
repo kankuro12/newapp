@@ -102,21 +102,34 @@ class AppointmentService
         });
     }
 
+    private function prepareCheckout(int $actor, int $id, array $input, bool $posting = false): array
+    {
+        $this->a->authorize($actor, ['owner', 'manager', 'cashier']);
+        $old = $this->a->requireRow('appointments', $id);
+        abort_unless($old->version == $input['version'] && ! $old->document_id, 409, 'Booking changed or billed.');
+        if (! in_array($old->status, ['arrived', 'in_service'])) {
+            $this->a->fail('Client must arrive before checkout.');
+        }
+        if (NepaliDate::normalize($input['business_date_bs']) !== $old->business_date_bs) {
+            $this->a->fail('Checkout date must match appointment day. Reschedule before checkout.');
+        }
+        $lines = array_map(fn ($service) => ['item_id' => $service['item_id'], 'qty' => '1', 'unit_price' => Money::format((int) $service['unit_price_paisa']), 'tax_category' => $service['tax_category'], 'tax_bps' => (int) $service['tax_bps']], json_decode($old->services, true));
+
+        return app(BasketService::class)->checkout($actor, [...$input, 'contact_id' => $old->contact_id], $lines, ['type' => 'appointment', 'id' => $id, 'version' => (int) $old->version], $posting);
+    }
+
+    public function preview(int $actor, int $id, array $input): array
+    {
+        return $this->prepareCheckout($actor, $id, $input)['preview'];
+    }
+
     public function checkout(int $actor, int $id, array $input, string $uuid): array
     {
         return $this->a->mutate($actor, $uuid, 'pos.appointment.checkout.'.$id, $input, function (Tenant $tenant) use ($actor, $id, $input) {
             $this->a->authorize($actor, ['owner', 'manager', 'cashier']);
             $old = $this->a->requireRow('appointments', $id);
-            abort_unless($old->version == $input['version'] && ! $old->document_id, 409, 'Booking changed or billed.');
-            if (! in_array($old->status, ['arrived', 'in_service'])) {
-                $this->a->fail('Client must arrive before checkout.');
-            }
-            $date = NepaliDate::normalize($input['business_date_bs']);
-            if ($date !== $old->business_date_bs) {
-                $this->a->fail('Checkout date must match appointment day. Reschedule before checkout.');
-            }
-            $lines = array_map(fn ($service) => ['item_id' => $service['item_id'], 'qty' => '1', 'unit_price' => Money::format((int) $service['unit_price_paisa']), 'tax_category' => $service['tax_category'], 'tax_bps' => (int) $service['tax_bps']], json_decode($old->services, true));
-            $bill = app(DocumentService::class)->save($actor, [...$input, 'type' => 'sale', 'contact_id' => $old->contact_id, 'lines' => $lines, 'notes' => 'Appointment #'.$id.' · '.$old->client_name.' · '.$this->data($id)['resource_name']], (string) Str::uuid());
+            $review = $this->prepareCheckout($actor, $id, $input, true);
+            $bill = app(DocumentService::class)->save($actor, [...$input, ...$review['input'], 'type' => 'sale', 'contact_id' => $old->contact_id, 'notes' => 'Appointment #'.$id.' · '.$old->client_name.' · '.$this->data($id)['resource_name']], (string) Str::uuid(), true, $review['preview']['basket_offer']);
             $this->a->rows('appointments')->where('id', $id)->update(['status' => 'completed', 'document_id' => $bill['id'], 'version' => $old->version + 1, 'updated_at' => now()]);
 
             return $bill;

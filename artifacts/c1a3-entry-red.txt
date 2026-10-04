@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/components/FulfilmentEntry.test.tsx (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/FulfilmentEntry.test.tsx [ src/components/FulfilmentEntry.test.tsx ]
+Error: Failed to resolve import "./FulfilmentEntry" from "src/components/FulfilmentEntry.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: E:/laravel pojects/dairy main/newapp/frontend/src/components/FulfilmentEntry.test.tsx:7:0
+  16 |  const __vi_import_2__ = await import("../lib/context");
+  17 |  const __vi_import_3__ = await import("../lib/api");
+  18 |  const __vi_import_4__ = await import("./FulfilmentEntry");
+     |                                       ^
+  19 |  const __vi_import_5__ = await import("react/jsx-dev-runtime");
+  20 |  
+ ❯ TransformPluginContext._formatLog ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:8766:39
+ ❯ TransformPluginContext.error ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:8763:14
+ ❯ normalizeUrl ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:26423:18
+ ❯ ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:26493:30
+ ❯ TransformPluginContext.transform ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:26459:4
+ ❯ EnvironmentPluginContainer.transform ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:8545:14
+ ❯ loadAndTransform ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:19988:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  09:26:12
+   Duration  3.38s (transform 42ms, setup 387ms, import 0ms, tests 0ms, environment 1.62s)
+

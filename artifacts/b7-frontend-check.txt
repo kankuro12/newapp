@@ -1,0 +1,17 @@
+
+> business-book@0.0.0 test:frontend
+> npm run test.unit --workspace frontend -- --run
+
+
+> frontend@0.0.1 test.unit
+> vitest "--run"
+
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+
+ Test Files  17 passed (17)
+      Tests  35 passed (35)
+   Start at  11:17:30
+   Duration  39.66s (transform 12.67s, setup 11.96s, import 25.05s, tests 13.78s, environment 49.04s)
+

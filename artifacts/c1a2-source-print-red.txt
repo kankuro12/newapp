@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/components/SourceOrderAllocation.test.tsx (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/SourceOrderAllocation.test.tsx [ src/components/SourceOrderAllocation.test.tsx ]
+Error: Failed to resolve import "./SourceOrderAllocation" from "src/components/SourceOrderAllocation.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: E:/laravel pojects/dairy main/newapp/frontend/src/components/SourceOrderAllocation.test.tsx:4:38
+  2  |  import { MemoryRouter } from "react-router-dom";
+  3  |  import { expect, it } from "vitest";
+  4  |  import { SourceOrderAllocation } from "./SourceOrderAllocation";
+     |                                         ^
+  5  |  var _jsxFileName = "E:/laravel pojects/dairy main/newapp/frontend/src/components/SourceOrderAllocation.test.tsx";
+  6  |  import { jsxDEV as _jsxDEV } from "react/jsx-dev-runtime";
+ ❯ TransformPluginContext._formatLog ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:8766:39
+ ❯ TransformPluginContext.error ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:8763:14
+ ❯ normalizeUrl ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:26423:18
+ ❯ ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:26493:30
+ ❯ TransformPluginContext.transform ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:26459:4
+ ❯ EnvironmentPluginContainer.transform ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:8545:14
+ ❯ loadAndTransform ../../../../laravel%20pojects/dairy%20main/newapp/node_modules/vite/dist/node/chunks/node.js:19988:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  09:03:51
+   Duration  5.68s (transform 58ms, setup 1.18s, import 0ms, tests 0ms, environment 3.13s)
+

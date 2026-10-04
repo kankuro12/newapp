@@ -7,6 +7,11 @@ APP-SPECIFICATION and acceptance scenarios remain authoritative.
 
 ## Workspace and boundaries
 
+Public user guide: frontend/public/help/user-manual.html, shown inside the Ionic workspace at /app/{branch}/help from More (UserManual.tsx).
+18 current-feature sections, responsive/print styles, public demonstration images.
+Guide/images are explicitly allowed static PWA assets; private API data remains
+uncached. Later feature batches must update guide and availability notes.
+
 ```text
 newapp/
   backend/      Laravel 13, independent Composer lock/key/storage
@@ -20,8 +25,8 @@ composer84. Backend paths in planning docs refer to backend directory. Preserve
 existing app and never clone/create-project over it. No dairy code/database/key,
 session or private storage sharing. No Git mutations without explicit request.
 
-Nine services under `backend/app/Service`: AccountingService, DocumentService,
-InventoryService, PaymentService, TenantService, RecurringExpenseService, PosService, RestaurantService, AppointmentService. Controllers validate inputs and
+Sixteen services under `backend/app/Service`: AccountingService, DocumentService,
+InventoryService, PaymentService, TenantService, RecurringExpenseService, PosService, RestaurantService, AppointmentService, WorkflowService, FulfilmentService, PartyService, CatalogService, ImportService, BarcodeService, BasketService. Controllers validate inputs and
 marshal scoped results; services enforce roles, ownership and atomic domain
 rules. CurrentTenant fails closed when missing. Financial rows use service's
 explicit tenant-scoped query helper rather than many thin Eloquent models;
@@ -42,6 +47,14 @@ journal/DR-CR input is prohibited. Balanced journals remain internal effects.
 | Dashboard | frontend/src/pages/Dashboard.tsx |
 | Contacts/items | frontend/src/pages/Masters.tsx |
 | Sale/purchase/expense editor | frontend/src/pages/DocumentForm.tsx |
+| Quotes/orders/jobs | frontend/src/pages/Workflows.tsx, shared DocumentForm workflow mode |
+| Delivery-first partial fulfilment/billing | frontend/src/components/FulfilmentEntry.tsx, FulfilmentPanel.tsx, frontend/src/pages/FulfilmentDetail.tsx; SourceOrderAllocation.tsx invoice/review note |
+| Party terms/prices, collections/follow-ups | frontend/src/pages/PartyTools.tsx |
+| Item categories, reviewed supplier reorders | frontend/src/pages/CatalogTools.tsx, shared Masters/Pos catalogue |
+| Reviewed CSV parties/items, templates/export/history | frontend/src/pages/ImportTools.tsx |
+| Industry POS, waiter/kitchen and appointments | frontend/src/pages/Pos.tsx |
+| Alternate codes, configured scale labels and scan control | frontend/src/pages/BarcodeTools.tsx |
+| Reviewed Code128 sheet/roll labels | frontend/src/pages/LabelTools.tsx, frontend/src/lib/barcode.ts |
 | Lists/details/print/drafts | frontend/src/pages/Records.tsx |
 | Money/returns/stock count | frontend/src/pages/DailyForms.tsx |
 | Monthly salary/rent/regular payments | frontend/src/pages/RegularPayments.tsx |
@@ -132,10 +145,12 @@ require their own milestone rather than speculative mobile scaffolding.
 
 ## Evidence and release gates
 
-Actual checks in BUILD-PROGRESS.md: backend 37 tests/514 assertions, frontend 14 tests,
+Actual checks in BUILD-PROGRESS.md: backend full151/3599 before final C1b rounding correction, final targeted33/938 after correction, frontend71 tests,
 build/lint/formatting, live cookie-CSRF browser posting, mobile/desktop layout,
 production assets-only offline PWA and separate-process MariaDB locking/FK test.
-These do not certify all119 acceptance scenarios or MySQL 8.4 readiness.
+Latest C1a mobile visual QA uses isolated posting-disabled fixtures; live C1a
+authenticated browser posting remains unverified. These checks do not certify
+all119 acceptance scenarios or MySQL 8.4 readiness.
 
 Local server MariaDB 10.4.19 differs from MySQL 8.4 target. Validate intended server,
 production dependency advisories, SMTP/HTTPS/scheduler, backup restore, complete
@@ -151,3 +166,119 @@ Business pos_profile selects general, meat, restaurant, barber, salon, milk, gla
 POS sale server normalizes measurements and invokes DocumentService inside existing UUID/tenant-lock transaction. Immutable line measurement_snapshot prints dimensions/notes; returns reference original measurement and retain exact original-price reversal paths. Restaurant orders and appointments have no financial effect until explicit checkout. Tickets/services freeze prices; checkout links one document. Tenant lock coordinates table occupancy, appointment overlap and financial posting; composite foreign keys enforce ownership.
 
 Operational UI refreshes foreground GETs every two seconds without caching private responses. Version conflicts preserve input. Failed refresh shown; uncertain mutation offers original UUID/payload retry even when live versions advance. Native push/hardware/provider integrations are not claimed.
+
+PartyService owns optional customer credit limits, independent sale/purchase BS
+payment days, agreed item rates and local staff follow-ups. Configure/read balances
+only as owner/manager/accountant; cashiers receive sale-price suggestions without
+credit policy or purchase prices. Shared DocumentService posting checks unpaid
+sales against canonical customer exposure, including later-day peaks for backdated
+sales, under existing tenant lock. Supplier dues are separate. Fully paid sales
+and reversals stay usable. Stored bill due dates and approved quotes remain frozen.
+Collection follow-ups never settle balances or send provider messages. Composite
+party/item/bill/history ownership keys supplement membership and version checks.
+
+Shared price-list backend extends PartyService: tenant-owned sale/purchase lists,
+item/minimum-base-quantity volume rates, exact percentage adjustment and optional
+BS validity. Contacts have separate channel assignments; owner/manager/accountant
+manage, cashier reads sale lists/suggestions only. Selection and assignment require
+matching active scoped rows. Explicit agreed party prices take priority after list
+validation. Disabled/expired assigned lists fail for review; saved documents and
+accepted quotes preserve original prices. POS reprices combined same-item quantity
+and rejects amount entries crossing a price tier. Guided list/rule setup, party
+assignments, reviewed bill/quote quantity suggestions and optional POS list choice
+are delivered. Counter requires server preview fingerprint before checkout. API
+checks supplied fingerprints against current normalized prices/quantities, even
+with unchanged money total; older callers retain canonical server total checks.
+Draft versions advance only after confirmed save or explicit reload.
+
+Reviewed price-list CSV extends ImportService and shared PartyService validation.
+`imports` resource `price_lists` accepts optional `replace_rules`; default merges
+item/minimum tiers. Every row repeats existing list ID or new name/channel.
+Metadata-only rows are allowed. Explicit replacement changes included lists only;
+fresh tenant/version/digest and full rules review precede atomic apply and retry.
+CSV limits1MiB/1000 rows/50 lists; existing parties/items retain500 rows.
+Guarded UTF-8 exports include old unit/kind snapshots and spreadsheet escaping;
+capture tenant-scoped queries before streaming, never resolve ambient tenant then.
+Export does not truncate; larger exports must be split before reimport.
+Imports never assign parties, change default prices or post financial/stock data.
+
+Price lists also support graduated `slab` ranges; legacy/new default is `volume`.
+Every slab item starts at zero. PartyService returns exact quantity/rate segments
+with separately rounded gross, preserving fixed party-price priority. POS combines
+same-item quantities before splitting, fingerprints the complete normalized
+result and stores per-position ranges plus original measurements/notes. Amount
+entry crossing differing rates requires quantity review. No averaged prices.
+DocumentService permits repeated item rows for price ranges, bounding combined
+item quantity; the existing100-row limit, posting and reversal paths still apply.
+Reviewed manual Apply consolidates matching tax/percentage settings and allocates
+fixed discounts exactly; conflicting settings or stale quantities leave entry
+untouched. Accepted quote prices remain frozen. Scheme participates in guarded
+versioned save, CSV review/export and scoped suggestion APIs.
+
+BasketService owns tenant basket_offers, capped at100 named configurations.
+Owner/manager/accountant configure fixed NPR or percentage below100, percentage
+cap, minimum spend and optional BS validity. Cashiers read/apply only permitted
+enabled offers. Counter selection is explicit; normalized quantity/list prices
+apply first, minimum checks after line discounts before tax. A single offer becomes
+the canonical invoice discount, allocated by DocumentService before tax; no extra
+bill-discount stacking. Full offer/version/settings participate in POS fingerprint,
+including changes which leave money identical. Disabled/expired/foreign/forbidden
+or under-minimum selection cannot post. Composite document/offer ownership and
+immutable basket_offer_snapshot preserve original financial/source-line reversals.
+Counter shows item amounts before offer/tax, deduction once, discounted tax and
+grand total. No private API cache, automatic posting or provider claim. Other
+restaurant/appointment offer checkout verified in B8b2b2a, including both phone
+previews. Stale browser tab cleanup restored input without an app patch. Manual/draft/quote/order offers delivered in B8b2b2b with fresh review for edits and saved drafts, and frozen approved conversion. Quantity choice groups delivered in B8b2b1.
+
+Restaurant/appointment POST checkout/preview uses BasketService preparation of
+saved ticket/booked prices, canonical taxes, source version, BS day and customer.
+Served noncancelled rounds or arrived/in-service bookings only. A selected offer
+requires matching fingerprint at posting, including same-total changes. Existing
+UUID retry returns committed bills after offer disable/expiry. Existing document
+offer columns retain proof; stock/returns/cancel rules remain authoritative.
+Ionic ReviewedCheckout invalidates stale reviews, aborts superseded requests and
+locks uncertain payment entry. Parent-level retry survives live source closure.
+
+Quantity choice groups extend these existing rules with union item/category
+selectors, explicit billed base unit and required quantity. Active category items
+with other base units do not qualify; explicit items require matching unit/kind
+snapshots. Overlapping groups share cart capacities through residual matching;
+binary search determines complete repetitions. Buy/get minimizes feasible reward
+unit prices while preserving buy quotas. Assignments and actual matched item
+metadata participate in fingerprint and immutable bill snapshot. No per-copy
+expansion, new service, migration or dependency. Guided Ionic setup exposes one
+group at a time with optional help and retains existing safe retry/version rules.
+
+Explicit item bundles and buy/get extend BasketService with offer_kind, reviewed
+base-unit rules and optional maximum_applications. Bundles require2–20 distinct
+components at one NPR price; buy/get has one buy and one reward rule, same or
+different item, percentage up to100. Cart must contain both quantities. Integer
+division determines complete repetitions; no per-copy loops. Bundle matches stable
+source order; rewards match cheaper normalized ranges first. Original rounded
+bases value matched quantities proportionally; largest-remainder discounts apply
+only to eligible lines, leaving other prices/tax unchanged. Bundle never increases
+prices and whole bill remains positive. Product promotions use canonical line
+discounts; basket offers retain invoice allocation. Preview before_offer_paisa
+keeps displayed original amounts and one deduction. Complete rules/matches/repeats
+participate in fingerprint and immutable snapshot. Unit/kind/archival/ownership
+checked at save and preview. Free rewards retain positive price, normal stock
+consumption and zero-value source returns. Partial returns follow original
+source-line proportions. Migration is additive; no extra dependency/cache.
+
+Selected-item/category offers use offer_kind items and one target rule. Up to100
+active scoped items and20 categories form a union; category membership resolves
+current cart rows. Full matching line bases receive fixed NPR once or percentage
+up to100; unmatched values/tax remain. Fixed saving cannot exceed eligible base;
+whole bill stays positive. Canonical target names and actual matched item unit/
+kind/category snapshots participate in fingerprint and immutable posting snapshot.
+Category/item reference arrays cross JSON as strings. Normal source-line returns
+and cancellation remain unchanged.
+
+All offers may use paired HH:MM clock times and selected weekdays, in server
+Asia/Kathmandu time. Start inclusive/end exclusive; overnight uses starting
+weekday; empty days means every day. Scheduled selection requires current Nepal
+BS date. Financial posting rechecks window inside existing tenant mutation; UUID
+replay of a committed original remains valid after expiry. Fingerprint includes
+schedule/date without minute/second churn. BS validity remains independent. GET
+exposes current availability, and UI supports review/removal/refresh. No automatic
+stacking, client-clock authorization or private caching.

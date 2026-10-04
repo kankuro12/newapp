@@ -43,24 +43,24 @@ This is the deduplicated union of capabilities confirmed above, grouped into imp
 | 8 | Allocation, advances and separate party dues | T,S,Z | Existing |
 | 9 | Sales/purchase returns and refunds | T,S,Z | Existing linked reversal paths |
 | 10 | Discounts and bookkeeping tax | S,V,M,Z | Existing exact arithmetic; tax-inclusive entry pending |
-| 11 | Quotations/estimates and acceptance | T,V,M,Z,X | Missing; next sales workflow |
-| 12 | Sales orders and outstanding orders | T,S,Z | Missing; follows quotation |
-| 13 | Purchase orders and conversion to bill | T,S,V,M,Z,X | Missing; same order workflow |
-| 14 | Delivery note / goods receiving note | S,V | Missing printable linked view; separate physical fulfilment later |
+| 11 | Quotations/estimates and acceptance | T,V,M,Z,X | Delivered draft/revision/expiry and staff-recorded acceptance; public approval portal pending |
+| 12 | Sales orders and outstanding orders | T,S,Z | Delivered quote conversion, work status and overdue fulfilment filter |
+| 13 | Purchase orders and conversion to bill | T,S,V,M,Z,X | Delivered purchase order with reviewed linked purchase bill |
+| 14 | Delivery note / goods receiving note | S,V | Delivered order delivery-slip print; separate goods receiving/physical fulfilment pending |
 | 15 | Partial fulfilment / progress invoices | Z | Missing; staged orders extension |
-| 16 | Party credit limits and payment terms | S,V,M | Missing |
-| 17 | Item/customer price lists | V,Z | Missing |
+| 16 | Party credit limits and payment terms | S,V,M,Z | Delivered BS sale/purchase terms and shared posting credit guard |
+| 17 | Item/customer price lists | V,Z | Delivered party rates, shared sale/purchase lists, volume/slab tiers, exact adjustments, BS dates, guided setup/assignment and reviewed bill/POS pricing. Reviewed list CSV import/export delivered. Counter basket/bundle/buy-get/selected-category offers and Nepal-time schedules delivered; alternative/category quantity groups delivered; restaurant/appointment offer checkout implemented (both phone proofs verified); manual/draft/quote/order offers delivered in B8b2b2b with current draft review and frozen approved conversion |
 | 18 | Repeated/recurring sales | Z | Missing |
 | 19 | Monthly salary/rent expense and payable | Recurring expense: Z | Existing owner-requested flow; full payroll separate |
-| 20 | Reminders, follow-up date and history | T,V,M,K,Z,Q,X | Missing in-app follow-up; sending requires provider |
-| 21 | Party statements, aging and overdue lists | T,S,V,M,K,Z | Reports exist; collection-focused screen pending |
-| 22 | Search and barcode keyboard entry | T,V,M | Name/SKU lookup exists; exact barcode entry pending |
-| 23 | Barcode label printing | T,V,M | Missing |
+| 20 | Reminders, follow-up date and history | T,V,M,K,Z,Q,X | Delivered local staff follow-up date/status/history; provider sending pending |
+| 21 | Party statements, aging and overdue lists | T,S,V,M,K,Z | Delivered canonical collection list with normal payment, statement and aging links; due-task filter |
+| 22 | Search and barcode keyboard entry | T,V,M | Delivered SKU/alternate-code lookup and explicit scan-to-cart; opt-in EAN-13/UPC-A weight/NPR amount formats, checksum, trusted posting |
+| 23 | Barcode label printing | T,V,M | Delivered reviewed Code128 labels, item/category/supplier selection, copies and adjustable sheet/roll layouts; physical printer calibration pending |
 | 24 | Stock balances, value and low-stock alerts | T,S,V,M,Z,X | Existing |
 | 25 | Stock counts, adjustment and correction | T,S,Z | Existing |
-| 26 | Item categories, groups, photos | T,Z | Missing |
-| 27 | Reorder to supplier purchase order | Z | Low-stock list exists; order shortcut pending |
-| 28 | Multiple units / pack conversion | T,V | Missing |
+| 26 | Item categories, groups, photos | T,Z | Delivered searchable categories and item/POS filters; photos and nested groups pending |
+| 27 | Reorder to supplier purchase order | Z | Delivered preferred supplier, target stock, pending-order deduction and reviewed PO; unattended scheduling pending |
+| 28 | Multiple units / pack conversion | T,V | Delivered item-enabled exact measurement modes and custom packs |
 | 29 | Batch, serial, manufacturing and expiry dates | S,V,M | Missing; stock-model extension |
 | 30 | Warehouse/store stock and transfers | T,S,V | Existing contract single location; explicit expansion needed |
 | 31 | Landed/import costs | T,S | Missing; requires inventory-cost/reversal extension |
@@ -81,7 +81,7 @@ This is the deduplicated union of capabilities confirmed above, grouped into imp
 | 46 | Sales/purchase trend and price history | S | Missing focused analytics |
 | 47 | Budgets vs actual | Z,X projects | Missing |
 | 48 | Report tags, custom fields and saved reports | T,S,Z | Missing |
-| 49 | CSV/master import and data migration | T,S | Missing; preview then atomic import |
+| 49 | CSV/master import and data migration | T,S | Delivered reviewed atomic party/item CSV with mappings, categories/suppliers/POS settings, templates/export, duplicate/stale/rollback/retry checks. Financial/stock migration via canonical posting remains pending |
 | 50 | Export, printing and reusable templates | T,S,V,M,K,Z | CSV/printing exists; branding/templates pending |
 | 51 | Backup/restore and export ownership | S,K | Operational backup recipe exists; restore rehearsal pending |
 | 52 | Customer/vendor portal | Z | Missing separate scoped identity and invitations |
@@ -110,16 +110,80 @@ This adaptation follows [GOV.UK question-page guidance](https://design-system.se
 Keep this list live; only mark completed after checks. No source changes committed or pushed without owner request.
 
 1. Delivered: mobile party/item and Party → Items → Review billing organisation; retained values, validation and responsive checks.
-2. Pending: quotes, sales/purchase orders, conversion to reviewed bills and linked delivery printouts.
-3. Pending: in-app collection/payment follow-up, overdue view and copyable reminder/statement.
-4. Delivered: exact SKU entry in POS search. Pending: embedded scale barcodes and printable labels.
-5. Pending: previewed CSV party/item import with duplicate and rollback checks.
+2. Delivered: quotes, sales/purchase orders, frozen-price reviewed bills, job specifications/status and linked quote/job/delivery printouts. Partial fulfilment, receiving stock and public customer approval remain separate extensions. See NICHE-FEATURES.md.
+3. Delivered: in-app collection/payment follow-up, due-task filter/history, collection list and aging links. Copyable reminder and provider sending remain pending.
+4. Delivered: exact SKU/alternate code lookup and scan-to-cart, configured embedded quantity/amount scale barcodes, reviewed sheet/roll label printing. Pending: direct hardware connection and printer calibration.
+5. Delivered: previewed CSV party/item import with mapping, duplicate, rollback and retry checks. Financial/stock migration remains pending.
 6. Pending: bank CSV matching and statement reconciliation; no duplicate posting.
-7. Pending: BS payment terms, credit limits and party/item prices.
+7. Delivered: BS payment terms, shared customer credit limits and exact party/item prices. Shared sale/purchase price lists, volume/slab tiers, reviewed list CSV import/export, counter basket/bundle/buy-get/selected-category offers and Nepal-time schedules. Alternative/category quantity groups delivered; restaurant/appointment offer checkout implemented (both phone proofs verified); manual/draft/quote/order offers delivered in B8b2b2b with current draft review and frozen approved conversion.
+
+Price-list CSV research rechecked3 October2026:
+[Zoho Inventory import/export help](https://www.zoho.com/in/inventory/kb/price-lists/pl-import.html)
+documents sales/purchase files, sample templates, field mapping and preview.
+Our implementation combines channels in explicit CSV rows, uses NPR and BS dates,
+retains omitted tiers by default and offers reviewed replacement. Verified72
+backend tests/1404 assertions,31 frontend tests and390px mobile save/reopen.
+No bills, stock movements or payments originate from list import.
+
+Graduated pricing research rechecked3 October2026:
+[Zoho Billing pricing models](https://www.zoho.com/us/billing/help/product-catalog/plans/pricing-models.html)
+distinguishes volume (one rate for all units) from tiered (separate range rates).
+We adapted the latter to one-time NPR bills with integer quantity segments and
+separate half-up rounding. This is an adaptation, not a claim about Zoho
+Inventory billing behavior. Delivered scheme editor/CSV, POS breakdown and
+explicit manual Apply; accepted prices, cancellation and returns remain frozen
+to source lines. Verified76 backend tests/1488 assertions,35 frontend tests and
+390px mobile preview/manual Apply. Basket offers remain required.
+
+Basket research rechecked3 October2026:
+[Square automatic discounts](https://developer.squareup.com/docs/catalog-api/cookbook/auto-apply-discounts)
+documents quantity, minimum-order, combination and time-based rules;
+[Loyverse discount setup](https://help.loyverse.com/help/how-create-and-configure-discounts)
+documents fixed/percentage savings and staff restrictions. B8a adapts whole-basket
+minimum spend to NPR, BS validity, one explicit counter selection, percentage cap
+and role permission. Canonical tax allocation, immutable offer snapshot and source
+returns preserve exact amounts. B8b1 adds explicit-item bundle and buy/get reward
+rules, including100% reward discounts with ordinary stock and source returns.
+As of B8b2b1, alternative/category quantity groups are delivered. Remaining
+B8b2b2a implements restaurant/appointment offer checkout, with restaurant phone
+and salon phone proofs plus API/UI checks. B8b2b2b remains reviewed manual/draft/accepted quote/order offers.
+Current whole-basket offers must leave positive base; zero-total bills require
+separate canonical posting rules. No claim of full promotion parity.
+
+[Square product-set and time rules](https://developer.squareup.com/docs/catalog-api/cookbook/auto-apply-discounts)
+document item/category sets, weekdays and recurring periods;
+[Square happy-hour example](https://developer.squareup.com/docs/catalog-api/cookbook/auto-apply-discounts/timeframe-discounts)
+demonstrates category savings in an active window. B8b2a adapts reviewed selection
+to exact NPR, BS and server Nepal-time checks, rather than authorizing from device
+clock. Selected category/item union discounts current matched lines once; fixed
+amount/percentage up to100 respects eligible value and positive whole bill.
+Overnight attribution, backdate denial, expiry recheck and committed UUID replay
+are explicit local choices. Other checkout/manual/approved workflows remain
+required; vendor parity is not claimed.
+
+[Square product sets](https://developer.squareup.com/reference/square/objects/CatalogProductSet)
+support any/all selections and quantities;
+[Shopify buy/get](https://help.shopify.com/en/manual/discounts/discount-types/buy-x-get-y)
+supports product/collection pools and lower-priced rewards. B8b2b1 adds unit-scoped
+alternative/category quantity groups, overlap matching without reused quantities,
+cheapest feasible rewards and immutable assignment proof. Category membership is
+live; incompatible units excluded. Existing exact tax/stock/reversal rules apply.
+Checkout research rechecked3 October2026:
+[Loyverse sale discounts](https://help.loyverse.com/help/how-apply-discounts-during-sale)
+shows configured ticket/item selection and a separate ticket saving line.
+[Fresha client rewards](https://www.fresha.com/help-center/knowledge-base/clients/584-manage-client-rewards)
+supports checkout rewards with selected items/services, minimum spend, expiry and
+combination limits. B8b2b2a applies existing explicit offers to saved restaurant
+tickets and arrived appointments. Trusted proof/BS day/version and old prices
+are local adaptations. Actual rewards wallet/points and packages remain batch E.
+Verified96 backend tests/2094 assertions,49 frontend tests; restaurant390px Nepali
+preview240.10 after10 saving and salon140.00 from150 less10. Stale-tab cleanup
+restored browser clicks; both phone proofs pass. No all-device/vendor parity claim.
+
 8. Pending: sales/purchase analytics, cash-flow view and budgets.
 9. Pending: simple approval and reimbursable expense flow.
 10. Pending: recurring sales with controlled generation and duplicate protection.
-11. Pending: item categories/photos and reorder shortcuts.
+11. Delivered: item categories, POS filtering and reviewed supplier reorders. Photos and nested groups remain pending.
 12. Pending: staged fulfilment, unit conversion, batch/serial/expiry and landed costs; each requires stock/reversal tests before the next.
 13. Pending product extensions: project/time, asset depreciation, cheques, portals, loyalty/catalogue and custom reporting fields.
 14. Configuration-dependent: real messaging, payment links, bank feeds, OCR/AI and Nepal tax submission. Build only against verified providers and authorised credentials.
@@ -127,3 +191,107 @@ Keep this list live; only mark completed after checks. No source changes committ
 16. Release checks: translations, backup/restore rehearsal, target MySQL 8.4 and physical Android/iOS build/device validation.
 
 This ledger distinguishes requested roadmap from delivered software. Existing features are not rebuilt. Research does not certify production readiness, Nepal tax compliance, provider coverage or feature parity with enterprise editions.
+
+Party trading research: [Zoho credit-limit help](https://www.zoho.com/bh/books/help/contacts/credit-limit.html)
+describes warning/restriction choices and order exposure;
+[Zoho price-list help](https://www.zoho.com/in/books/help/items/price-list.html)
+describes customer/vendor pricing; [Tigg purchase-bill help](https://help.tiggapp.com/article/purchase-bill)
+describes payment terms and transaction tasks with assignees, due dates and history.
+Our adaptation uses a hard limit on posted unpaid sales, explicit BS calendar days,
+frozen approved quotes and local follow-ups. Orders do not reserve credit; grouped
+price lists and sending remain separate work. These are implementation choices,
+not claims that every competitor uses the same rules.
+
+## 3 October2026 — regular sale/draft and approved quote offers
+
+Delivered B8b2b2b: selected named offers on manual sale/draft and editable quote/
+sales-order forms; current review and full saved-term check before draft posting.
+Approved quote/order conversion freezes discount allocation and source proof,
+even when active offer later changes. Copy/clone restores pre-offer values and
+requires explicit new selection. Internal POS paths pass trusted proof once;
+posted returns use original values. Purchases/expenses do not accept offers.
+
+Primary comparison: [Zoho FSM line/transaction discounts](https://help.zoho.com/portal/en/kb/fsm/billing/articles/tax-discount-preferences)
+covers estimates, work orders, appointments and invoices.
+[Zoho accepted quote conversion](https://www.zoho.com/uk/invoice/help/estimate/estimate-preferences.html)
+supports field retention/conversion. Our before-tax-only policy, draft re-review
+and frozen approved prices are explicit app choices; after-tax/tax-inclusive
+pricing, provider sending and public digital acceptance remain separate work.
+
+Verified102 backend tests/2225 assertions,60 UI tests;390px manual/draft/quote
+proofs and new18-section user manual. Guide distinguishes available/planned
+features, links from More and includes safe pay-later/retry procedures. Batch B
+extension complete; C–H and integration/native release gates remain active.
+
+
+## Measurement configuration follow-up — 4 October 2026
+
+[Lightspeed weighted products](https://x-series-support.lightspeedhq.com/hc/en-us/articles/25534180905243-Creating-and-selling-weighted-products-in-Retail-POS-X-Series)
+documents fractional sale quantities. App now includes33 named standards with
+separate US/Imperial gallons, yard dimensions, grouped English/Nepali selectors
+and explicit custom pack/local measures. Conversion definitions follow
+[NIST conversion guidance](https://www.nist.gov/pml/special-publication-811/nist-guide-si-appendix-b-conversion-factors).
+Factors stay rational integers; canonical thousandths and original returns remain.
+
+Full104 backend tests/2339 assertions and61 UI tests pass; final affected13,
+lint/types/Pint/build verified.390px glass preview:32.5cm ×200mm =650sq_cm,
+10 per unit givesNPR6500, no horizontal overflow. Only isolated QA item metadata
+saved; no browser financial posting. Manual section4 updated. Special cutting
+formulas, hardware and C–H remain required research/implementation work.
+
+## C1a1 physical fulfilment follow-up — 4 October 2026
+
+Previously reviewed [Zoho order progress](https://www.zoho.com/us/inventory/help/sales-orders/sales-order-managing.html)
+and [Zoho ERP partial shipments/invoices](https://www.zoho.com/en-in/erp/help/sales/sales-orders/create-sales-orders.html)
+motivate separating physical completion from billing. Current step implements
+only reviewed partial delivery/receipt/unbilled-return/cancellation APIs with
+owned history, single stock movement, pending-goods accounts and protected
+retries. Vendor accounting internals are not inferred from those feature pages.
+
+Full118 backend tests/2726 assertions, scoped formatting and web build pass;
+separate-process delivery and existing-tenant migration backfill verified. Guide
+clarifies pending partial screens. C1a2 financial allocation/returns and Ionic
+screens remain pending; C1b billing-first/packages/backorders remain required.
+This is backend progress, not complete C1 or competitor parity. See detailed
+contract/evidence in NICHE-FEATURES.md and BUILD-PROGRESS.md.
+
+## C1a delivered-quantity billing and Ionic flow — 4 October 2026
+
+The previously reviewed Zoho order/invoice progress and Odoo delivered-quantity
+policies now have delivery-first implementation here: multiple actual physical/
+service actions, partial source-priced bills, source returns, linked history,
+exact pending-cost clearing and safe cancellation. Ionic forms show available
+quantities and require fresh reviewed terms; print shows actual action amounts
+or explicit invoice source-allocation differences. Vendor accounting internals
+remain unclaimed. Source price/tax rounding policy is this app's bookkeeping
+design, separately documented in APP-SPECIFICATION6.1.1.
+
+Full130 backend/3102 assertions and71 UI tests pass; types/lint/scoped Pint and
+web build pass. 390px English bill/Nepali receipt/slip checks use isolated
+posting-disabled fixtures. Live authenticated staging QA remains unverified.
+Manual sections8/10/14/18 updated. C1b ordered-quantity billing before delivery,
+packages/dispatch/backorders and remaining C–H features remain required; this
+does not claim complete competitor parity or Nepal invoice certification.
+## C1b direct billing-first backend checkpoint — 4 October 2026
+
+Odoo's ordered/delivered quantity policy is now verified through its full
+[official documentation source](https://raw.githubusercontent.com/odoo/documentation/19.0/content/applications/sales/sales/invoicing/invoicing_policy.rst),
+recovering the earlier failed HTML fetch. Full [Zoho packages](https://www.zoho.com/us/inventory/help/sales-orders/packages.html)
+and [manual shipments](https://www.zoho.com/us/inventory/help/sales-orders/shipments.html)
+pages verify multiple packages and separate shipment/delivery states. These
+workflow facts do not establish vendor journal internals.
+
+Our direct backend now supports reviewed ordered partial billing before actual
+stock/work fulfilment, deferred pending value, exact billed-source delivery/
+receipt/work, explicit unfulfilled credits versus original physical returns,
+and dependent reversals. Owned schema, immutable policy, residual pennies,
+fixed recoverable VAT and original costs are covered. Zero-paisa credits retain
+future fulfilment value; cumulative credits ahead of a physical rounding target
+carry to the exact final residual. No provider shipment integration is claimed.
+
+Final targeted33/938 checks and earlier full151/3599 evidence are detailed in
+BUILD-PROGRESS.md. C1b Ionic forms, package states/customer delivery, backorder
+prints, new terminal races and revoked replay cases remain required. C1 remains
+in progress; C2–C6 and D–H remain in scope. Guide edition3 embeds within the app
+and adds separate country/required phone signup instructions; billing-first
+still appears pending until its controls ship.

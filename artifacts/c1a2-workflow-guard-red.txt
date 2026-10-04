@@ -1,0 +1,32 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/pages/Workflows.test.tsx (2 tests | 1 failed) 671ms
+   × prevents active partial orders from presenting a full bill, premature completion or full delivery slip 127ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/Workflows.test.tsx > prevents active partial orders from presenting a full bill, premature completion or full delivery slip
+Error: expect(element).not.toBeInTheDocument()
+
+expected document not to contain element, found <button
+  type="button"
+>
+  Review + create bill
+</button> instead
+ ❯ src/pages/Workflows.test.tsx:28:75
+     26| it('prevents active partial orders from presenting a full bill, premat…
+     27|   renderOrder(true);
+     28|   expect(screen.queryByRole('button', {name:'Review + create bill'})).…
+       |                                                                           ^
+     29|   expect(screen.queryByRole('button', {name:'Mark fulfilled'})).not.to…
+     30|   expect(screen.queryByRole('button', {name:'Cancel'})).not.toBeInTheD…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  09:23:22
+   Duration  5.96s (transform 357ms, setup 690ms, import 763ms, tests 671ms, environment 3.20s)
+

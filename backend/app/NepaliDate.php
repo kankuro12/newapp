@@ -116,4 +116,30 @@ final class NepaliDate
 
         return $year * 10000 + $month * 100 + min($day, $length);
     }
+
+    public static function addDays(int $date, int $days): int
+    {
+        $date = self::normalize($date);
+        if ($days < 0 || $days > 3650) {
+            throw new InvalidArgumentException('Payment days must be 0–3650.');
+        }
+        $year = intdiv($date, 10000);
+        $month = intdiv($date % 10000, 100);
+        $day = $date % 100;
+        while ($days > 0) {
+            $length = self::table()[$year][$month - 1] ?? throw new InvalidArgumentException('Unsupported due date.');
+            if ($days <= $length - $day) {
+                $day += $days;
+                break;
+            }
+            $days -= $length - $day + 1;
+            $day = 1;
+            if (++$month > 12) {
+                $year++;
+                $month = 1;
+            }
+        }
+
+        return self::normalize($year * 10000 + $month * 100 + $day);
+    }
 }

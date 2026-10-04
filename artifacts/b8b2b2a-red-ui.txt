@@ -1,0 +1,40 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/pages/CheckoutOffers.test.tsx (3 tests | 3 failed) 803ms
+   × invalidates previous review on offer/source change and submits exact fresh proof 792ms
+   × keeps selection after failed preview and requires a successful reviewed retry 3ms
+   × locks offer and payment entry after uncertain save and retries original action 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/CheckoutOffers.test.tsx > invalidates previous review on offer/source change and submits exact fresh proof
+AssertionError: expected { default: [Function Pos], …(1), …(1) } to have property "ReviewedCheckout"
+ ❯ checkout src/pages/CheckoutOffers.test.tsx:11:53
+
+ ❯ src/pages/CheckoutOffers.test.tsx:19:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/pages/CheckoutOffers.test.tsx > keeps selection after failed preview and requires a successful reviewed retry
+AssertionError: expected { default: [Function Pos], …(1), …(1) } to have property "ReviewedCheckout"
+ ❯ checkout src/pages/CheckoutOffers.test.tsx:11:53
+
+ ❯ src/pages/CheckoutOffers.test.tsx:37:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/pages/CheckoutOffers.test.tsx > locks offer and payment entry after uncertain save and retries original action
+AssertionError: expected { default: [Function Pos], …(1), …(1) } to have property "ReviewedCheckout"
+ ❯ checkout src/pages/CheckoutOffers.test.tsx:11:53
+
+ ❯ src/pages/CheckoutOffers.test.tsx:48:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  16:35:38
+   Duration  4.83s (transform 865ms, setup 1.01s, import 518ms, tests 803ms, environment 2.11s)
+

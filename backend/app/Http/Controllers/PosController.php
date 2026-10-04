@@ -71,26 +71,31 @@ class PosController extends Controller
 
     private function measurementRules(): array
     {
-        return ['lines' => 'required|array|min:1|max:100', 'lines.*.item_id' => 'required|integer|min:1', 'lines.*.note' => 'nullable|string|max:300', 'lines.*.measurement' => 'required|array:mode,value,unit,length,length_unit,width,width_unit,thickness,thickness_unit,pieces,custom_index', 'lines.*.measurement.mode' => ['required', Rule::in(PosService::METHODS)], 'lines.*.measurement.value' => 'sometimes|string|max:20', 'lines.*.measurement.unit' => ['sometimes', Rule::in(array_keys(PosService::UNITS))], 'lines.*.measurement.custom_index' => 'sometimes|integer|min:0|max:49', 'lines.*.measurement.length' => 'sometimes|string|max:20', 'lines.*.measurement.width' => 'sometimes|string|max:20', 'lines.*.measurement.thickness' => 'sometimes|string|max:20', 'lines.*.measurement.pieces' => 'sometimes|string|max:20', 'lines.*.measurement.length_unit' => 'sometimes|in:mm,cm,m,in,ft', 'lines.*.measurement.width_unit' => 'sometimes|in:mm,cm,m,in,ft', 'lines.*.measurement.thickness_unit' => 'sometimes|in:mm,cm,m,in,ft'];
+        $lengthUnits = Rule::in(array_keys(array_filter(PosService::UNITS, fn (array $unit) => $unit[0] === 'length')));
+
+        return ['lines' => 'required|array|min:1|max:100', 'lines.*.item_id' => 'required|integer|min:1', 'lines.*.note' => 'nullable|string|max:300', 'lines.*.measurement' => 'required|array:mode,value,unit,length,length_unit,width,width_unit,thickness,thickness_unit,pieces,custom_index,barcode,barcode_fingerprint', 'lines.*.measurement.mode' => ['required', Rule::in(PosService::METHODS)], 'lines.*.measurement.value' => 'sometimes|string|max:20', 'lines.*.measurement.unit' => ['sometimes', Rule::in(array_keys(PosService::UNITS))], 'lines.*.measurement.custom_index' => 'sometimes|integer|min:0|max:49', 'lines.*.measurement.length' => 'sometimes|string|max:20', 'lines.*.measurement.width' => 'sometimes|string|max:20', 'lines.*.measurement.thickness' => 'sometimes|string|max:20', 'lines.*.measurement.pieces' => 'sometimes|string|max:20', 'lines.*.measurement.length_unit' => ['sometimes', $lengthUnits], 'lines.*.measurement.width_unit' => ['sometimes', $lengthUnits], 'lines.*.measurement.thickness_unit' => ['sometimes', $lengthUnits], 'lines.*.measurement.barcode' => 'sometimes|string|max:100', 'lines.*.measurement.barcode_fingerprint' => 'required_with:lines.*.measurement.barcode|string|size:64'];
     }
 
     private function checkoutRules(): array
     {
-        return ['mutation_uuid' => 'required|uuid', 'version' => 'required|integer|min:1', 'business_date_bs' => $this->business->dateRule(), 'contact_id' => 'nullable|integer|min:1', 'expected_total_paisa' => 'required|regex:/^\d{1,11}$/', 'paid_now' => 'required|string|max:20', 'money_account_id' => 'nullable|integer|min:1'];
+        return ['mutation_uuid' => 'required|uuid', 'version' => 'required|integer|min:1', 'business_date_bs' => $this->business->dateRule(), 'contact_id' => 'nullable|integer|min:1', 'basket_offer_id' => 'nullable|integer|min:1', 'expected_fingerprint' => 'sometimes|required|string|regex:/^[a-f0-9]{64}$/', 'expected_total_paisa' => 'required|regex:/^\d{1,11}$/', 'paid_now' => 'required|string|max:20', 'money_account_id' => 'nullable|integer|min:1'];
     }
 
     public function preview(Request $r): JsonResponse
     {
-        $input = $r->validate($this->measurementRules());
+        $input = $r->validate([...$this->measurementRules(), 'contact_id' => 'nullable|integer|min:1', 'price_list_id' => 'nullable|integer|min:1', 'basket_offer_id' => 'nullable|integer|min:1', 'business_date_bs' => ['sometimes', ...$this->business->dateRule()]]);
         foreach ($input['lines'] as $row) {
             $this->validateMeasurement($row['measurement']);
         }
 
-return response()->json(['data' => BusinessController::json($this->pos->preview($input))]);
+        return response()->json(['data' => BusinessController::json($this->pos->preview($input))]);
     }
 
     private function validateMeasurement(array $m): void
     {
+        if (isset($m['barcode'])) {
+            return;
+        }
         if (in_array($m['mode'], ['quantity', 'amount', 'pack']) && ! isset($m['value'])) {
             $this->a->fail('Enter quantity or amount.');
         }
@@ -98,12 +103,12 @@ return response()->json(['data' => BusinessController::json($this->pos->preview(
 
     public function sale(Request $r): JsonResponse
     {
-        $input = $r->validate([...$this->measurementRules(), ...array_diff_key($this->checkoutRules(), ['version' => true])]);
+        $input = $r->validate([...$this->measurementRules(), ...array_diff_key($this->checkoutRules(), ['version' => true]), 'price_list_id' => 'nullable|integer|min:1', 'basket_offer_id' => 'nullable|integer|min:1', 'expected_fingerprint' => 'sometimes|required|string|regex:/^[a-f0-9]{64}$/']);
         foreach ($input['lines'] as $row) {
             $this->validateMeasurement($row['measurement']);
         }
 
-return $this->result($this->pos->sale(auth('tenant')->id(), $input, $input['mutation_uuid']));
+        return $this->result($this->pos->sale(auth('tenant')->id(), $input, $input['mutation_uuid']));
     }
 
     public function orders(): JsonResponse
@@ -154,6 +159,13 @@ return $this->result($this->pos->sale(auth('tenant')->id(), $input, $input['muta
         return $this->result($this->restaurant->checkout($actor, $id, $input, $input['mutation_uuid']));
     }
 
+    public function orderPreview(Request $r, string $tenant, int $id): JsonResponse
+    {
+        $input = $r->validate(array_intersect_key($this->checkoutRules(), array_flip(['version', 'business_date_bs', 'contact_id', 'basket_offer_id'])));
+
+        return response()->json(['data' => BusinessController::json($this->restaurant->preview($this->staff(), $id, $input))]);
+    }
+
     public function bookings(Request $r): JsonResponse
     {
         $this->staff();
@@ -185,6 +197,13 @@ return $this->result($this->pos->sale(auth('tenant')->id(), $input, $input['muta
         $actor = $this->staff();
         $input = $r->validate($this->checkoutRules());
 
-        return $this->result($this->appointments->checkout($actor,$id,$input,$input['mutation_uuid']));
+        return $this->result($this->appointments->checkout($actor, $id, $input, $input['mutation_uuid']));
+    }
+
+    public function bookingPreview(Request $r, string $tenant, int $id): JsonResponse
+    {
+        $input = $r->validate(array_intersect_key($this->checkoutRules(), array_flip(['version', 'business_date_bs', 'basket_offer_id'])));
+
+        return response()->json(['data' => BusinessController::json($this->appointments->preview($this->staff(), $id, $input))]);
     }
 }

@@ -1,0 +1,43 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/components/FulfilmentEntry.test.tsx (3 tests | 1 failed) 851ms
+   × keeps uncertain save locked and retries original quantity, proof and UUID 225ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/FulfilmentEntry.test.tsx > keeps uncertain save locked and retries original quantity, proof and UUID
+AssertionError: expected { version: 2, …(8) } to match object { version: 2, …(2) }
+(6 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "expected_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "lines": [
+      {
+-       "position": 1,
++       "position": "1",
+        "qty": "1.250",
+      },
+    ],
+    "version": 2,
+  }
+
+ ❯ src/components/FulfilmentEntry.test.tsx:47:17
+     45|   await waitFor(()=>expect(done).toHaveBeenCalledOnce());
+     46|   expect(JSON.parse(fetcher.mock.calls.at(-1)![1].body)).toEqual(first…
+     47|   expect(first).toMatchObject({version:2,lines:[{position:1,qty:'1.250…
+       |                 ^
+     48|   expect(first.mutation_uuid).toMatch(/^[a-f0-9-]{36}$/);
+     49| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  09:29:34
+   Duration  5.23s (transform 429ms, setup 504ms, import 765ms, tests 851ms, environment 1.89s)
+

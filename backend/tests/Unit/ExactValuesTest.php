@@ -15,6 +15,9 @@ class ExactValuesTest extends TestCase
         $this->assertSame(-1, Money::multiplyDivide(-1, 1, 2));
         $this->assertSame([1, 0, 0], Money::allocate(1, [100, 100, 100]));
         $this->assertSame('123.45', Money::format(12345));
+        $this->assertSame('375', Money::format(375, 0));
+        $this->assertSame('-375', Money::format(-375, 0));
+        $this->assertSame('0', Money::format(0, 0));
     }
 
     public function test_parser_rejects_exponents(): void

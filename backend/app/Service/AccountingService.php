@@ -97,6 +97,7 @@ class AccountingService
                     in_array($operation, ['document.post', 'document.draft', 'payment', 'pos.sale']) || str_starts_with($operation, 'pos.restaurant.checkout.') || str_starts_with($operation, 'pos.appointment.checkout.') || str_starts_with($operation, 'draft.') || str_starts_with($operation, 'document.clone.') => ['owner', 'manager', 'accountant', 'cashier'],
                     str_starts_with($operation, 'operations.') => ['owner', 'manager', 'cashier'],
                     str_starts_with($operation, 'workflow.') => ['owner', 'manager', 'accountant', 'cashier'],
+                    str_starts_with($operation, 'fulfilment.save.') || str_starts_with($operation, 'fulfilment.bill.') => ['owner', 'manager', 'accountant', 'cashier'],
                     default => ['owner', 'manager', 'accountant'],
                 };
                 $this->authorize($actor, $roles);
@@ -105,11 +106,27 @@ class AccountingService
                     abort_unless($row->created_by == $actor && $row->kind !== 'purchase_order', 403);
                 }
                 if ($this->role($actor) === 'cashier' && ! str_starts_with($operation, 'operations.')) {
+                    if ($old->result_type === 'workflow_packages' && str_starts_with($operation, 'fulfilment.save.package.')) {
+                        app(FulfilmentService::class)->assertPackageReplayAccess($actor, (int) $old->result_id);
+
+                        return ['table' => $old->result_type, 'id' => $old->result_id, 'replayed' => true];
+                    }
+                    if ($old->result_type === 'workflow_fulfilments' && str_starts_with($operation, 'fulfilment.save.')) {
+                        if (str_starts_with($operation, 'fulfilment.save.billed.')) {
+                            app(FulfilmentService::class)->assertBilledReplayAccess($actor, (int) $old->result_id);
+                        }
+                        app(FulfilmentService::class)->data($actor, (int) $old->result_id);
+
+                        return ['table' => $old->result_type, 'id' => $old->result_id, 'replayed' => true];
+                    }
                     if ($old->result_type === 'business_workflows' && str_starts_with($operation, 'workflow.')) {
                         return ['table' => $old->result_type, 'id' => $old->result_id, 'replayed' => true];
                     }
                     abort_unless(in_array($old->result_type, ['documents', 'payments']), 403);
                     $row = $this->requireRow($old->result_type, $old->result_id);
+                    if (str_starts_with($operation, 'fulfilment.bill.')) {
+                        app(WorkflowService::class)->row($actor, (int) $row->workflow_id);
+                    }
                     abort_unless($row->created_by == $actor && ($old->result_type === 'documents' ? $row->type === 'sale' : $row->kind === 'receipt'), 403);
                     if ($old->result_type === 'payments') {
                         $allocated = $this->rows('payment_allocations')->where('payment_id', $row->id);
@@ -143,6 +160,11 @@ class AccountingService
         $chart = [
             ['1000', 'Cash', 'asset', 'dr', 'cash', true], ['1100', 'Bank', 'asset', 'dr', 'bank_default', true], ['1200', 'Customer Receivables', 'asset', 'dr', 'receivables', false], ['1300', 'Inventory', 'asset', 'dr', 'inventory', false], ['1400', 'Recoverable Input VAT', 'asset', 'dr', 'input_vat', false], ['2000', 'Supplier Payables', 'liability', 'cr', 'payables', false], ['2100', 'Output VAT', 'liability', 'cr', 'output_vat', false], ['3000', 'Owner Capital', 'equity', 'cr', 'capital', false], ['3100', 'Owner Drawings', 'equity', 'dr', 'drawings', false], ['3200', 'Opening Equity', 'equity', 'cr', 'opening_equity', false], ['3300', 'Retained Earnings', 'equity', 'cr', 'retained_earnings', false], ['4000', 'Sales', 'income', 'cr', 'sales', false], ['4100', 'Sales Returns', 'income', 'dr', 'sales_returns', false], ['4200', 'Inventory Gain', 'income', 'cr', 'inventory_gain', false], ['5000', 'Cost of Goods Sold', 'expense', 'dr', 'cogs', false], ['5100', 'General Expense', 'expense', 'dr', 'general_expense', false], ['5200', 'Inventory Loss', 'expense', 'dr', 'inventory_loss', false],
         ];
+        $chart[] = ['1350', 'Delivered awaiting bill', 'asset', 'dr', 'delivered_unbilled', false];
+        $chart[] = ['2050', 'Received awaiting bill', 'liability', 'cr', 'received_unbilled', false];
+        $chart[] = ['1355', 'Billed awaiting receipt', 'asset', 'dr', 'billed_unreceived', false];
+        $chart[] = ['1360', 'Goods in transit', 'asset', 'dr', 'goods_in_transit', false];
+        $chart[] = ['2060', 'Sales billed awaiting fulfilment', 'liability', 'cr', 'sales_unfulfilled', false];
         foreach ($chart as [$code,$name,$category,$side,$key,$money]) {
             DB::table('accounts')->insert(['tenant_id' => $tenantId, 'code' => $code, 'name' => $name, 'category' => $category, 'normal_side' => $side, 'system_key' => $key, 'is_money' => $money, 'money_kind' => $money ? ($key === 'cash' ? 'cash' : 'bank') : null, 'created_at' => now(), 'updated_at' => now()]);
         }
@@ -225,7 +247,7 @@ class AccountingService
         return $id;
     }
 
-    public function reverse(int $actor, int $journal, int $date, string $reason, bool $overdraft = false): int
+    public function reverse(int $actor, int $journal, int $date, string $reason, bool $overdraft = false, string $sourceEvent = 'reverse'): int
     {
         $original = $this->requireRow('journal_entries', $journal);
         $tenant = Tenant::findOrFail(app(CurrentTenant::class)->id());
@@ -236,7 +258,7 @@ class AccountingService
         }
         $lines = $this->rows('journal_lines')->where('journal_entry_id', $journal)->get()->map(fn ($l) => ['account_id' => (int) $l->account_id, 'contact_id' => $l->contact_id ? (int) $l->contact_id : null, 'debit_paisa' => (int) $l->credit_paisa, 'credit_paisa' => (int) $l->debit_paisa])->all();
 
-        return $this->post($actor, $date, ['type' => $original->source_type, 'id' => $original->source_id, 'event' => 'reverse', 'reversal_of_id' => $journal, 'owner_entry_kind' => $original->owner_entry_kind], $lines, $reason, $overdraft);
+        return $this->post($actor, $date, ['type' => $original->source_type, 'id' => $original->source_id, 'event' => $sourceEvent, 'reversal_of_id' => $journal, 'owner_entry_kind' => $original->owner_entry_kind], $lines, $reason, $overdraft);
     }
 
     public function finalizeOpenings(int $actor, array $input, string $uuid): array

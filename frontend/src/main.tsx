@@ -18,5 +18,6 @@ window.addEventListener('beforeunload', event => {
 });
 document.addEventListener('click', event => {
   const link = (event.target as Element)?.closest('a[href]');
+  if (link?.hasAttribute('download') && new URL(link.getAttribute('href')!, location.href).origin === location.origin) return;
   if (link && document.querySelector('[data-dirty="true"]') && new URL(link.getAttribute('href')!, location.href).pathname !== location.pathname && !window.confirm('Leave unsaved changes?')) { event.preventDefault(); event.stopPropagation(); }
 }, true);

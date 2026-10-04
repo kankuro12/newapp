@@ -1,0 +1,14 @@
+warning: LF will be replaced by CRLF in frontend/src/lib/i18n.ts.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/lib/types.ts.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/pages/Records.tsx.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/pages/Workflows.tsx.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/pages/Workspace.tsx.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/theme/app.css.
+The file will have its original line endings in your working directory
+frontend/src/lib/i18n.ts:337: new blank line at EOF.
+frontend/src/lib/types.ts:24: new blank line at EOF.

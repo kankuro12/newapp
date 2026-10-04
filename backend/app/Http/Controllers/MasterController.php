@@ -3,18 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tenant;
+use App\NepaliDate;
 use App\Service\AccountingService;
-use App\Service\PosService;
+use App\Service\BarcodeService;
+use App\Service\CatalogService;
+use App\Service\PartyService;
 use App\Service\TenantService;
 use App\Support\CurrentTenant;
-use App\Support\Money;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MasterController extends Controller
@@ -24,7 +25,7 @@ class MasterController extends Controller
     private function fields(string $resource, bool $cashier): array
     {
         return match ($resource) {
-            'contacts' => ['id', 'name', 'phone', 'email', 'address', 'pan', 'is_customer', 'is_supplier', 'is_employee', 'is_rent', 'is_system', 'archived_at'], 'items' => $cashier ? ['id', 'name', 'sku', 'kind', 'unit_label', 'sale_price_paisa', 'default_tax_category', 'default_tax_bps', 'low_stock_qty_milli', 'pos_unit', 'pos_methods', 'pos_custom_units', 'service_minutes', 'archived_at'] : ['*'], 'accounts' => ['id', 'name', 'system_key', 'is_money', 'archived_at'], 'expense-categories' => ['id', 'name', 'account_id', 'archived_at'], default => abort(404)
+            'contacts' => ['id', 'name', 'phone', 'email', 'address', 'pan', 'is_customer', 'is_supplier', 'is_employee', 'is_rent', 'is_system', 'sales_terms_days', 'purchase_terms_days', 'archived_at'], 'items' => $cashier ? ['id', 'name', 'sku', 'kind', 'category_id', 'unit_label', 'sale_price_paisa', 'default_tax_category', 'default_tax_bps', 'low_stock_qty_milli', 'pos_unit', 'pos_methods', 'pos_custom_units', 'service_minutes', 'archived_at'] : ['*'], 'accounts' => ['id', 'name', 'system_key', 'is_money', 'archived_at'], 'expense-categories' => ['id', 'name', 'account_id', 'archived_at'], default => abort(404)
         };
     }
 
@@ -41,10 +42,13 @@ class MasterController extends Controller
         if ($cashier && ! in_array($resource, ['contacts', 'items'])) {
             abort(403);
         }
-        $filter = $r->validate(['q' => 'nullable|string|max:100', 'page' => 'nullable|integer|min:1', 'archived' => 'nullable|boolean']);
+        $filter = $r->validate(['q' => 'nullable|string|max:100', 'page' => 'nullable|integer|min:1', 'archived' => 'nullable|boolean', 'category_id' => 'nullable|integer|min:0']);
         $q = $this->a->rows($this->table($resource))->select($this->fields($resource, $cashier));
-        if (! empty($filter['q'])) {
-            $q->where(fn ($q) => $q->where('name', 'like', '%'.$filter['q'].'%')->when($resource === 'items', fn ($q) => $q->orWhere('sku', $filter['q'])));
+        if ($resource === 'items') {
+            app(CatalogService::class)->filterCategory($q, $filter['category_id'] ?? null);
+        }
+        if (isset($filter['q']) && $filter['q'] !== '') {
+            $q->where(fn ($q) => $q->where('name', 'like', '%'.$filter['q'].'%')->when($resource === 'items', fn ($q) => $q->orWhere('sku', $filter['q'])->orWhereIn('id', $this->a->rows('item_codes')->where('code', $filter['q'])->select('item_id'))));
         } if (empty($filter['archived'])) {
             $q->whereNull('archived_at');
         } if ($resource === 'contacts') {
@@ -62,6 +66,16 @@ class MasterController extends Controller
     {
         $data = (array) $row;
         if ($resource === 'items') {
+            $data['aliases'] = app(BarcodeService::class)->aliases((int) $row->id);
+        }
+        if ($cashier && $resource === 'contacts') {
+            unset($data['credit_limit_paisa'], $data['trading_version'], $data['sales_price_list_id'], $data['purchase_price_list_id']);
+        }
+        if ($resource === 'items') {
+            $data['category_name'] = $row->category_id ? $this->a->rows('item_categories')->where('id', $row->category_id)->value('name') : null;
+            if (! $cashier) {
+                $data['preferred_supplier_name'] = $row->preferred_supplier_id ? $this->a->rows('contacts')->where('id', $row->preferred_supplier_id)->value('name') : null;
+            }
             $pool = $this->a->rows('inventory_balances')->where('item_id', $row->id)->first();
             $data['qty_milli'] = (int) ($pool?->qty_milli ?? 0);
             if (! $cashier) {
@@ -92,8 +106,11 @@ class MasterController extends Controller
 
     public function lookup(Request $r): JsonResponse
     {
-        $input = $r->validate(['q' => 'nullable|string|max:100', 'party_role' => 'nullable|in:customer,supplier,employee,rent,payable']);
+        $input = $r->validate(['q' => 'nullable|string|max:100', 'party_role' => 'nullable|in:customer,supplier,employee,rent,payable', 'contact_id' => 'nullable|integer|min:1', 'price_channel' => 'sometimes|in:sale,purchase', 'category_id' => 'nullable|integer|min:0', 'item_categories' => 'sometimes|boolean', 'price_list_id' => 'nullable|integer|min:1', 'business_date_bs' => ['sometimes', ...app(BusinessController::class)->dateRule()]]);
         $cashier = $r->attributes->get('role') === 'cashier';
+        $contact = ! empty($input['contact_id']) ? $this->a->requireRow('contacts', $input['contact_id']) : null;
+        $channel = $input['price_channel'] ?? 'sale';
+        abort_if($cashier && $channel === 'purchase', 403);
         $data = [];
         foreach (['contacts', 'items', 'accounts', 'expense-categories'] as $resource) {
             if ($cashier && $resource === 'expense-categories') {
@@ -101,10 +118,13 @@ class MasterController extends Controller
 
                 continue;
             } $q = $this->a->rows($this->table($resource))->select($this->fields($resource, $cashier))->whereNull('archived_at');
+            if ($resource === 'items') {
+                app(CatalogService::class)->filterCategory($q, $input['category_id'] ?? null);
+            }
             if ($resource === 'accounts') {
                 $q->where('is_money', true);
-            } if (in_array($resource, ['contacts', 'items']) && ! empty($input['q'])) {
-                $q->where(fn ($q) => $q->where('name', 'like', '%'.$input['q'].'%')->when($resource === 'items', fn ($q) => $q->orWhere('sku', $input['q'])));
+            } if (in_array($resource, ['contacts', 'items']) && isset($input['q']) && $input['q'] !== '') {
+                $q->where(fn ($q) => $q->where('name', 'like', '%'.$input['q'].'%')->when($resource === 'items', fn ($q) => $q->orWhere('sku', $input['q'])->orWhereIn('id', $this->a->rows('item_codes')->where('code', $input['q'])->select('item_id'))));
             }
             if ($resource === 'contacts' && ! empty($input['party_role'])) {
                 $role = $input['party_role'];
@@ -114,10 +134,20 @@ class MasterController extends Controller
                     $q->where('is_'.$role, true);
                 }
             }
-            $data[$resource === 'expense-categories' ? 'categories' : $resource] = $q->orderBy('id')->limit($resource === 'accounts' ? 100 : 20)->get()->map(fn ($row) => $resource === 'items' ? $this->enrich($resource, $row, $cashier) : (array) $row);
+            $data[$resource === 'expense-categories' ? 'categories' : $resource] = $q->orderBy('id')->limit($resource === 'accounts' ? 100 : 20)->get()->map(function ($row) use ($resource, $cashier, $contact, $channel, $input) {
+                $data = $resource === 'items' ? $this->enrich($resource, $row, $cashier) : (array) $row;
+                if ($resource === 'items' && ($contact || ! empty($input['price_list_id']))) {
+                    $data['suggested_price_paisa'] = app(PartyService::class)->rate((int) ($contact?->id ?? 0), $row, $channel, 0, isset($input['price_list_id']) ? (int) $input['price_list_id'] : null, isset($input['business_date_bs']) ? NepaliDate::normalize($input['business_date_bs']) : null);
+                }
+
+                return $data;
+            });
         }
         if (! $cashier) {
             $data['channels'] = ['receivables_id' => $this->a->account('receivables'), 'payables_id' => $this->a->account('payables')];
+        }
+        if (! empty($input['item_categories'])) {
+            $data['item_categories'] = $this->a->rows('item_categories')->select('id', 'name', 'version', 'archived_at')->whereNull('archived_at')->when(! empty($input['q']), fn ($q) => $q->where('name', 'like', '%'.$input['q'].'%'))->orderBy('name')->limit(20)->get();
         }
 
         return response()->json(['data' => BusinessController::json($data)]);
@@ -126,69 +156,10 @@ class MasterController extends Controller
     public function save(Request $r, string $tenant, string $resource, ?int $id = null): JsonResponse
     {
         $actor = auth('tenant')->id();
+        $catalog = app(CatalogService::class);
         $this->a->authorize($actor, $resource === 'contacts' ? ['owner', 'manager', 'cashier', 'accountant'] : ($resource === 'items' ? ['owner', 'manager', 'accountant'] : ['owner']));
-        $rules = match ($resource) {
-            'contacts' => ['name' => 'required|string|max:150', 'phone' => 'nullable|string|max:30', 'email' => 'nullable|email|max:255', 'address' => 'nullable|string|max:500', 'pan' => 'nullable|string|max:30', 'is_customer' => 'required|boolean', 'is_supplier' => 'required|boolean', 'is_employee' => 'sometimes|boolean', 'is_rent' => 'sometimes|boolean'],
-            'items' => ['name' => 'required|string|max:150', 'sku' => 'nullable|string|max:100', 'kind' => 'required|in:stock,service', 'unit_label' => 'required|string|max:30', 'sale_price' => 'required|string|max:20', 'pos_unit' => ['sometimes', Rule::in(array_keys(PosService::UNITS))], 'pos_methods' => 'sometimes|array|min:1|max:6', 'pos_methods.*' => ['required', Rule::in(PosService::METHODS)], 'pos_custom_units' => 'sometimes|array|max:50', 'pos_custom_units.*.label' => 'required|string|max:50', 'pos_custom_units.*.qty' => 'required|string|max:20', 'service_minutes' => 'sometimes|integer|min:1|max:720', 'low_stock_qty' => 'sometimes|string|max:20', 'default_tax_bps' => 'sometimes|integer|min:0|max:10000', 'default_tax_category' => 'sometimes|in:standard,zero,exempt,outside_scope'],
-            'accounts' => ['name' => 'required|string|max:150', 'money_kind' => 'required|in:cash,bank'],
-            'expense-categories' => ['name' => 'required|string|max:150'], default => abort(404),
-        };
-        $input = $r->validate($rules);
-        if ($resource === 'contacts' && ! $input['is_customer'] && ! $input['is_supplier'] && ! ($input['is_employee'] ?? false) && ! ($input['is_rent'] ?? false)) {
-            $this->a->fail('Choose at least one party role.');
-        }
-        if ($resource === 'items') {
-            $input['sale_price_paisa'] = Money::parse($input['sale_price']);
-            $input['low_stock_qty_milli'] = Money::quantity($input['low_stock_qty'] ?? '0');
-            unset($input['sale_price'], $input['low_stock_qty']);
-            foreach ($input['pos_custom_units'] ?? [] as $unit) {
-                if (Money::quantity($unit['qty']) <= 0) {
-                    $this->a->fail('Custom unit quantity must be positive.');
-                }
-            }
-            foreach (['pos_methods', 'pos_custom_units'] as $key) {
-                if (isset($input[$key])) {
-                    $input[$key] = json_encode($input[$key]);
-                }
-            }
-        }
-        $rowId = DB::transaction(function () use ($actor, $resource, $input, $id) {
-            $tenant = $this->a->lockTenant(app(CurrentTenant::class)->id(), $actor);
-            $table = $this->table($resource);
-            $values = $input;
-            if ($id) {
-                $old = $this->a->requireRow($table, $id);
-                if ($resource === 'contacts' && $old->is_system) {
-                    abort(403);
-                }
-                if ($resource === 'contacts') {
-                    $next = (object) [...(array) $old, ...$input];
-                    if ((! $next->is_customer && $this->a->balance($this->a->account('receivables'), (int) $id)) || (! $this->a->payableParty($next) && $this->a->balance($this->a->account('payables'), (int) $id))) {
-                        $this->a->fail('Keep party role while its money channel has outstanding balance.');
-                    }
-                } if ($resource === 'items' && ($old->kind !== $input['kind'] || $old->unit_label !== $input['unit_label'] || (isset($input['pos_unit']) && $old->pos_unit !== $input['pos_unit'])) && $this->a->rows('stock_movements')->where('item_id', $id)->exists()) {
-                    $this->a->fail('Unit/kind cannot change after stock activity.');
-                } if (! in_array($resource, ['items', 'contacts'])) {
-                    abort(403);
-                } $this->a->rows($table)->where('id', $id)->update([...$values, 'updated_at' => now()]);
-                $rowId = $id;
-            } else {
-                if ($resource === 'accounts' || $resource === 'expense-categories') {
-                    $account = DB::table('accounts')->insertGetId(['tenant_id' => $tenant->id, 'code' => (string) (100000 + (int) $this->a->rows('accounts')->max('id')), 'name' => $input['name'], 'category' => $resource === 'accounts' ? 'asset' : 'expense', 'normal_side' => 'dr', 'is_money' => $resource === 'accounts', 'money_kind' => $resource === 'accounts' ? $input['money_kind'] : null, 'created_at' => now(), 'updated_at' => now()]);
-                    if ($resource === 'accounts') {
-                        $rowId = $account;
-                    } else {
-                        $rowId = DB::table($table)->insertGetId(['tenant_id' => $tenant->id, 'name' => $input['name'], 'account_id' => $account, 'created_at' => now(), 'updated_at' => now()]);
-                    }
-                } else {
-                    $rowId = DB::table($table)->insertGetId(['tenant_id' => $tenant->id, ...$values, 'created_at' => now(), 'updated_at' => now()]);
-                }
-            }
-            $tenant->increment('data_version');
-            $this->a->audit($actor, $resource.'.saved', $table, $rowId);
-
-            return $rowId;
-        }, 3);
+        $input = $r->validate(CatalogService::masterRules($resource));
+        $rowId = $catalog->saveMaster($actor, $resource, $input, $id);
 
         return response()->json(['data' => BusinessController::json($this->enrich($resource, $this->a->requireRow($this->table($resource), $rowId), $this->a->role($actor) === 'cashier'))], $id ? 200 : 201);
     }

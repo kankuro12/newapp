@@ -39,7 +39,7 @@ class WorkflowController extends Controller
             $q->where(fn ($q) => $q->where('title', 'like', '%'.$input['q'].'%')->orWhere('reference', 'like', '%'.$input['q'].'%'));
         }
         if (! empty($input['overdue'])) {
-            $q->where('due_date_bs', '<', NepaliDate::today())->whereNotIn('status', ['fulfilled', 'cancelled', 'converted']);
+            $q->where('due_date_bs', '<', NepaliDate::today())->whereNotIn('status', ['fulfilled', 'cancelled', 'converted', 'rejected']);
         }
         $page = $q->select(['id', 'kind', 'status', 'version', 'sequence', 'title', 'reference', 'niche', 'business_date_bs', 'due_date_bs', 'valid_until_bs', 'total_paisa', 'contact_id', 'party_snapshot', 'source_id', 'document_id'])->orderByDesc('id')->paginate(25);
         $page->getCollection()->transform(function ($row) {
@@ -57,10 +57,17 @@ class WorkflowController extends Controller
         return response()->json(['data' => BusinessController::json($this->service->data(auth('tenant')->id(), $id))]);
     }
 
+    public function preview(Request $r, string $tenant, ?int $id = null): JsonResponse
+    {
+        $input = $r->validate([...$this->business->documentRules(), 'mutation_uuid' => 'sometimes|uuid', 'kind' => ['required', Rule::in(WorkflowService::KINDS)], 'lines.*.item_id' => 'required|integer|min:1', 'version' => $id ? 'required|integer|min:1' : 'sometimes|integer|min:1']);
+
+        return response()->json(['data' => $this->business->json($this->service->preview(auth('tenant')->id(), $input, $id))]);
+    }
+
     public function save(Request $r, string $tenant, ?int $id = null): JsonResponse
     {
         $rules = $this->business->documentRules();
-        $input = $r->validate([...$rules, 'kind' => ['required', Rule::in(WorkflowService::KINDS)], 'lines.*.item_id' => 'required|integer|min:1', 'expected_total_paisa' => 'required|regex:/^\d{1,11}$/', 'version' => $id ? 'required|integer|min:1' : 'sometimes|integer|min:1', 'niche' => ['sometimes', Rule::in(WorkflowService::NICHES)], 'title' => 'nullable|string|max:150', 'reference' => 'nullable|string|max:150', 'specifications' => 'nullable|string|max:4000', 'valid_until_bs' => ['nullable', ...array_slice($this->business->dateRule(), 1)]]);
+        $input = $r->validate([...$rules, 'kind' => ['required', Rule::in(WorkflowService::KINDS)], 'lines.*.item_id' => 'required|integer|min:1', 'expected_total_paisa' => 'required|regex:/^\d{1,11}$/', 'version' => $id ? 'required|integer|min:1' : 'sometimes|integer|min:1', 'niche' => ['sometimes', Rule::in(WorkflowService::NICHES)], 'title' => 'nullable|string|max:150', 'reference' => 'nullable|string|max:150', 'specifications' => 'nullable|string|max:4000', 'reorder' => 'sometimes|array|min:1|max:100', 'reorder.*' => 'required|string|size:64', 'valid_until_bs' => ['nullable', ...array_slice($this->business->dateRule(), 1)]]);
 
         return $this->result($this->service->save(auth('tenant')->id(), $input, $input['mutation_uuid'], $id));
     }
@@ -84,6 +91,6 @@ class WorkflowController extends Controller
         $allowed = array_intersect_key($this->business->documentRules(), array_flip(['mutation_uuid', 'business_date_bs', 'due_date_bs', 'paid_now', 'money_account_id', 'expected_total_paisa', 'vat_recoverable', 'supplier_bill_number', 'supplier_bill_date_bs', 'overdraft_confirmed']));
         $input = $r->validate([...$allowed, 'version' => 'required|integer|min:1', 'paid_now' => 'required|string|max:20', 'expected_total_paisa' => 'required|regex:/^\d{1,11}$/']);
 
-        return $this->result($this->service->bill(auth('tenant')->id(),$id,$input,$input['mutation_uuid']));
+        return $this->result($this->service->bill(auth('tenant')->id(), $id, $input, $input['mutation_uuid']));
     }
 }

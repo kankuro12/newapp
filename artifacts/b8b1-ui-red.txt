@@ -1,0 +1,191 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/pages/BasketOffers.test.tsx (3 tests | 1 failed) 695ms
+   × sends reviewed bundle components in base units with exact price and cap 57ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/BasketOffers.test.tsx > sends reviewed bundle components in base units with exact price and cap
+TestingLibraryElementError: Unable to find a label with the text of: Offer type
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <h1>
+          New basket offer
+        </h1>
+        <p>
+          Choose one saving for the whole sale; minimum spend is before tax.
+        </p>
+      </div>
+      <div
+        class="heading-actions"
+      >
+        <a
+          href="/app/shop/basket-offers"
+        >
+          Back
+        </a>
+      </div>
+    </div>
+    <form
+      class="panel narrow-form"
+      data-dirty="true"
+    >
+      <fieldset>
+        <legend>
+          Saving
+        </legend>
+        <label
+          class="field "
+        >
+          <span>
+            Offer name
+          </span>
+          <input
+            aria-invalid="false"
+            maxlength="100"
+            name="name"
+            required=""
+            value="Work and gift set"
+          />
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Discount type
+          </span>
+          <select
+            aria-invalid="false"
+          >
+            <option
+              value="fixed"
+            >
+              Amount (NPR)
+            </option>
+            <option
+              value="percent"
+            >
+              Percent (%)
+            </option>
+          </select>
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Saving (NPR)
+          </span>
+          <input
+            aria-invalid="false"
+            inputmode="decimal"
+            required=""
+            value=""
+          />
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Minimum spend (NPR)
+          </span>
+          <input
+            aria-invalid="false"
+            inputmode="decimal"
+            required=""
+            value="0"
+          />
+        </label>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Validity and staff
+          </summary>
+          <div>
+            <label
+              class="field "
+            >
+              <span>
+                Starts (BS, optional)
+              </span>
+              <input
+                aria-invalid="false"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Ends (BS, optional)
+              </span>
+              <input
+                aria-invalid="false"
+                value=""
+              />
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                checked=""
+                type="checkbox"
+              />
+              <span>
+                Cashier may apply this offer
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                checked=""
+                type="checkbox"
+              />
+              <span>
+                Enabled
+              </span>
+            </label>
+          </div>
+        </details>
+      </fieldset>
+      <p>
+        One offer per sale. Quantity prices apply first; offer saving is before tax.
+      </p>
+      <button
+        type="submit"
+      >
+        <span>
+          Save basket offer
+        </span>
+      </button>
+    </form>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/BasketOffers.test.tsx:39:27
+     37|   state.detail=undefined;state.uncertain=false;state.save.mockClear();…
+     38|   fireEvent.change(screen.getByLabelText('Offer name'),{target:{value:…
+     39|   fireEvent.change(screen.getByLabelText('Offer type'),{target:{value:…
+       |                           ^
+     40|   fireEvent.change(screen.getByLabelText('Price per bundle (NPR)'),{ta…
+     41|   fireEvent.click(screen.getByRole('button',{name:'Choose Work'}));fir…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  12:14:10
+   Duration  5.12s (transform 338ms, setup 1.06s, import 681ms, tests 695ms, environment 2.27s)
+

@@ -1,0 +1,442 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/components/FulfilmentEntry.test.tsx (3 tests | 1 failed) 521ms
+   × keeps uncertain save locked and retries original quantity, proof and UUID 128ms
+ ❯ src/pages/Workflows.test.tsx (3 tests | 1 failed) 386ms
+   × keeps an open quantity entry mounted when another actor converts the order 156ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/FulfilmentEntry.test.tsx > keeps uncertain save locked and retries original quantity, proof and UUID
+TestingLibraryElementError: Unable to find an element with the text: 1.250 L. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <form
+      class="panel fulfilment-entry"
+      data-dirty="true"
+    >
+      <h2>
+        Deliver goods / complete work
+      </h2>
+      <p>
+        Stock moves now; customer/supplier dues wait until a bill is posted.
+      </p>
+      <fieldset
+        disabled=""
+      >
+        <label
+          class="field "
+        >
+          <span>
+            Business date (BS)
+          </span>
+          <input
+            aria-invalid="false"
+            name="business_date_bs"
+            required=""
+            value="2083-01-03"
+          />
+        </label>
+        <p>
+          No available quantities. Refresh order or review existing records.
+        </p>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Additional details
+          </summary>
+          <div>
+            <label
+              class="field "
+            >
+              <span>
+                Reference
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="150"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Notes
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="1000"
+                value=""
+              />
+            </label>
+          </div>
+        </details>
+      </fieldset>
+      <div
+        class="error-box"
+        role="alert"
+      >
+        <strong>
+          Connection unavailable. Reconnect, then retry original entry.
+        </strong>
+      </div>
+      <div
+        class="detail-actions"
+      >
+        <button
+          type="button"
+        >
+          Retry original action
+        </button>
+        <button
+          data-fill="clear"
+          disabled=""
+          type="button"
+        >
+          Close entry
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/FulfilmentEntry.test.tsx:44:17
+     42|   const first=JSON.parse(fetcher.mock.calls.at(-1)![1].body);
+     43|   view.rerender(entry({...order,version:3,fulfilment:{...order.fulfilm…
+     44|   expect(screen.getByText('1.250 L')).toBeInTheDocument();
+       |                 ^
+     45|   fetcher.mockResolvedValueOnce(new Response(JSON.stringify({data:{id:…
+     46|   fireEvent.click(screen.getByRole('button',{name:'Retry original acti…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/pages/Workflows.test.tsx > keeps an open quantity entry mounted when another actor converts the order
+TestingLibraryElementError: Unable to find an accessible element with the role "heading" and name "Deliver goods / complete work"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "SO-000009 · Sales order":
+  <h1 />
+
+  Name "Shop":
+  <h2 />
+
+  --------------------------------------------------
+  link:
+
+  Name "Back":
+  <a
+    href="/app/shop/workflows"
+  />
+
+  Name "Copy as new":
+  <a
+    href="/app/shop/workflows/new/sales_order?copy=9"
+  />
+
+  Name "Open bill ·":
+  <a
+    href="/app/shop/document/20"
+  />
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Print layout":
+  <select
+    aria-invalid="false"
+  />
+
+  --------------------------------------------------
+  option:
+
+  Name "Sales order":
+  <option
+    value="record"
+  />
+
+  Name "Job card":
+  <option
+    value="job"
+  />
+
+  Name "Delivery note":
+  <option
+    value="delivery"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Print":
+  <button
+    data-fill="outline"
+    type="button"
+  />
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  <header
+    class="invoice-header"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="grand-total"
+  />
+
+  Name "":
+  <p
+    class="print-label"
+  />
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="no-print"
+    >
+      <div
+        class="page-heading"
+      >
+        <div>
+          <h1>
+            SO-000009 · Sales order
+          </h1>
+        </div>
+        <div
+          class="heading-actions"
+        >
+          <span
+            class="badge converted"
+          >
+            converted
+          </span>
+          <a
+            href="/app/shop/workflows"
+          >
+            Back
+          </a>
+          <a
+            href="/app/shop/workflows/new/sales_order?copy=9"
+          >
+            Copy as new
+          </a>
+        </div>
+      </div>
+      <div
+        class="detail-actions"
+      />
+      <div
+        class="list-tools"
+      >
+        <label
+          class="field "
+        >
+          <span>
+            Print layout
+          </span>
+          <select
+            aria-invalid="false"
+          >
+            <option
+              value="record"
+            >
+              Sales order
+            </option>
+            <option
+              value="job"
+            >
+              Job card
+            </option>
+            <option
+              value="delivery"
+            >
+              Delivery note
+            </option>
+          </select>
+        </label>
+        <button
+          data-fill="outline"
+          type="button"
+        >
+          Print
+        </button>
+      </div>
+    </div>
+    <section
+      class="panel invoice workflow-print"
+    >
+      <header
+        class="invoice-header"
+      >
+        <div>
+          <span
+            class="eyebrow"
+          >
+            SALES ORDER
+          </span>
+          <h2>
+            Shop
+          </h2>
+          <p>
+            <br />
+          </p>
+        </div>
+        <div>
+          <strong>
+            SO-000009
+          </strong>
+          <p>
+            2083-01-03
+             BS · 
+            Converted
+          </p>
+        </div>
+      </header>
+      <div
+        class="invoice-party"
+      >
+        <strong>
+          Customer
+        </strong>
+        <span>
+           · 
+        </span>
+      </div>
+      <p />
+      <div
+        class="invoice-lines"
+      />
+      <div
+        class="invoice-totals"
+      >
+        <p>
+          <span>
+            Subtotal
+          </span>
+          <strong>
+            रु 1.00
+          </strong>
+        </p>
+        <p>
+          <span>
+            Discount
+          </span>
+          <strong>
+            रु 0.00
+          </strong>
+        </p>
+        <p>
+          <span>
+            Tax
+          </span>
+          <strong>
+            रु 0.00
+          </strong>
+        </p>
+        <p
+          class="grand-total"
+        >
+          <span>
+            Total
+          </span>
+          <strong>
+            रु 1.00
+          </strong>
+        </p>
+      </div>
+      <p
+        class="print-label"
+      >
+        Nonfinancial record. No stock reservation, delivery posting or payment recorded.
+      </p>
+    </section>
+    <div
+      class="no-print workflow-links"
+    >
+      <a
+        href="/app/shop/document/20"
+      >
+        Open bill
+         · 
+      </a>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/Workflows.test.tsx:41:17
+     39|   fixture.row={...fixture.row,document_id:'20',status:'converted',vers…
+     40|   view.rerender(<MemoryRouter><WorkflowDetail/></MemoryRouter>);
+     41|   expect(screen.getByRole('heading',{name:'Deliver goods / complete wo…
+       |                 ^
+     42|   expect(screen.getByRole('button',{name:'Close entry'})).toBeInTheDoc…
+     43| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 4 passed (6)
+   Start at  09:54:16
+   Duration  5.55s (transform 327ms, setup 719ms, import 846ms, tests 908ms, environment 2.46s)
+

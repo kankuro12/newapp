@@ -1,0 +1,6 @@
+
+In Runner.php line 747:
+                                                                                                              
+  Failed to write file "E:\laravel pojects\dairy main\newapp\backend\routes\api.php", "no reason available".  
+                                                                                                              
+

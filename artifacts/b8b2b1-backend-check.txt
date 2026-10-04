@@ -1,0 +1,6 @@
+> @php artisan config:clear --ansi
+
+ INFO Configuration cache cleared successfully. 
+
+> @php artisan test
+{"tool":"phpunit","result":"passed","tests":93,"passed":93,"assertions":2020,"duration_ms":133236}

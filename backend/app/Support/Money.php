@@ -33,6 +33,9 @@ final class Money
 
     public static function format(int $value, int $places = 2): string
     {
+        if ($places === 0) {
+            return (string) $value;
+        }
         $digits = str_pad((string) abs($value), $places + 1, '0', STR_PAD_LEFT);
 
         return ($value < 0 ? '-' : '').substr($digits, 0, -$places).'.'.substr($digits, -$places);

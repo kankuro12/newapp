@@ -1,0 +1,1227 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/pages/BasketOffers.test.tsx (9 tests | 2 failed) 2891ms
+   × saves a unit-scoped choice group alongside a single item without losing member snapshots 478ms
+   × hydrates choice groups and blocks empty groups before submission 911ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/BasketOffers.test.tsx > saves a unit-scoped choice group alongside a single item without losing member snapshots
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Add choice group"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "New basket offer":
+  <h1 />
+
+  Name "Bundle items":
+  <h2 />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  link:
+
+  Name "Back":
+  <a
+    href="/app/shop/basket-offers"
+  />
+
+  --------------------------------------------------
+  group:
+
+  Name "Saving":
+  <fieldset />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Offer name":
+  <input
+    aria-invalid="false"
+    maxlength="100"
+    name="name"
+    required=""
+    value="Any goods plus work"
+  />
+
+  Name "Price per bundle (NPR)":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    required=""
+    value="100.01"
+  />
+
+  Name "Maximum applications (optional)":
+  <input
+    aria-invalid="false"
+    inputmode="numeric"
+    value=""
+  />
+
+  Name "Minimum spend (NPR)":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    required=""
+    value="0"
+  />
+
+  Name "Starts (BS, optional)":
+  <input
+    aria-invalid="false"
+    value=""
+  />
+
+  Name "Ends (BS, optional)":
+  <input
+    aria-invalid="false"
+    value=""
+  />
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Offer type":
+  <select
+    aria-invalid="false"
+  />
+
+  --------------------------------------------------
+  option:
+
+  Name "Whole basket saving":
+  <option
+    value="basket"
+  />
+
+  Name "Item bundle":
+  <option
+    value="bundle"
+  />
+
+  Name "Buy and get":
+  <option
+    value="buy_get"
+  />
+
+  Name "Selected items / categories":
+  <option
+    value="items"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Choose Work":
+  <button
+    type="button"
+  />
+
+  Name "Choose Gift":
+  <button
+    type="button"
+  />
+
+  Name "Save basket offer":
+  <button
+    type="submit"
+  />
+
+  --------------------------------------------------
+  checkbox:
+
+  Name "Sunday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Monday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Tuesday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Wednesday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Thursday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Friday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Saturday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Cashier may apply this offer":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Enabled":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <h1>
+          New basket offer
+        </h1>
+        <p>
+          Choose one offer; quantities use billed base units.
+        </p>
+      </div>
+      <div
+        class="heading-actions"
+      >
+        <a
+          href="/app/shop/basket-offers"
+        >
+          Back
+        </a>
+      </div>
+    </div>
+    <form
+      class="panel narrow-form"
+      data-dirty="true"
+    >
+      <fieldset>
+        <legend>
+          Saving
+        </legend>
+        <label
+          class="field "
+        >
+          <span>
+            Offer name
+          </span>
+          <input
+            aria-invalid="false"
+            maxlength="100"
+            name="name"
+            required=""
+            value="Any goods plus work"
+          />
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Offer type
+          </span>
+          <select
+            aria-invalid="false"
+          >
+            <option
+              value="basket"
+            >
+              Whole basket saving
+            </option>
+            <option
+              value="bundle"
+            >
+              Item bundle
+            </option>
+            <option
+              value="buy_get"
+            >
+              Buy and get
+            </option>
+            <option
+              value="items"
+            >
+              Selected items / categories
+            </option>
+          </select>
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Price per bundle (NPR)
+          </span>
+          <input
+            aria-invalid="false"
+            inputmode="decimal"
+            required=""
+            value="100.01"
+          />
+        </label>
+        <h2>
+          Bundle items
+        </h2>
+        <p>
+          Every complete set uses the bundle price; extra quantities keep their normal price.
+        </p>
+        <button
+          type="button"
+        >
+          Choose Work
+        </button>
+        <button
+          type="button"
+        >
+          Choose Gift
+        </button>
+        <label
+          class="field "
+        >
+          <span>
+            Maximum applications (optional)
+          </span>
+          <input
+            aria-invalid="false"
+            inputmode="numeric"
+            value=""
+          />
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Minimum spend (NPR)
+          </span>
+          <input
+            aria-invalid="false"
+            inputmode="decimal"
+            required=""
+            value="0"
+          />
+        </label>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Nepal time schedule (optional)
+          </summary>
+          <div>
+            <p>
+              Uses current Nepal time and BS date. Start included, end excluded. Overnight windows belong to their starting weekday.
+            </p>
+            <label
+              class="field "
+            >
+              <span>
+                Starts at (Nepal time, optional)
+              </span>
+              <input
+                aria-invalid="false"
+                type="time"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Ends at (Nepal time, optional)
+              </span>
+              <input
+                aria-invalid="false"
+                type="time"
+                value=""
+              />
+            </label>
+            <p>
+              Leave days empty for every day.
+            </p>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Sunday
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Monday
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Tuesday
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Wednesday
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Thursday
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Friday
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Saturday
+              </span>
+            </label>
+          </div>
+        </details>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Validity and staff
+          </summary>
+          <div>
+            <label
+              class="field "
+            >
+              <span>
+                Starts (BS, optional)
+              </span>
+              <input
+                aria-invalid="false"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Ends (BS, optional)
+              </span>
+              <input
+                aria-invalid="false"
+                value=""
+              />
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                checked=""
+                type="checkbox"
+              />
+              <span>
+                Cashier may apply this offer
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                checked=""
+                type="checkbox"
+              />
+              <span>
+                Enabled
+              </span>
+            </label>
+          </div>
+        </details>
+      </fieldset>
+      <p>
+        One offer per sale. Quantity prices apply first; offer saving is before tax.
+      </p>
+      <button
+        type="submit"
+      >
+        <span>
+          Save basket offer
+        </span>
+      </button>
+    </form>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/BasketOffers.test.tsx:86:26
+     84|   fireEvent.change(screen.getByLabelText('Offer type'),{target:{value:…
+     85|   fireEvent.change(screen.getByLabelText('Price per bundle (NPR)'),{ta…
+     86|   fireEvent.click(screen.getByRole('button',{name:'Add choice group'})…
+       |                          ^
+     87|   const group=screen.getByRole('region',{name:'Choice group 1'});
+     88|   fireEvent.click(within(group).getByRole('button',{name:'Choose Gift'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/pages/BasketOffers.test.tsx > hydrates choice groups and blocks empty groups before submission
+TestingLibraryElementError: Unable to find an accessible element with the role "region" and name "Choice group 1"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Edit basket offer":
+  <h1 />
+
+  Name "Buy item":
+  <h2 />
+
+  Name "Reward item":
+  <h2 />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  link:
+
+  Name "Back":
+  <a
+    href="/app/shop/basket-offers"
+  />
+
+  --------------------------------------------------
+  group:
+
+  Name "Saving":
+  <fieldset />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Offer name":
+  <input
+    aria-invalid="false"
+    maxlength="100"
+    name="name"
+    required=""
+    value="Any gift"
+  />
+
+  Name "Reward discount (%)":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    required=""
+    value="100.00"
+  />
+
+  Name "Required quantity (unit)":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    required=""
+    value="1.501"
+  />
+
+  Name "Required quantity (bottle)":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    required=""
+    value="1.000"
+  />
+
+  Name "Maximum applications (optional)":
+  <input
+    aria-invalid="false"
+    inputmode="numeric"
+    value=""
+  />
+
+  Name "Minimum spend (NPR)":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    required=""
+    value="0.00"
+  />
+
+  Name "Maximum saving (NPR, optional)":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    value=""
+  />
+
+  Name "Starts (BS, optional)":
+  <input
+    aria-invalid="false"
+    value=""
+  />
+
+  Name "Ends (BS, optional)":
+  <input
+    aria-invalid="false"
+    value=""
+  />
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Offer type":
+  <select
+    aria-invalid="false"
+  />
+
+  --------------------------------------------------
+  option:
+
+  Name "Whole basket saving":
+  <option
+    value="basket"
+  />
+
+  Name "Item bundle":
+  <option
+    value="bundle"
+  />
+
+  Name "Buy and get":
+  <option
+    value="buy_get"
+  />
+
+  Name "Selected items / categories":
+  <option
+    value="items"
+  />
+
+  --------------------------------------------------
+  region:
+
+  Name "Buy item":
+  <section
+    aria-label="Buy item"
+  />
+
+  Name "Reward item":
+  <section
+    aria-label="Reward item"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Choose Work":
+  <button
+    type="button"
+  />
+
+  Name "Choose Gift":
+  <button
+    type="button"
+  />
+
+  Name "Remove":
+  <button
+    type="button"
+  />
+
+  Name "Choose Work":
+  <button
+    type="button"
+  />
+
+  Name "Choose Gift":
+  <button
+    type="button"
+  />
+
+  Name "Remove":
+  <button
+    type="button"
+  />
+
+  Name "Save basket offer":
+  <button
+    type="submit"
+  />
+
+  Name "Reload offer":
+  <button
+    fill="clear"
+    type="button"
+  />
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  --------------------------------------------------
+  checkbox:
+
+  Name "Sunday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Monday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Tuesday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Wednesday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Thursday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Friday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Saturday":
+  <input
+    type="checkbox"
+  />
+
+  Name "Cashier may apply this offer":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Enabled":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <h1>
+          Edit basket offer
+        </h1>
+        <p>
+          Choose one offer; quantities use billed base units.
+        </p>
+      </div>
+      <div
+        class="heading-actions"
+      >
+        <a
+          href="/app/shop/basket-offers"
+        >
+          Back
+        </a>
+      </div>
+    </div>
+    <form
+      class="panel narrow-form"
+      data-dirty="false"
+    >
+      <fieldset>
+        <legend>
+          Saving
+        </legend>
+        <label
+          class="field "
+        >
+          <span>
+            Offer name
+          </span>
+          <input
+            aria-invalid="false"
+            maxlength="100"
+            name="name"
+            required=""
+            value="Any gift"
+          />
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Offer type
+          </span>
+          <select
+            aria-invalid="false"
+          >
+            <option
+              value="basket"
+            >
+              Whole basket saving
+            </option>
+            <option
+              value="bundle"
+            >
+              Item bundle
+            </option>
+            <option
+              value="buy_get"
+            >
+              Buy and get
+            </option>
+            <option
+              value="items"
+            >
+              Selected items / categories
+            </option>
+          </select>
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Reward discount (%)
+          </span>
+          <input
+            aria-invalid="false"
+            inputmode="decimal"
+            required=""
+            value="100.00"
+          />
+        </label>
+        <p>
+          100% makes only matched rewards free. Both buy and reward quantities must be in the cart.
+        </p>
+        <section
+          aria-label="Buy item"
+        >
+          <h2>
+            Buy item
+          </h2>
+          <button
+            type="button"
+          >
+            Choose Work
+          </button>
+          <button
+            type="button"
+          >
+            Choose Gift
+          </button>
+          <div
+            class="panel"
+          >
+            <div
+              class="mini-row"
+            >
+              <strong />
+              <button
+                type="button"
+              >
+                Remove
+              </button>
+            </div>
+            <label
+              class="field "
+            >
+              <span>
+                Required quantity (unit)
+              </span>
+              <input
+                aria-invalid="false"
+                inputmode="decimal"
+                required=""
+                value="1.501"
+              />
+            </label>
+          </div>
+        </section>
+        <section
+          aria-label="Reward item"
+        >
+          <h2>
+            Reward item
+          </h2>
+          <button
+            type="button"
+          >
+            Choose Work
+          </button>
+          <button
+            type="button"
+          >
+            Choose Gift
+          </button>
+          <div
+            class="panel"
+          >
+            <div
+              class="mini-row"
+            >
+              <strong>
+                Gift
+              </strong>
+              <button
+                type="button"
+              >
+                Remove
+              </button>
+            </div>
+            <label
+              class="field "
+            >
+              <span>
+                Required quantity (bottle)
+              </span>
+              <input
+                aria-invalid="false"
+                inputmode="decimal"
+                required=""
+                value="1.000"
+              />
+            </label>
+          </div>
+        </section>
+        <label
+          class="field "
+        >
+          <span>
+            Maximum applications (optional)
+          </span>
+          <input
+            aria-invalid="false"
+            inputmode="numeric"
+            value=""
+          />
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Minimum spend (NPR)
+          </span>
+          <input
+            aria-invalid="false"
+            inputmode="decimal"
+            required=""
+            value="0.00"
+          />
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Maximum saving (NPR, optional)
+          </span>
+          <input
+            aria-invalid="false"
+            inputmode="decimal"
+            value=""
+          />
+        </label>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Nepal time schedule (optional)
+          </summary>
+          <div>
+            <p>
+              Uses current Nepal time and BS date. Start included, end excluded. Overnight windows belong to their starting weekday.
+            </p>
+            <label
+              class="field "
+            >
+              <span>
+                Starts at (Nepal time, optional)
+              </span>
+              <input
+                aria-invalid="false"
+                type="time"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Ends at (Nepal time, optional)
+              </span>
+              <input
+                aria-invalid="false"
+                type="time"
+                value=""
+              />
+            </label>
+            <p>
+              Leave days empty for every day.
+            </p>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Sunday
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Monday
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Tuesday
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Wednesday
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Thursday
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Friday
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                type="checkbox"
+              />
+              <span>
+                Saturday
+              </span>
+            </label>
+          </div>
+        </details>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Validity and staff
+          </summary>
+          <div>
+            <label
+              class="field "
+            >
+              <span>
+                Starts (BS, optional)
+              </span>
+              <input
+                aria-invalid="false"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Ends (BS, optional)
+              </span>
+              <input
+                aria-invalid="false"
+                value=""
+              />
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                checked=""
+                type="checkbox"
+              />
+              <span>
+                Cashier may apply this offer
+              </span>
+            </label>
+            <label
+              class="check"
+            >
+              <input
+                checked=""
+                type="checkbox"
+              />
+              <span>
+                Enabled
+              </span>
+            </label>
+          </div>
+        </details>
+      </fieldset>
+      <p>
+        One offer per sale. Quantity prices apply first; offer saving is before tax.
+      </p>
+      <button
+        type="submit"
+      >
+        <span>
+          Save basket offer
+        </span>
+      </button>
+      <button
+        fill="clear"
+        type="button"
+      >
+        Reload offer
+      </button>
+    </form>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/BasketOffers.test.tsx:98:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+   Start at  16:02:36
+   Duration  8.02s (transform 360ms, setup 775ms, import 717ms, tests 2.89s, environment 3.13s)
+

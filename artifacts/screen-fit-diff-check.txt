@@ -1,0 +1,6 @@
+warning: LF will be replaced by CRLF in BUILD-PROGRESS.md.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/pages/Auth.tsx.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/theme/app.css.
+The file will have its original line endings in your working directory

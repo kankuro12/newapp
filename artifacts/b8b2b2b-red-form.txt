@@ -1,0 +1,53 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+stderr | src/pages/DocumentFormOffers.test.tsx > posts current reviewed total and payment; changed quantity blocks old proof
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/pages/DocumentFormOffers.test.tsx (3 tests | 3 failed) 324ms
+   × posts current reviewed total and payment; changed quantity blocks old proof 222ms
+   × hydrates pre-offer draft inputs instead of applying saved saving twice 45ms
+   × locks entry during uncertain save and keeps original retry available 51ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/DocumentFormOffers.test.tsx > posts current reviewed total and payment; changed quantity blocks old proof
+ FAIL  src/pages/DocumentFormOffers.test.tsx > locks entry during uncertain save and keeps original retry available
+TypeError: Cannot read properties of undefined (reading 'some')
+ ❯ src/pages/DocumentForm.tsx:20:108
+
+ ❯ Object.react-stack-bottom-frame ../node_modules/react-dom/cjs/react-dom-client.development.js:22509:20
+ ❯ runWithFiberInDEV ../node_modules/react-dom/cjs/react-dom-client.development.js:543:16
+ ❯ commitHookEffectListMount ../node_modules/react-dom/cjs/react-dom-client.development.js:10758:29
+ ❯ commitHookPassiveMountEffects ../node_modules/react-dom/cjs/react-dom-client.development.js:10880:11
+ ❯ commitPassiveMountOnFiber ../node_modules/react-dom/cjs/react-dom-client.development.js:12653:13
+ ❯ recursivelyTraversePassiveMountEffects ../node_modules/react-dom/cjs/react-dom-client.development.js:12627:11
+ ❯ commitPassiveMountOnFiber ../node_modules/react-dom/cjs/react-dom-client.development.js:12755:11
+ ❯ recursivelyTraversePassiveMountEffects ../node_modules/react-dom/cjs/react-dom-client.development.js:12627:11
+ ❯ commitPassiveMountOnFiber ../node_modules/react-dom/cjs/react-dom-client.development.js:12646:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/pages/DocumentFormOffers.test.tsx > hydrates pre-offer draft inputs instead of applying saved saving twice
+TypeError: Cannot read properties of undefined (reading 'some')
+ ❯ src/pages/DocumentForm.tsx:21:570
+
+ ❯ Object.react-stack-bottom-frame ../node_modules/react-dom/cjs/react-dom-client.development.js:22509:20
+ ❯ runWithFiberInDEV ../node_modules/react-dom/cjs/react-dom-client.development.js:543:16
+ ❯ commitHookEffectListMount ../node_modules/react-dom/cjs/react-dom-client.development.js:10758:29
+ ❯ commitHookPassiveMountEffects ../node_modules/react-dom/cjs/react-dom-client.development.js:10880:11
+ ❯ commitPassiveMountOnFiber ../node_modules/react-dom/cjs/react-dom-client.development.js:12653:13
+ ❯ recursivelyTraversePassiveMountEffects ../node_modules/react-dom/cjs/react-dom-client.development.js:12627:11
+ ❯ commitPassiveMountOnFiber ../node_modules/react-dom/cjs/react-dom-client.development.js:12755:11
+ ❯ recursivelyTraversePassiveMountEffects ../node_modules/react-dom/cjs/react-dom-client.development.js:12627:11
+ ❯ commitPassiveMountOnFiber ../node_modules/react-dom/cjs/react-dom-client.development.js:12646:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  3 failed | 3 passed (6)
+   Start at  17:54:58
+   Duration  7.01s (transform 825ms, setup 2.05s, import 1.47s, tests 2.59s, environment 5.32s)
+

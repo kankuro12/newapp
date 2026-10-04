@@ -1,0 +1,7 @@
+Own development database: business_book
+
+ INFO Running migrations. 
+
+ 2026_10_04_043511_create_bill_first_fulfilment_sources .. 2s DONE
+ 2026_10_04_051325_add_phone_to_users_table .. 60.57ms DONE
+

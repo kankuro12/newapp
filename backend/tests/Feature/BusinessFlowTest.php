@@ -277,7 +277,7 @@ class BusinessFlowTest extends TestCase
 
     public function test_registration_verification_disabled_login_and_admin_injection(): void
     {
-        $input = ['name' => 'New owner', 'email' => 'new-owner@example.test', 'password' => 'password-123', 'password_confirmation' => 'password-123'];
+        $input = ['name' => 'New owner', 'country_code' => 'NP', 'phone' => '9801234567', 'email' => 'new-owner@example.test', 'password' => 'password-123', 'password_confirmation' => 'password-123'];
         $this->postJson('/register', [...$input, 'is_platform_admin' => true])->assertUnprocessable();
         $this->assertDatabaseMissing('users', ['email' => $input['email']]);
         $this->postJson('/register', $input)->assertCreated();

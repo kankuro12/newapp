@@ -2,6 +2,7 @@
 
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { readFileSync } from 'node:fs'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,7 +11,8 @@ export default defineConfig({
     {
       name: 'asset-only-pwa',
       generateBundle(_, bundle) {
-        const assets = ['/index.html', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png', ...Object.keys(bundle).filter(name => /\.(js|css)$/.test(name)).map(name => '/' + name)]
+        this.emitFile({ type: 'asset', fileName: 'third-party-notices.txt', source: readFileSync(new URL('../THIRD-PARTY-NOTICES.md', import.meta.url), 'utf8') })
+        const assets = ['/index.html', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png', '/help/user-manual.html', '/help/manual/restaurant-checkout.jpg', '/help/manual/salon-checkout.jpg', ...Object.keys(bundle).filter(name => /\.(js|css)$/.test(name)).map(name => '/' + name)]
         const version = 'business-book-assets-' + Date.now()
         this.emitFile({ type: 'asset', fileName: 'sw.js', source: `const CACHE=${JSON.stringify(version)};const ASSETS=${JSON.stringify(assets)};
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS))));

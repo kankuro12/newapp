@@ -1,0 +1,507 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+stderr | src/components/FulfilmentEntry.test.tsx > requires selected quantities and invalidates review after quantity or source version changes
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/components/FulfilmentEntry.test.tsx (3 tests | 2 failed) 4212ms
+   × requires selected quantities and invalidates review after quantity or source version changes 2075ms
+   × keeps uncertain save locked and retries original quantity, proof and UUID 1285ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/FulfilmentEntry.test.tsx > requires selected quantities and invalidates review after quantity or source version changes
+TestingLibraryElementError: Unable to find role="button" and name "Confirm delivery / work"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <form
+      class="panel fulfilment-entry"
+    >
+      <h2>
+        Deliver goods / complete work
+      </h2>
+      <p>
+        Stock moves now; customer/supplier dues wait until a bill is posted.
+      </p>
+      <fieldset>
+        <label
+          class="field "
+        >
+          <span>
+            Business date (BS)
+          </span>
+          <input
+            aria-invalid="false"
+            name="business_date_bs"
+            required=""
+            value="2083-01-03"
+          />
+        </label>
+        <div
+          class="fulfilment-quantity"
+        >
+          <p>
+            Available
+            : 
+            3.000
+             
+            L
+          </p>
+          <label
+            class="field "
+          >
+            <span>
+              Milk · Quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              placeholder="0.000"
+              value="1.250"
+            />
+          </label>
+          <button
+            type="button"
+          >
+            Use available quantity
+          </button>
+        </div>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Additional details
+          </summary>
+          <div>
+            <label
+              class="field "
+            >
+              <span>
+                Reference
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="150"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Notes
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="1000"
+                value=""
+              />
+            </label>
+          </div>
+        </details>
+      </fieldset>
+      <div
+        class="error-box"
+        role="alert"
+      >
+        <strong>
+          Response constructor: Invalid response status code 204
+        </strong>
+      </div>
+      <div
+        class="detail-actions"
+      >
+        <button
+          type="button"
+        >
+          Review quantities
+        </button>
+        <button
+          type="button"
+        >
+          Close entry
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <form
+      class="panel fulfilment-entry"
+    >
+      <h2>
+        Deliver goods / complete work
+      </h2>
+      <p>
+        Stock moves now; customer/supplier dues wait until a bill is posted.
+      </p>
+      <fieldset>
+        <label
+          class="field "
+        >
+          <span>
+            Business date (BS)
+          </span>
+          <input
+            aria-invalid="false"
+            name="business_date_bs"
+            required=""
+            value="2083-01-03"
+          />
+        </label>
+        <div
+          class="fulfilment-quantity"
+        >
+          <p>
+            Available
+            : 
+            3.000
+             
+            L
+          </p>
+          <label
+            class="field "
+          >
+            <span>
+              Milk · Quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              placeholder="0.000"
+              value="1.250"
+            />
+          </label>
+          <button
+            type="button"
+          >
+            Use available quantity
+          </button>
+        </div>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Additional details
+          </summary>
+          <div>
+            <label
+              class="field "
+            >
+              <span>
+                Reference
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="150"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Notes
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="1000"
+                value=""
+              />
+            </label>
+          </div>
+        </details>
+      </fieldset>
+      <div
+        class="error-box"
+        role="alert"
+      >
+        <strong>
+          Response constructor: Invalid response status code 204
+        </strong>
+      </div>
+      <div
+        class="detail-actions"
+      >
+        <button
+          type="button"
+        >
+          Review quantities
+        </button>
+        <button
+          type="button"
+        >
+          Close entry
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/components/FulfilmentEntry.test.tsx:23:16
+     21|   fireEvent.change(screen.getByLabelText('Milk · Quantity'),{target:{v…
+     22|   fireEvent.click(screen.getByRole('button',{name:'Review quantities'}…
+     23|   await screen.findByRole('button',{name:'Confirm delivery / work'});
+       |                ^
+     24|   fireEvent.change(screen.getByLabelText('Milk · Quantity'),{target:{v…
+     25|   expect(screen.queryByRole('button',{name:'Confirm delivery / work'})…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/components/FulfilmentEntry.test.tsx > keeps uncertain save locked and retries original quantity, proof and UUID
+TestingLibraryElementError: Unable to find role="button" and name "Confirm delivery / work"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <form
+      class="panel fulfilment-entry"
+    >
+      <h2>
+        Deliver goods / complete work
+      </h2>
+      <p>
+        Stock moves now; customer/supplier dues wait until a bill is posted.
+      </p>
+      <fieldset>
+        <label
+          class="field "
+        >
+          <span>
+            Business date (BS)
+          </span>
+          <input
+            aria-invalid="false"
+            name="business_date_bs"
+            required=""
+            value="2083-01-03"
+          />
+        </label>
+        <div
+          class="fulfilment-quantity"
+        >
+          <p>
+            Available
+            : 
+            3.000
+             
+            L
+          </p>
+          <label
+            class="field "
+          >
+            <span>
+              Milk · Quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              placeholder="0.000"
+              value="1.250"
+            />
+          </label>
+          <button
+            type="button"
+          >
+            Use available quantity
+          </button>
+        </div>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Additional details
+          </summary>
+          <div>
+            <label
+              class="field "
+            >
+              <span>
+                Reference
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="150"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Notes
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="1000"
+                value=""
+              />
+            </label>
+          </div>
+        </details>
+      </fieldset>
+      <div
+        class="error-box"
+        role="alert"
+      >
+        <strong>
+          Response constructor: Invalid response status code 204
+        </strong>
+      </div>
+      <div
+        class="detail-actions"
+      >
+        <button
+          type="button"
+        >
+          Review quantities
+        </button>
+        <button
+          type="button"
+        >
+          Close entry
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <form
+      class="panel fulfilment-entry"
+    >
+      <h2>
+        Deliver goods / complete work
+      </h2>
+      <p>
+        Stock moves now; customer/supplier dues wait until a bill is posted.
+      </p>
+      <fieldset>
+        <label
+          class="field "
+        >
+          <span>
+            Business date (BS)
+          </span>
+          <input
+            aria-invalid="false"
+            name="business_date_bs"
+            required=""
+            value="2083-01-03"
+          />
+        </label>
+        <div
+          class="fulfilment-quantity"
+        >
+          <p>
+            Available
+            : 
+            3.000
+             
+            L
+          </p>
+          <label
+            class="field "
+          >
+            <span>
+              Milk · Quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              placeholder="0.000"
+              value="1.250"
+            />
+          </label>
+          <button
+            type="button"
+          >
+            Use available quantity
+          </button>
+        </div>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Additional details
+          </summary>
+          <div>
+            <label
+              class="field "
+            >
+              <span>
+                Reference
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="150"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Notes
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="1000"
+                value=""
+              />
+            </label>
+          </div>
+        </details>
+      </fieldset>
+      <div
+        class="error-box"
+        role="alert"
+      >
+        <strong>
+          Response constructor: Invalid response status code 204
+        </strong>
+      </div>
+      <div
+        class="detail-actions"
+      >
+        <button
+          type="button"
+        >
+          Review quantities
+        </button>
+        <button
+          type="button"
+        >
+          Close entry
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/components/FulfilmentEntry.test.tsx:36:16
+     34|   fireEvent.change(screen.getByLabelText('Milk · Quantity'),{target:{v…
+     35|   fireEvent.click(screen.getByRole('button',{name:'Review quantities'}…
+     36|   await screen.findByRole('button',{name:'Confirm delivery / work'});
+       |                ^
+     37|   fetcher.mockRejectedValueOnce(new Error('Lost reply'));
+     38|   fireEvent.click(screen.getByRole('button',{name:'Confirm delivery / …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  09:28:30
+   Duration  17.82s (transform 1.48s, setup 2.43s, import 2.46s, tests 4.21s, environment 7.04s)
+

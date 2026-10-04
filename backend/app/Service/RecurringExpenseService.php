@@ -137,13 +137,14 @@ class RecurringExpenseService
 
     public function generateDue(int $id, int $through): bool
     {
-        return DB::transaction(function () use ($id, $through) {
-            $rule = $this->a->requireRow('recurring_expenses', $id);
-            $actor = (int) $rule->authorized_by;
+        $actor = (int) $this->a->requireRow('recurring_expenses', $id)->authorized_by;
+
+        return DB::transaction(function () use ($id, $through, $actor) {
             $tenant = $this->a->lockTenant(app(CurrentTenant::class)->id(), $actor);
             $this->a->authorize($actor, ['owner', 'manager', 'accountant']);
             abort_unless(DB::table('users')->where('id', $actor)->whereNotNull('email_verified_at')->exists(), 403, 'Setup author must have verified email.');
             $rule = $this->a->requireRow('recurring_expenses', $id);
+            abort_unless((int) $rule->authorized_by === $actor, 409, 'Setup author changed. Retry generation.');
             if (! $rule->enabled || ! $rule->auto_generate || $rule->next_date_bs > $through) {
                 return false;
             }
