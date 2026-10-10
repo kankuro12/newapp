@@ -1,0 +1,635 @@
+
+> frontend@0.0.1 test.unit
+> vitest "--run" "src/components/FulfilmentEntry.test.tsx"
+
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+ ❯ src/components/FulfilmentEntry.test.tsx (6 tests | 3 failed) 3060ms
+   × reviews ordered quantities before fulfilment and posts the exact reviewed bill proof 407ms
+   × limits ordered billing to unbilled order quantity rather than completed stock 106ms
+   × locks a lost ordered-bill reply and retries its original quantity version proof and UUID 1215ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/FulfilmentEntry.test.tsx > reviews ordered quantities before fulfilment and posts the exact reviewed bill proof
+TestingLibraryElementError: Unable to find an accessible element with the role "heading" and name "Bill ordered quantities"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Deliver goods / complete work":
+  <h2 />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  <fieldset />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Business date (BS)":
+  <input
+    aria-invalid="false"
+    name="business_date_bs"
+    required=""
+    value="2083-01-03"
+  />
+
+  Name "Milk · Quantity":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    placeholder="0.000"
+    value=""
+  />
+
+  Name "Reference":
+  <input
+    aria-invalid="false"
+    maxlength="150"
+    value=""
+  />
+
+  Name "Notes":
+  <input
+    aria-invalid="false"
+    maxlength="1000"
+    value=""
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Use available quantity":
+  <button
+    data-fill="clear"
+    type="button"
+  />
+
+  Name "Review quantities":
+  <button
+    data-fill="solid"
+    type="button"
+  />
+
+  Name "Close entry":
+  <button
+    data-fill="clear"
+    type="button"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <form
+      class="panel fulfilment-entry"
+      data-dirty="false"
+    >
+      <h2>
+        Deliver goods / complete work
+      </h2>
+      <p>
+        Stock moves now; customer/supplier dues wait until a bill is posted.
+      </p>
+      <fieldset>
+        <label
+          class="field "
+        >
+          <span>
+            Business date (BS)
+          </span>
+          <input
+            aria-invalid="false"
+            name="business_date_bs"
+            required=""
+            value="2083-01-03"
+          />
+        </label>
+        <div
+          class="fulfilment-quantity"
+        >
+          <p>
+            Available
+            : 
+            3.000
+             
+            L
+          </p>
+          <label
+            class="field "
+          >
+            <span>
+              Milk · Quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              placeholder="0.000"
+              value=""
+            />
+          </label>
+          <button
+            data-fill="clear"
+            type="button"
+          >
+            Use available quantity
+          </button>
+        </div>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Additional details
+          </summary>
+          <div>
+            <label
+              class="field "
+            >
+              <span>
+                Reference
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="150"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Notes
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="1000"
+                value=""
+              />
+            </label>
+          </div>
+        </details>
+      </fieldset>
+      <div
+        class="detail-actions"
+      >
+        <button
+          data-fill="solid"
+          type="button"
+        >
+          Review quantities
+        </button>
+        <button
+          data-fill="clear"
+          type="button"
+        >
+          Close entry
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/FulfilmentEntry.test.tsx:36:17
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/components/FulfilmentEntry.test.tsx > limits ordered billing to unbilled order quantity rather than completed stock
+TestingLibraryElementError: Unable to find an element with the text: Available: 1.750 L. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <form
+      class="panel fulfilment-entry"
+      data-dirty="false"
+    >
+      <h2>
+        Deliver goods / complete work
+      </h2>
+      <p>
+        Stock moves now; customer/supplier dues wait until a bill is posted.
+      </p>
+      <fieldset>
+        <label
+          class="field "
+        >
+          <span>
+            Business date (BS)
+          </span>
+          <input
+            aria-invalid="false"
+            name="business_date_bs"
+            required=""
+            value="2083-01-03"
+          />
+        </label>
+        <div
+          class="fulfilment-quantity"
+        >
+          <p>
+            Available
+            : 
+            3.000
+             
+            L
+          </p>
+          <label
+            class="field "
+          >
+            <span>
+              Milk · Quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              placeholder="0.000"
+              value=""
+            />
+          </label>
+          <button
+            data-fill="clear"
+            type="button"
+          >
+            Use available quantity
+          </button>
+        </div>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Additional details
+          </summary>
+          <div>
+            <label
+              class="field "
+            >
+              <span>
+                Reference
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="150"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Notes
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="1000"
+                value=""
+              />
+            </label>
+          </div>
+        </details>
+      </fieldset>
+      <div
+        class="detail-actions"
+      >
+        <button
+          data-fill="solid"
+          type="button"
+        >
+          Review quantities
+        </button>
+        <button
+          data-fill="clear"
+          type="button"
+        >
+          Close entry
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/FulfilmentEntry.test.tsx:53:17
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/components/FulfilmentEntry.test.tsx > locks a lost ordered-bill reply and retries its original quantity version proof and UUID
+TestingLibraryElementError: Unable to find role="button" and name "Confirm bill + payment"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <form
+      class="panel fulfilment-entry"
+      data-dirty="true"
+    >
+      <h2>
+        Deliver goods / complete work
+      </h2>
+      <p>
+        Stock moves now; customer/supplier dues wait until a bill is posted.
+      </p>
+      <fieldset>
+        <label
+          class="field "
+        >
+          <span>
+            Business date (BS)
+          </span>
+          <input
+            aria-invalid="false"
+            name="business_date_bs"
+            required=""
+            value="2083-01-03"
+          />
+        </label>
+        <div
+          class="fulfilment-quantity"
+        >
+          <p>
+            Available
+            : 
+            3.000
+             
+            L
+          </p>
+          <label
+            class="field "
+          >
+            <span>
+              Milk · Quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              placeholder="0.000"
+              value="1.250"
+            />
+          </label>
+          <button
+            data-fill="clear"
+            type="button"
+          >
+            Use available quantity
+          </button>
+        </div>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Additional details
+          </summary>
+          <div>
+            <label
+              class="field "
+            >
+              <span>
+                Reference
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="150"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Notes
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="1000"
+                value=""
+              />
+            </label>
+          </div>
+        </details>
+      </fieldset>
+      <section
+        aria-label="Reviewed quantities"
+        class="fulfilment-review"
+      >
+        <h3>
+          Reviewed quantities
+        </h3>
+        <p>
+          <strong>
+            Milk
+          </strong>
+          <span>
+            1.250
+             
+            L
+             · रु 125.00
+          </span>
+        </p>
+      </section>
+      <div
+        class="detail-actions"
+      >
+        <button
+          data-fill="outline"
+          type="button"
+        >
+          Review quantities
+        </button>
+        <button
+          type="submit"
+        >
+          <span>
+            Confirm delivery / work
+          </span>
+        </button>
+        <button
+          data-fill="clear"
+          type="button"
+        >
+          Close entry
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <form
+      class="panel fulfilment-entry"
+      data-dirty="true"
+    >
+      <h2>
+        Deliver goods / complete work
+      </h2>
+      <p>
+        Stock moves now; customer/supplier dues wait until a bill is posted.
+      </p>
+      <fieldset>
+        <label
+          class="field "
+        >
+          <span>
+            Business date (BS)
+          </span>
+          <input
+            aria-invalid="false"
+            name="business_date_bs"
+            required=""
+            value="2083-01-03"
+          />
+        </label>
+        <div
+          class="fulfilment-quantity"
+        >
+          <p>
+            Available
+            : 
+            3.000
+             
+            L
+          </p>
+          <label
+            class="field "
+          >
+            <span>
+              Milk · Quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              placeholder="0.000"
+              value="1.250"
+            />
+          </label>
+          <button
+            data-fill="clear"
+            type="button"
+          >
+            Use available quantity
+          </button>
+        </div>
+        <details
+          class="optional-details"
+        >
+          <summary>
+            Additional details
+          </summary>
+          <div>
+            <label
+              class="field "
+            >
+              <span>
+                Reference
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="150"
+                value=""
+              />
+            </label>
+            <label
+              class="field "
+            >
+              <span>
+                Notes
+              </span>
+              <input
+                aria-invalid="false"
+                maxlength="1000"
+                value=""
+              />
+            </label>
+          </div>
+        </details>
+      </fieldset>
+      <section
+        aria-label="Reviewed quantities"
+        class="fulfilment-review"
+      >
+        <h3>
+          Reviewed quantities
+        </h3>
+        <p>
+          <strong>
+            Milk
+          </strong>
+          <span>
+            1.250
+             
+            L
+             · रु 125.00
+          </span>
+        </p>
+      </section>
+      <div
+        class="detail-actions"
+      >
+        <button
+          data-fill="outline"
+          type="button"
+        >
+          Review quantities
+        </button>
+        <button
+          type="submit"
+        >
+          <span>
+            Confirm delivery / work
+          </span>
+        </button>
+        <button
+          data-fill="clear"
+          type="button"
+        >
+          Close entry
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/components/FulfilmentEntry.test.tsx:66:16
+     64|   fireEvent.change(screen.getByLabelText('Milk · Quantity'),{target:{v…
+     65|   fireEvent.click(screen.getByRole('button',{name:'Review quantities'}…
+     66|   await screen.findByRole('button',{name:'Confirm bill + payment'});
+       |                ^
+     67|   fetcher.mockRejectedValueOnce(new Error('Lost reply'));
+     68|   fireEvent.click(screen.getByRole('button',{name:'Confirm bill + paym…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 passed (6)
+   Start at  08:46:16
+   Duration  11.97s (transform 651ms, setup 1.75s, import 1.30s, tests 3.06s, environment 4.10s)
+

@@ -6,6 +6,7 @@ use App\Models\Tenant;
 use App\NepaliDate;
 use App\Service\AccountingService;
 use App\Service\AppointmentService;
+use App\Service\BillingService;
 use App\Service\PosService;
 use App\Service\RestaurantService;
 use App\Service\TenantService;
@@ -47,6 +48,10 @@ class PosController extends Controller
         $this->a->authorize(auth('tenant')->id(), ['owner']);
         $input = $r->validate(['mutation_uuid' => 'required|uuid', 'pos_profile' => ['required', Rule::in(PosService::PROFILES)]]);
         $result = $this->a->mutate(auth('tenant')->id(), $input['mutation_uuid'], 'pos.profile', $input, function (Tenant $tenant) use ($input) {
+            app(BillingService::class)->requireProduct((int) $tenant->billing_account_id, $input['pos_profile'] === 'general' ? 'bookkeeping' : $input['pos_profile']);
+            if ($tenant->pos_profile !== $input['pos_profile']) {
+                abort_if($this->a->rows('restaurant_orders')->where('status', 'open')->exists() || $this->a->rows('appointments')->whereIn('status', ['booked', 'arrived', 'in_service', 'blocked'])->exists(), 409, 'Finish live orders or appointments before changing business type.');
+            }
             $tenant->update(['pos_profile' => $input['pos_profile']]);
 
             return ['table' => 'tenants', 'id' => $tenant->id];

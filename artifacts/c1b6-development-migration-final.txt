@@ -1,0 +1,5 @@
+
+ INFO Running migrations. 
+
+ 2026_10_04_112917_add_return_modes_and_recognition_to_fulfilment_sources .. 163.28ms DONE
+

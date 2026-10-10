@@ -48,7 +48,12 @@ class AccountingService
             throw new \LogicException('Locked tenant transaction required.');
         }
         // ponytail: tenant row serializes financial writes; use ordered item locks if measured contention requires finer locking.
+        $accountId = Tenant::whereKey($tenantId)->value('billing_account_id');
+        if ($accountId) {
+            DB::table('billing_accounts')->where('id', $accountId)->lockForUpdate()->first() ?? abort(404);
+        }
         $tenant = Tenant::whereKey($tenantId)->lockForUpdate()->firstOrFail();
+        app(BillingService::class)->businessAccess($tenant, $writable, $this->role($actorId));
         $this->role($actorId);
         abort_if(DB::table('users')->where('id', $actorId)->whereNotNull('disabled_at')->exists(), 403);
         abort_if($tenant->access_status === 'suspended', 403, 'Business suspended.');

@@ -7,6 +7,10 @@ import Auth, { Verify, AccountPage } from './pages/Auth';
 import Businesses, { Invitation } from './pages/Businesses';
 import Workspace from './pages/Workspace';
 import Platform from './pages/Platform';
+import Billing from './pages/Billing';
+import Notifications from './pages/Notifications';
+import { useEffect, useState } from 'react';
+import { listenForPush } from './lib/push';
 import { Loading } from './components/ui';
 
 /* Core CSS required for Ionic components to work properly */
@@ -26,18 +30,99 @@ setupIonicReact();
 function TenantApp() {
   const session = useData<{ data: User; today_bs: number }>('/api/me');
   const location = useLocation();
-  if (session.loading) return <IonPage><IonContent><Loading /></IonContent></IonPage>;
-  if (!session.data) return session.error && (!(session.error instanceof ApiError) || session.error.status !== 401) ? <IonPage><IonContent><Loading error={session.error} retry={session.reload} /></IonContent></IonPage> : <Auth reload={session.reload} />;
-  if (['/reset','/recover'].includes(location.pathname)) return <Auth reload={session.reload} />;
-  if (location.pathname === '/account') return <AccountPage user={session.data.data} reload={session.reload} />;
-  if (!session.data.data.email_verified_at) return <Verify user={session.data.data} reload={session.reload} />;
-  return <Routes><Route path="/businesses" element={<Businesses user={session.data.data} logout={session.reload} />} /><Route path="/app/:slug/*" element={<Workspace user={session.data.data} today={session.data.today_bs} logout={session.reload} />} /><Route path="/invite/:token" element={<Invite />} /><Route path="*" element={<Navigate to="/businesses" replace />} /></Routes>;
+  const [pushNotice, setPushNotice] = useState<{ user: string; text: string }>();
+  const userId = session.data?.data.email_verified_at ? session.data.data.id : undefined;
+  useEffect(() => {
+    let stopped = false;
+    let generation = 0;
+    let unsubscribe = () => undefined as void;
+    function subscribe() {
+      const attempt = ++generation;
+      unsubscribe();
+      if (userId)
+        void listenForPush(userId, (title, body) =>
+          setPushNotice({ user: userId, text: title + ': ' + body }),
+        )
+          .then((cleanup) => {
+            if (stopped || generation !== attempt) cleanup();
+            else unsubscribe = cleanup;
+          })
+          .catch(() => undefined);
+    }
+    subscribe();
+    window.addEventListener('bb-push-change', subscribe);
+    return () => {
+      stopped = true;
+      unsubscribe();
+      window.removeEventListener('bb-push-change', subscribe);
+    };
+  }, [userId]);
+  if (session.loading)
+    return (
+      <IonPage>
+        <IonContent>
+          <Loading />
+        </IonContent>
+      </IonPage>
+    );
+  if (!session.data)
+    return session.error &&
+      (!(session.error instanceof ApiError) || session.error.status !== 401) ? (
+      <IonPage>
+        <IonContent>
+          <Loading error={session.error} retry={session.reload} />
+        </IonContent>
+      </IonPage>
+    ) : (
+      <Auth reload={session.reload} />
+    );
+  if (['/reset', '/recover'].includes(location.pathname)) return <Auth reload={session.reload} />;
+  if (location.pathname === '/account')
+    return <AccountPage user={session.data.data} reload={session.reload} />;
+  if (!session.data.data.email_verified_at)
+    return <Verify user={session.data.data} reload={session.reload} />;
+  return (
+    <>
+      {pushNotice?.user === userId && (
+        <div className="notice" role="status">
+          {pushNotice?.text}
+          <button onClick={() => setPushNotice(undefined)}>Dismiss</button>
+        </div>
+      )}
+      <Routes>
+        <Route path="/notifications" element={<Notifications userId={session.data.data.id} />} />
+        <Route path="/billing" element={<Billing />} />
+        <Route
+          path="/businesses"
+          element={<Businesses user={session.data.data} logout={session.reload} />}
+        />
+        <Route
+          path="/app/:slug/*"
+          element={
+            <Workspace
+              user={session.data.data}
+              today={session.data.today_bs}
+              logout={session.reload}
+            />
+          }
+        />
+        <Route path="/invite/:token" element={<Invite />} />
+        <Route path="*" element={<Navigate to="/businesses" replace />} />
+      </Routes>
+    </>
+  );
 }
-function Invite() { const { token = '' } = useParams(); return <Invitation token={token} />; }
+function Invite() {
+  const { token = '' } = useParams();
+  return <Invitation token={token} />;
+}
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
-      <Routes><Route path="/platform/*" element={<Platform />} /><Route path="*" element={<TenantApp />} /></Routes>
+      <Routes>
+        <Route path="/platform/*" element={<Platform />} />
+        <Route path="*" element={<TenantApp />} />
+      </Routes>
     </IonReactRouter>
   </IonApp>
 );

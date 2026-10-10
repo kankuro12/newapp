@@ -63,8 +63,19 @@ class FulfilmentService
             $packed = (int) $this->a->rows('workflow_package_lines')->whereIn('document_line_id', $billLines)->whereIn('package_id', $this->a->rows('workflow_packages')->where('workflow_id', $workflow)->where('status', 'packed')->select('id'))->sum('qty_milli');
             $billedReturns = (int) $this->a->rows('document_lines')->whereIn('source_line_id', $billLines)->whereIn('document_id', $this->a->rows('documents')->where('status', 'posted')->select('id'))->sum('qty_milli');
             $unfulfilledCredits = (int) $this->a->rows('workflow_return_allocations')->whereIn('document_line_id', $billLines)->whereNull('dispatch_allocation_id')->whereIn('return_document_line_id', $this->a->rows('document_lines')->whereIn('document_id', $this->a->rows('documents')->where('status', 'posted')->select('id'))->select('id'))->sum('qty_milli');
+            $transitCredits = $this->a->rows('workflow_return_allocations')->whereIn('document_line_id', $billLines)->where('return_mode', 'transit')->whereIn('return_document_line_id', $this->a->rows('document_lines')->whereIn('document_id', $this->a->rows('documents')->where('status', 'posted')->select('id'))->select('id'))->get();
+            foreach ($transitCredits as $credit) {
+                $dispatch = $this->a->requireRow('workflow_dispatch_allocations', $credit->dispatch_allocation_id);
+                $physical = $this->a->requireRow('workflow_fulfilment_lines', $dispatch->fulfilment_line_id);
+                if ($confirmed->contains($physical->fulfilment_id)) {
+                    $completed -= (int) $credit->qty_milli;
+                } else {
+                    $shipped -= (int) $credit->qty_milli;
+                }
+            }
+            $transitQty = (int) $transitCredits->sum('qty_milli');
             $billable = ($order->fulfilment_policy ?? null) === 'bill_first' ? $original['qty_milli'] - $billed : $completed - $billed;
-            $lines[] = ['position' => $index + 1, 'item_id' => $original['item_id'], 'description' => $original['description'], 'unit_snapshot' => $original['unit_snapshot'], 'ordered_qty_milli' => $original['qty_milli'], 'completed_qty_milli' => $completed, 'shipped_qty_milli' => $shipped, 'packed_qty_milli' => $packed, 'remaining_qty_milli' => max(0, $original['qty_milli'] - $completed - $unfulfilledCredits), 'billed_qty_milli' => $billed, 'billed_returned_qty_milli' => $billedReturns, 'credited_unfulfilled_qty_milli' => $unfulfilledCredits, 'billable_qty_milli' => max(0, $billable)];
+            $lines[] = ['position' => $index + 1, 'item_id' => $original['item_id'], 'description' => $original['description'], 'unit_snapshot' => $original['unit_snapshot'], 'ordered_qty_milli' => $original['qty_milli'], 'completed_qty_milli' => $completed, 'shipped_qty_milli' => $shipped, 'packed_qty_milli' => $packed, 'remaining_qty_milli' => max(0, $original['qty_milli'] - $completed - $unfulfilledCredits - $transitQty), 'billed_qty_milli' => $billed, 'billed_returned_qty_milli' => $billedReturns, 'credited_unfulfilled_qty_milli' => $unfulfilledCredits, 'credited_transit_qty_milli' => $transitQty, 'billable_qty_milli' => max(0, $billable)];
         }
 
         $bills = $this->a->rows('documents')->where('workflow_id', $workflow);
@@ -419,6 +430,34 @@ class FulfilmentService
         return $this->dispatches((int) $line->id)->concat($this->credits((int) $line->id)->whereNull('dispatch_allocation_id'));
     }
 
+    private function recognitionContext(object $line): array
+    {
+        $credits = $this->credits((int) $line->id);
+        $transit = $credits->where('return_mode', 'transit');
+        $heldCredits = $credits->whereIn('return_mode', ['unfulfilled', 'transit']);
+        $qty = (int) $heldCredits->sum('qty_milli');
+        $recognized = 0;
+        foreach ($this->dispatches((int) $line->id) as $source) {
+            $physical = $this->a->requireRow('workflow_fulfilment_lines', $source->fulfilment_line_id);
+            $stage = $this->a->requireRow('workflow_fulfilments', $physical->fulfilment_id);
+            if ($stage->handover_confirmed) {
+                $qty += (int) $source->qty_milli - (int) $transit->where('dispatch_allocation_id', $source->id)->sum('qty_milli');
+                $recognized += (int) $source->recognition_sales_base_paisa;
+            }
+        }
+        $released = (int) $heldCredits->sum('sales_base_paisa');
+
+        return ['qty_milli' => $qty, 'sales_base_paisa' => $recognized, 'held_credit_paisa' => $released, 'held_left_paisa' => max(0, (int) $line->net_base_paisa - $recognized - $released)];
+    }
+
+    private function recognitionShare(object $line, int $qty): int
+    {
+        $context = $this->recognitionContext($line);
+        $target = Money::multiplyDivide((int) $line->net_base_paisa, $context['qty_milli'] + $qty, (int) $line->qty_milli);
+
+        return max(0, $target - $context['sales_base_paisa'] - $context['held_credit_paisa']);
+    }
+
     private function remainingBilled(object $line, ?int $exceptPackage = null): int
     {
         return (int) $line->qty_milli - (int) $this->pendingSources($line)->sum('qty_milli') - $this->packed((int) $line->id, $exceptPackage);
@@ -432,10 +471,12 @@ class FulfilmentService
             $physicalLine = $this->a->requireRow('workflow_fulfilment_lines', $source->fulfilment_line_id);
             $stage = $this->a->requireRow('workflow_fulfilments', $physicalLine->fulfilment_id);
 
-            return ['id' => (int) $source->id, 'fulfilment_id' => (int) $stage->id, 'business_date_bs' => (int) $stage->business_date_bs, 'handover_confirmed' => (bool) $stage->handover_confirmed, 'qty_milli' => (int) $source->qty_milli, 'returnable_qty_milli' => $stage->handover_confirmed ? (int) $source->qty_milli - (int) $credits->where('dispatch_allocation_id', $source->id)->sum('qty_milli') : 0];
+            $remaining = (int) $source->qty_milli - (int) $credits->where('dispatch_allocation_id', $source->id)->sum('qty_milli');
+
+            return ['id' => (int) $source->id, 'fulfilment_id' => (int) $stage->id, 'business_date_bs' => (int) $stage->business_date_bs, 'handover_confirmed' => (bool) $stage->handover_confirmed, 'qty_milli' => (int) $source->qty_milli, 'returnable_qty_milli' => $stage->handover_confirmed ? $remaining : 0, 'undelivered_returnable_qty_milli' => $stage->handover_confirmed ? 0 : $remaining];
         })->all();
 
-        return ['unfulfilled_qty_milli' => max(0, $this->remainingBilled($line)), 'packed_qty_milli' => $this->packed((int) $line->id), 'credited_unfulfilled_qty_milli' => (int) $credits->whereNull('dispatch_allocation_id')->sum('qty_milli'), 'fulfilment_sources' => $sources];
+        return ['unfulfilled_qty_milli' => max(0, $this->remainingBilled($line)), 'packed_qty_milli' => $this->packed((int) $line->id), 'credited_unfulfilled_qty_milli' => (int) $credits->whereNull('dispatch_allocation_id')->sum('qty_milli'), 'credited_transit_qty_milli' => (int) $credits->where('return_mode', 'transit')->sum('qty_milli'), 'fulfilment_sources' => $sources];
     }
 
     private function pendingShare(object $line, object $bill, int $qty): array
@@ -490,6 +531,9 @@ class FulfilmentService
                 $this->a->fail('Item unit/kind changed or item archived.');
             }
             $values = $this->pendingShare($line, $bill, $qty);
+            if ($bill->type === 'sale' && $package === null) {
+                $values['sales_base_paisa'] = $this->recognitionShare($line, $qty);
+            }
             $allocations[$line->id] = ['document_line_id' => (int) $line->id, 'bill_version' => (int) $bill->version, 'position' => $position, 'qty_milli' => $qty, ...$values];
             $groups[$position] ??= ['position' => $position, 'item_id' => (int) $item->id, 'source_line_id' => null, 'qty_milli' => 0, 'inventory_value_paisa' => 0, 'clearing_value_paisa' => 0, 'item_snapshot' => $original];
             $groups[$position]['qty_milli'] += $qty;
@@ -595,7 +639,7 @@ class FulfilmentService
                 if ($allocation['position'] !== $line['position']) {
                     continue;
                 }
-                DB::table('workflow_dispatch_allocations')->insert(['tenant_id' => $tenant->id, 'workflow_id' => $workflow, 'fulfilment_line_id' => $lineId, ...array_diff_key($allocation, ['position' => true, 'bill_version' => true])]);
+                DB::table('workflow_dispatch_allocations')->insert(['tenant_id' => $tenant->id, 'workflow_id' => $workflow, 'fulfilment_line_id' => $lineId, 'recognition_sales_base_paisa' => $plan['handover_confirmed'] ? $allocation['sales_base_paisa'] : null, ...array_diff_key($allocation, ['position' => true, 'bill_version' => true])]);
                 if (! $purchase && $plan['handover_confirmed']) {
                     $journal[] = $this->a->line('sales_unfulfilled', $allocation['sales_base_paisa']);
                     $journal[] = $this->a->line('sales', -$allocation['sales_base_paisa']);
@@ -661,14 +705,31 @@ class FulfilmentService
         foreach (['party_snapshot', 'business_snapshot'] as $key) {
             $data[$key] = json_decode($data[$key], true);
         }
-        $data['lines'] = $this->a->rows('workflow_package_lines')->where('package_id', $id)->orderBy('id')->get()->map(function ($line) {
+        $data['lines'] = $this->a->rows('workflow_package_lines')->where('package_id', $id)->orderBy('id')->get()->map(function ($line) use ($package) {
             $row = (array) $line;
             $row['item_snapshot'] = json_decode($row['item_snapshot'], true);
+            $dispatch = $package->fulfilment_id ? $this->a->rows('workflow_dispatch_allocations')->where('document_line_id', $line->document_line_id)->whereIn('fulfilment_line_id', $this->a->rows('workflow_fulfilment_lines')->where('fulfilment_id', $package->fulfilment_id)->select('id'))->first() : null;
+            $transitQty = $dispatch ? (int) $this->credits((int) $line->document_line_id)->where('dispatch_allocation_id', $dispatch->id)->where('return_mode', 'transit')->sum('qty_milli') : 0;
+            $row['credited_transit_qty_milli'] = $transitQty;
+            $remaining = max(0, (int) $line->qty_milli - $transitQty);
+            $row['remaining_delivery_qty_milli'] = $package->status === 'shipped' ? $remaining : 0;
+            $row['delivered_qty_milli'] = $package->status === 'delivered' ? $remaining : 0;
 
             return $row;
         })->all();
         $data['shipment'] = $package->fulfilment_id ? $this->data($actor, (int) $package->fulfilment_id) : null;
         $data['delivery_reversals'] = $this->a->rows('audit_logs')->where('subject_type', 'workflow_packages')->where('subject_id', $id)->where('action', 'package.delivery.undo')->orderBy('id')->get()->map(fn ($row) => ['actor_id' => (int) $row->actor_id, ...json_decode($row->metadata, true)])->all();
+        $data['delivery_confirmations'] = $this->a->rows('audit_logs')->where('subject_type', 'workflow_packages')->where('subject_id', $id)->where('action', 'package.delivery.confirm')->orderBy('id')->get()->map(function ($row) use ($actor) {
+            $history = ['actor_id' => (int) $row->actor_id, ...json_decode($row->metadata, true)];
+            if ($this->a->role($actor) === 'cashier') {
+                foreach ($history['allocations'] as &$allocation) {
+                    unset($allocation['inventory_cost_paisa']);
+                }
+                unset($allocation);
+            }
+
+            return $history;
+        })->all();
         if ($this->a->role($actor) === 'cashier') {
             unset($data['delivery_journal_id']);
         }
@@ -681,6 +742,11 @@ class FulfilmentService
         $last = max($package->business_date_bs, $package->shipped_date_bs ?? 0, $package->delivered_date_bs ?? 0);
         if ($package->fulfilment_id) {
             $last = max($last, (int) $this->a->rows('journal_entries')->where('source_type', 'fulfilment_delivery')->where('source_id', $package->fulfilment_id)->max('business_date_bs'));
+            $allocations = $this->a->rows('workflow_dispatch_allocations')->whereIn('fulfilment_line_id', $this->a->rows('workflow_fulfilment_lines')->where('fulfilment_id', $package->fulfilment_id)->select('id'))->select('id');
+            $returnLines = $this->a->rows('workflow_return_allocations')->where('return_mode', 'transit')->whereIn('dispatch_allocation_id', $allocations)->select('return_document_line_id');
+            foreach ($this->a->rows('documents')->whereIn('id', $this->a->rows('document_lines')->whereIn('id', $returnLines)->select('document_id'))->get(['business_date_bs', 'cancellation_date_bs']) as $returned) {
+                $last = max($last, (int) $returned->business_date_bs, (int) $returned->cancellation_date_bs);
+            }
         }
         foreach ($this->a->rows('audit_logs')->where('subject_type', 'workflow_packages')->where('subject_id', $package->id)->where('action', 'package.delivery.undo')->get(['metadata']) as $row) {
             $last = max($last, (int) json_decode($row->metadata, true)['business_date_bs']);
@@ -808,7 +874,15 @@ class FulfilmentService
             $this->a->fail('Delivery date precedes shipment or its delivery history.', 'business_date_bs');
         }
         $allocations = $this->a->rows('workflow_dispatch_allocations')->whereIn('fulfilment_line_id', $this->a->rows('workflow_fulfilment_lines')->where('fulfilment_id', $stage->id)->select('id'))->orderBy('id')->get();
-        $plan = ['package_id' => $id, 'package_version' => (int) $package->version, 'workflow_id' => (int) $order->id, 'workflow_version' => (int) $order->version, 'fulfilment_id' => (int) $stage->id, 'fulfilment_version' => (int) $stage->version, 'business_date_bs' => $date, 'bill_versions' => $billVersions, 'inventory_cost_paisa' => (int) $allocations->sum('inventory_cost_paisa'), 'sales_base_paisa' => (int) $allocations->sum('sales_base_paisa'), 'qty_milli' => (int) $allocations->sum('qty_milli')];
+        $remaining = $allocations->map(function ($allocation) {
+            $line = $this->a->requireRow('document_lines', $allocation->document_line_id);
+            $returns = $this->credits((int) $line->id)->where('dispatch_allocation_id', $allocation->id)->where('return_mode', 'transit');
+            $qty = (int) $allocation->qty_milli - (int) $returns->sum('qty_milli');
+
+            return ['id' => (int) $allocation->id, 'document_line_id' => (int) $line->id, 'qty_milli' => $qty, 'inventory_cost_paisa' => (int) $allocation->inventory_cost_paisa - (int) $returns->sum('inventory_cost_paisa'), 'sales_base_paisa' => $qty ? $this->recognitionShare($line, $qty) : 0];
+        });
+        abort_unless($remaining->sum('qty_milli') > 0, 409, 'All shipped goods were returned; do not invent customer delivery.');
+        $plan = ['package_id' => $id, 'package_version' => (int) $package->version, 'workflow_id' => (int) $order->id, 'workflow_version' => (int) $order->version, 'fulfilment_id' => (int) $stage->id, 'fulfilment_version' => (int) $stage->version, 'business_date_bs' => $date, 'bill_versions' => $billVersions, 'allocations' => $remaining->all(), 'inventory_cost_paisa' => (int) $remaining->sum('inventory_cost_paisa'), 'sales_base_paisa' => (int) $remaining->sum('sales_base_paisa'), 'qty_milli' => (int) $remaining->sum('qty_milli')];
         $plan['fingerprint'] = hash_hmac('sha256', json_encode($plan, JSON_THROW_ON_ERROR), config('app.key'));
 
         return $plan;
@@ -819,6 +893,10 @@ class FulfilmentService
         $plan = $this->deliveryPlan($actor, $id, $input);
         if ($this->a->role($actor) === 'cashier') {
             unset($plan['inventory_cost_paisa']);
+            foreach ($plan['allocations'] as &$allocation) {
+                unset($allocation['inventory_cost_paisa']);
+            }
+            unset($allocation);
         }
 
         return $plan;
@@ -832,6 +910,10 @@ class FulfilmentService
             $lines = [$this->a->line('cogs', $plan['inventory_cost_paisa']), $this->a->line('goods_in_transit', -$plan['inventory_cost_paisa']), $this->a->line('sales_unfulfilled', $plan['sales_base_paisa']), $this->a->line('sales', -$plan['sales_base_paisa'])];
             $nonzero = array_filter($lines, fn ($line) => $line['debit_paisa'] || $line['credit_paisa']);
             $journal = $nonzero ? $this->a->post($actor, $plan['business_date_bs'], ['type' => 'fulfilment_delivery', 'id' => $plan['fulfilment_id'], 'event' => 'post.'.$plan['package_version']], $lines, 'Confirm package '.$id.' delivery') : null;
+            foreach ($plan['allocations'] as $allocation) {
+                $this->a->rows('workflow_dispatch_allocations')->where('id', $allocation['id'])->update(['recognition_sales_base_paisa' => $allocation['sales_base_paisa']]);
+            }
+            $this->a->audit($actor, 'package.delivery.confirm', 'workflow_packages', $id, ['business_date_bs' => $plan['business_date_bs'], 'allocations' => $plan['allocations']]);
             $this->a->rows('workflow_packages')->where('id', $id)->update(['status' => 'delivered', 'version' => $plan['package_version'] + 1, 'delivered_date_bs' => $plan['business_date_bs'], 'delivered_by' => $actor, 'delivery_journal_id' => $journal, 'updated_at' => now()]);
             $this->a->rows('workflow_fulfilments')->where('id', $plan['fulfilment_id'])->update(['handover_confirmed' => true, 'version' => $plan['fulfilment_version'] + 1, 'recognition_journal_id' => $journal, 'updated_at' => now()]);
             $this->a->rows('business_workflows')->where('id', $plan['workflow_id'])->update(['version' => $plan['workflow_version'] + 1, 'updated_at' => now()]);
@@ -840,10 +922,10 @@ class FulfilmentService
         });
     }
 
-    private function assertNoPackageReturns(object $package): void
+    private function assertNoPackageReturns(object $package, bool $completedOnly = false): void
     {
         $allocations = $this->a->rows('workflow_dispatch_allocations')->whereIn('fulfilment_line_id', $this->a->rows('workflow_fulfilment_lines')->where('fulfilment_id', $package->fulfilment_id)->select('id'))->select('id');
-        abort_if($this->a->rows('workflow_return_allocations')->whereIn('dispatch_allocation_id', $allocations)->whereIn('return_document_line_id', $this->a->rows('document_lines')->whereIn('document_id', $this->a->rows('documents')->where('status', 'posted')->select('id'))->select('id'))->exists(), 409, 'Reverse physical returns before reversing package delivery.');
+        abort_if($this->a->rows('workflow_return_allocations')->whereIn('dispatch_allocation_id', $allocations)->when($completedOnly, fn ($query) => $query->where('return_mode', 'completed'))->whereIn('return_document_line_id', $this->a->rows('document_lines')->whereIn('document_id', $this->a->rows('documents')->where('status', 'posted')->select('id'))->select('id'))->exists(), 409, 'Reverse physical returns before reversing package delivery.');
     }
 
     public function undoDelivery(int $actor, int $id, array $input, string $uuid): array
@@ -853,7 +935,7 @@ class FulfilmentService
             $package = $this->packageRow($actor, $id);
             $order = $this->order($actor, (int) $package->workflow_id);
             abort_unless($package->status === 'delivered' && $package->version == $input['version'] && $order->version == $input['workflow_version'], 409, 'Package or order changed.');
-            $this->assertNoPackageReturns($package);
+            $this->assertNoPackageReturns($package, true);
             $stage = $this->a->requireRow('workflow_fulfilments', $package->fulfilment_id);
             abort_unless($stage->status === 'posted' && $stage->handover_confirmed, 409);
             $date = NepaliDate::normalize($input['business_date_bs']);
@@ -868,6 +950,7 @@ class FulfilmentService
             $this->a->audit($actor, 'package.delivery.undo', 'workflow_packages', $id, ['business_date_bs' => $date, 'reason' => $input['reason']]);
             $this->a->rows('workflow_packages')->where('id', $id)->update(['status' => 'shipped', 'version' => $package->version + 1, 'updated_at' => now()]);
             $this->a->rows('workflow_fulfilments')->where('id', $stage->id)->update(['handover_confirmed' => false, 'version' => $stage->version + 1, 'updated_at' => now()]);
+            $this->a->rows('workflow_dispatch_allocations')->whereIn('fulfilment_line_id', $this->a->rows('workflow_fulfilment_lines')->where('fulfilment_id', $stage->id)->select('id'))->update(['recognition_sales_base_paisa' => null]);
             $this->a->rows('business_workflows')->where('id', $order->id)->update(['version' => $order->version + 1, 'updated_at' => now()]);
 
             return ['table' => 'workflow_packages', 'id' => $id];
@@ -914,13 +997,15 @@ class FulfilmentService
             }
 
             $consumed = $this->pendingSources($line);
-            $baseLeft = max(0, (int) $line->net_base_paisa - (int) $consumed->sum('sales_base_paisa'));
+            $baseLeft = $bill->type === 'sale' ? $this->recognitionContext($line)['held_left_paisa'] : max(0, (int) $line->net_base_paisa - (int) $consumed->sum('sales_base_paisa'));
             $heldTotal = $bill->type === 'purchase' ? (int) ($bill->vat_recoverable ? $line->net_base_paisa : $line->total_paisa) : 0;
             $heldLeft = max(0, $heldTotal - (int) $consumed->sum('pending_value_paisa'));
             $creditCost = $bill->vat_recoverable ? $returnMoney['net_base_paisa'] : $returnMoney['net_base_paisa'] + $returnMoney['tax_paisa'];
 
             // A credit must not release more pending value than its actual financial reduction.
-            return ['document_line_id' => (int) $line->id, 'dispatch_allocation_id' => null, 'qty_milli' => $qty, 'inventory_cost_paisa' => 0, 'sales_base_paisa' => min($returnMoney['net_base_paisa'], $baseLeft), 'pending_value_paisa' => min($creditCost, $heldLeft)];
+            abort_unless(($entry['return_mode'] ?? 'unfulfilled') === 'unfulfilled', 422, 'Unfulfilled credit requires its own source mode.');
+
+            return ['document_line_id' => (int) $line->id, 'dispatch_allocation_id' => null, 'return_mode' => 'unfulfilled', 'qty_milli' => $qty, 'inventory_cost_paisa' => 0, 'sales_base_paisa' => min($returnMoney['net_base_paisa'], $baseLeft), 'pending_value_paisa' => min($creditCost, $heldLeft)];
         }
         if (! is_string($source) || ! preg_match('/^[1-9][0-9]{0,18}$/', $source)) {
             $this->a->fail('Choose unfulfilled credit or an exact completed delivery/receipt.');
@@ -929,8 +1014,15 @@ class FulfilmentService
         abort_unless($allocation->document_line_id == $line->id && $allocation->workflow_id == $bill->workflow_id, 404);
         $physicalLine = $this->a->requireRow('workflow_fulfilment_lines', $allocation->fulfilment_line_id);
         $stage = $this->a->requireRow('workflow_fulfilments', $physicalLine->fulfilment_id);
-        abort_unless($stage->status === 'posted' && $stage->handover_confirmed, 409, 'Return an active completed source.');
-        if ($date < $stage->business_date_bs) {
+        $mode = $entry['return_mode'] ?? 'completed';
+        abort_unless(in_array($mode, ['transit', 'completed'], true), 422, 'Choose the source return mode.');
+        abort_unless($stage->status === 'posted' && (bool) $stage->handover_confirmed === ($mode === 'completed'), 409, 'Source delivery state changed. Review the correct return mode.');
+        $package = $this->a->rows('workflow_packages')->where('fulfilment_id', $stage->id)->first();
+        if ($mode === 'transit') {
+            $item = $this->a->requireRow('items', $line->item_id);
+            abort_unless($bill->type === 'sale' && $item->kind === 'stock' && $package && $package->status === 'shipped', 409, 'Return actual undelivered sales stock from its shipped package.');
+        }
+        if ($date < ($package ? $this->packageHistoryDate($package) : $stage->business_date_bs)) {
             $this->a->fail('Return date precedes actual fulfilment.');
         }
         $prior = $this->credits((int) $line->id)->where('dispatch_allocation_id', $allocation->id);
@@ -938,9 +1030,13 @@ class FulfilmentService
         if ($qty + $previousQty > (int) $allocation->qty_milli) {
             $this->a->fail('Return exceeds this exact fulfilled source.');
         }
-        $plan = ['document_line_id' => (int) $line->id, 'dispatch_allocation_id' => (int) $allocation->id, 'qty_milli' => $qty];
+        $plan = ['document_line_id' => (int) $line->id, 'dispatch_allocation_id' => (int) $allocation->id, 'return_mode' => $mode, 'qty_milli' => $qty];
         foreach (['inventory_cost_paisa', 'pending_value_paisa', 'sales_base_paisa'] as $component) {
             $plan[$component] = Money::multiplyDivide((int) $allocation->$component, $previousQty + $qty, (int) $allocation->qty_milli) - (int) $prior->sum($component);
+        }
+        if ($mode === 'transit') {
+            $plan['sales_base_paisa'] = min($returnMoney['net_base_paisa'], $this->recognitionContext($line)['held_left_paisa']);
+            $plan['pending_value_paisa'] = 0;
         }
 
         return $plan;
@@ -956,7 +1052,7 @@ class FulfilmentService
         $physical = $allocation['dispatch_allocation_id'] !== null;
         $journal = [];
         if ($bill->type === 'sale') {
-            $held = $physical ? 0 : $allocation['sales_base_paisa'];
+            $held = $allocation['return_mode'] === 'completed' ? 0 : $allocation['sales_base_paisa'];
             $journal[] = $this->a->line('sales_unfulfilled', $held);
             $journal[] = $this->a->line('sales_returns', $line['net_base_paisa'] - $held);
             $journal[] = $this->a->line('output_vat', $line['tax_paisa']);
@@ -964,7 +1060,7 @@ class FulfilmentService
                 $cost = $allocation['inventory_cost_paisa'];
                 $this->stock->receive($actor, (int) $item->id, $date, $line['qty_milli'], $cost, ['document_line_id' => $lineId]);
                 $journal[] = $this->a->line('inventory', $cost);
-                $journal[] = $this->a->line('cogs', -$cost);
+                $journal[] = $this->a->line($allocation['return_mode'] === 'transit' ? 'goods_in_transit' : 'cogs', -$cost);
             }
         } else {
             $financial = $bill->vat_recoverable ? $line['net_base_paisa'] : $line['total_paisa'];
@@ -987,8 +1083,23 @@ class FulfilmentService
         return $journal;
     }
 
-    public function beforeBillCancellation(int $actor, object $doc): void
+    public function beforeBillCancellation(int $actor, object $doc, int $date): void
     {
+        if ($doc->source_document_id && ($doc->fulfilment_policy ?? null) === 'bill_first') {
+            $source = $this->a->requireRow('documents', $doc->source_document_id);
+            $this->order($actor, (int) $source->workflow_id);
+            $returns = $this->a->rows('workflow_return_allocations')->where('return_mode', 'transit')->whereIn('return_document_line_id', $this->a->rows('document_lines')->where('document_id', $doc->id)->select('id'))->get();
+            foreach ($returns as $returned) {
+                $dispatch = $this->a->requireRow('workflow_dispatch_allocations', $returned->dispatch_allocation_id);
+                $physical = $this->a->requireRow('workflow_fulfilment_lines', $dispatch->fulfilment_line_id);
+                $stage = $this->a->requireRow('workflow_fulfilments', $physical->fulfilment_id);
+                abort_if($stage->handover_confirmed, 409, 'Undo this package delivery before cancelling its transit return.');
+                $package = $this->a->rows('workflow_packages')->where('fulfilment_id', $stage->id)->first();
+                if ($package && $date < $this->packageHistoryDate($package)) {
+                    $this->a->fail('Return reversal precedes package history.', 'business_date_bs');
+                }
+            }
+        }
         if (! $doc->workflow_id) {
             return;
         }

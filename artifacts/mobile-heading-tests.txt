@@ -1,0 +1,13 @@
+
+> frontend@0.0.1 test.unit
+> vitest "--run" "src/components/Heading.test.tsx"
+
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  18:23:36
+   Duration  2.97s (transform 141ms, setup 355ms, import 470ms, tests 330ms, environment 1.45s)
+

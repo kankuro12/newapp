@@ -67,12 +67,15 @@ class FulfilmentBillFirstSchemaTest extends TestCase
         $this->assertTrue(Schema::hasColumn('business_workflows', 'fulfilment_policy'));
         $s = $this->shop();
         $migration = require database_path('migrations/2026_10_04_043511_create_bill_first_fulfilment_sources.php');
+        $transit = require database_path('migrations/2026_10_04_112917_add_return_modes_and_recognition_to_fulfilment_sources.php');
+        $transit->down();
         $migration->down();
         foreach (['1355', '1360', '2060'] as $code) {
             DB::table('accounts')->insert(['tenant_id' => $s['tenant']['id'], 'code' => $code, 'name' => 'Keep original '.$code, 'category' => 'asset', 'normal_side' => 'dr', 'is_money' => false]);
         }
         $stage = $this->oldStage($s);
         $migration->up();
+        $transit->up();
         $this->assertSame('delivery_first', DB::table('business_workflows')->where('id', $s['order']['id'])->value('fulfilment_policy'));
         $this->assertNull(DB::table('workflow_fulfilments')->where('id', $stage)->value('party_snapshot'), 'Do not invent historical party snapshots from an editable current order.');
         foreach (['billed_unreceived' => '1355', 'goods_in_transit' => '1360', 'sales_unfulfilled' => '2060'] as $key => $code) {
@@ -81,6 +84,79 @@ class FulfilmentBillFirstSchemaTest extends TestCase
         $this->assertSame(3, DB::table('accounts')->where('tenant_id', $s['tenant']['id'])->where('name', 'like', 'Keep original %')->whereNull('system_key')->count());
         $this->expectException(\RuntimeException::class);
         $migration->down();
+    }
+
+    private function prebill(array $s): array
+    {
+        $input = ['version' => 1, 'business_date_bs' => 20830102, 'paid_now' => '0', 'lines' => [['position' => 1, 'qty' => '3']]];
+        $path = $s['base'].'/workflow/'.$s['order']['id'].'/ordered-bills';
+        $preview = $this->postJson($path.'/preview', $input)->assertOk()->json('data');
+
+        return $this->postJson($path, [...$input, 'mutation_uuid' => (string) Str::uuid(), 'expected_total_paisa' => '30000', 'expected_fingerprint' => $preview['fingerprint']])->assertCreated()->json('data');
+    }
+
+    private function sourceCredit(array $s, array $bill): array
+    {
+        return $this->postJson($s['base'].'/document/'.$bill['id'].'/returns', ['mutation_uuid' => (string) Str::uuid(), 'business_date_bs' => 20830102, 'reason' => 'Historical source credit', 'lines' => [['source_line_id' => $bill['lines'][0]['id'], 'qty' => '0.5', 'return_source' => 'unfulfilled']]])->assertCreated()->json('data');
+    }
+
+    public function test_transit_schema_backfills_completed_and_unfulfilled_history_without_inventing_recognition(): void
+    {
+        $s = $this->shop();
+        $bill = $this->prebill($s);
+        $first = $this->sourceCredit($s, $bill);
+        $last = $this->sourceCredit($s, $bill);
+        $migration = require database_path('migrations/2026_10_04_112917_add_return_modes_and_recognition_to_fulfilment_sources.php');
+        $migration->down();
+        $sources = [];
+        foreach ([true, false] as $index => $confirmed) {
+            $stage = DB::table('workflow_fulfilments')->insertGetId(['tenant_id' => $s['tenant']['id'], 'workflow_id' => $s['order']['id'], 'kind' => 'delivery', 'sequence' => $index + 1, 'status' => $confirmed ? 'cancelled' : 'posted', 'handover_confirmed' => $confirmed, 'business_date_bs' => 20830102, 'inventory_value_paisa' => 0, 'clearing_value_paisa' => 0, 'created_by' => $s['owner']->id]);
+            $line = DB::table('workflow_fulfilment_lines')->insertGetId(['tenant_id' => $s['tenant']['id'], 'fulfilment_id' => $stage, 'item_id' => $s['item'], 'position' => 1, 'qty_milli' => 1000, 'inventory_value_paisa' => 0, 'clearing_value_paisa' => 0, 'item_snapshot' => '{}']);
+            $sources[] = DB::table('workflow_dispatch_allocations')->insertGetId(['tenant_id' => $s['tenant']['id'], 'workflow_id' => $s['order']['id'], 'document_line_id' => $bill['lines'][0]['id'], 'fulfilment_line_id' => $line, 'qty_milli' => 1000, 'inventory_cost_paisa' => 0, 'pending_value_paisa' => 0, 'sales_base_paisa' => 101 + $index]);
+        }
+        DB::table('workflow_return_allocations')->where('return_document_line_id', $first['lines'][0]['id'])->update(['dispatch_allocation_id' => $sources[0]]);
+        $migration->up();
+        $this->assertSame('completed', DB::table('workflow_return_allocations')->where('return_document_line_id', $first['lines'][0]['id'])->value('return_mode'));
+        $this->assertSame('unfulfilled', DB::table('workflow_return_allocations')->where('return_document_line_id', $last['lines'][0]['id'])->value('return_mode'));
+        $this->assertSame(101, (int) DB::table('workflow_dispatch_allocations')->where('id', $sources[0])->value('recognition_sales_base_paisa'));
+        $this->assertNull(DB::table('workflow_dispatch_allocations')->where('id', $sources[1])->value('recognition_sales_base_paisa'));
+        $migration->down();
+        $migration->up();
+        $this->assertSame(2, DB::table('workflow_return_allocations')->count());
+    }
+
+    public function test_transit_schema_rollback_preserves_cancelled_transit_return_history(): void
+    {
+        $s = $this->shop();
+        $bill = $this->prebill($s);
+        $return = $this->sourceCredit($s, $bill);
+        $this->oldStage($s);
+        DB::table('documents')->where('id', $return['id'])->update(['status' => 'cancelled']);
+        DB::table('workflow_return_allocations')->where('return_document_line_id', $return['lines'][0]['id'])->update(['return_mode' => 'transit']);
+        $migration = require database_path('migrations/2026_10_04_112917_add_return_modes_and_recognition_to_fulfilment_sources.php');
+        try {
+            $migration->down();
+            $this->fail('Rollback erased cancelled transit history.');
+        } catch (\RuntimeException $error) {
+            $this->assertStringContainsString('transit return', $error->getMessage());
+        }
+        $this->assertTrue(Schema::hasColumn('workflow_return_allocations', 'return_mode'));
+        $this->assertTrue(Schema::hasColumn('workflow_dispatch_allocations', 'recognition_sales_base_paisa'));
+    }
+
+    public function test_transit_schema_rollback_preserves_actual_delivery_audit_history(): void
+    {
+        $s = $this->shop();
+        $this->oldStage($s);
+        DB::table('audit_logs')->insert(['tenant_id' => $s['tenant']['id'], 'actor_id' => $s['owner']->id, 'action' => 'package.delivery.confirm', 'subject_type' => 'workflow_packages', 'subject_id' => 1, 'metadata' => '{}']);
+        $migration = require database_path('migrations/2026_10_04_112917_add_return_modes_and_recognition_to_fulfilment_sources.php');
+        try {
+            $migration->down();
+            $this->fail('Rollback erased actual delivery allocations.');
+        } catch (\RuntimeException $error) {
+            $this->assertStringContainsString('delivery allocation', $error->getMessage());
+        }
+        $this->assertTrue(Schema::hasColumn('workflow_dispatch_allocations', 'recognition_sales_base_paisa'));
     }
 
     public function test_real_database_foreign_keys_reject_cross_branch_dispatch_sources(): void

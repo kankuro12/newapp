@@ -20,6 +20,8 @@ class FulfilmentSchemaTest extends TestCase
         $migration = require database_path('migrations/2026_10_04_015829_create_workflow_fulfilments.php');
         $billing = require database_path('migrations/2026_10_04_025708_create_workflow_bill_allocations.php');
         $billFirst = require database_path('migrations/2026_10_04_043511_create_bill_first_fulfilment_sources.php');
+        $transit = require database_path('migrations/2026_10_04_112917_add_return_modes_and_recognition_to_fulfilment_sources.php');
+        $transit->down();
         $billFirst->down();
         $billing->down();
         $migration->down();
@@ -43,5 +45,6 @@ class FulfilmentSchemaTest extends TestCase
         $this->assertSame(4, DB::table('accounts')->whereIn('system_key', ['delivered_unbilled', 'received_unbilled'])->count());
         $billing->up();
         $billFirst->up();
+        $transit->up();
     }
 }

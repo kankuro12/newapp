@@ -1,5 +1,6 @@
 <?php
 
+use App\Service\NotificationService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -17,3 +18,9 @@ Artisan::command('app:clean-cache', function () {
 })->purpose('Remove expired entries from this application database cache');
 Schedule::command('app:clean-cache')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('app:generate-recurring-expenses')->everyMinute()->withoutOverlapping();
+Schedule::command('app:reconcile-subscription-payments --limit=10')->everyFiveMinutes()->withoutOverlapping(15);
+
+Artisan::command('app:dispatch-account-messages', function () {
+    $this->info('Dispatched: '.app(NotificationService::class)->dispatchPending(50));
+})->purpose('Dispatch committed pending account messages and flag uncertain worker outcomes');
+Schedule::command('app:dispatch-account-messages')->everyMinute()->withoutOverlapping(5);

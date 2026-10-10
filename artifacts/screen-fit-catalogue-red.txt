@@ -1,0 +1,2729 @@
+
+> frontend@0.0.1 test.unit
+> vitest "--run" "src/pages/Masters.screen-fit.test.tsx" "src/pages/Reports.test.tsx" "src/pages/Businesses.test.tsx"
+
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+stderr | src/pages/Businesses.test.tsx > pages every branch and focuses business creation without the branch list
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/pages/Businesses.test.tsx (2 tests | 2 failed) 272ms
+   × pages every branch and focuses business creation without the branch list 218ms
+   × shows only first-business setup when empty and locks uncertain setup 44ms
+stderr | src/pages/Reports.test.tsx > opens filters separately and preserves report exports and chosen BS range
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/pages/Reports.test.tsx (4 tests | 3 failed) 855ms
+   × pages all report rows and keeps exact values and all rows available for print 310ms
+   × opens filters separately and preserves report exports and chosen BS range 147ms
+   × starts empty statements in filters and preserves party and supplier-channel scope 357ms
+stderr | src/pages/Masters.screen-fit.test.tsx > enters all party roles in steps and reviews unchanged contact payload
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/pages/Masters.screen-fit.test.tsx (5 tests | 5 failed) 1814ms
+   × enters all party roles in steps and reviews unchanged contact payload 586ms
+   × reviews exact product price and chosen units without posting on Continue 654ms
+   × keeps edited party balances behind review disclosure and retains PATCH 59ms
+   × locks uncertain master inputs and offers original retry 37ms
+   × reveals rejected product price step and retains entered name 474ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/Businesses.test.tsx > pages every branch and focuses business creation without the branch list
+Error: expect(element).not.toBeInTheDocument()
+
+expected document not to contain element, found <h2>
+  Branch 3
+</h2> instead
+ ❯ src/pages/Businesses.test.tsx:14:114
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  src/pages/Businesses.test.tsx > shows only first-business setup when empty and locks uncertain setup
+Error: expect(element).toBeDisabled()
+
+Received element is not disabled:
+  <input
+  aria-invalid="false"
+  maxlength="150"
+  name="name"
+  required=""
+  value=""
+/>
+ ❯ src/pages/Businesses.test.tsx:23:107
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  src/pages/Masters.screen-fit.test.tsx > enters all party roles in steps and reviews unchanged contact payload
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Continue to Roles"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Add party":
+  <h1 />
+
+  --------------------------------------------------
+  link:
+
+  Name "Back":
+  <a
+    href="/app/shop/contacts"
+  />
+
+  Name "Cancel":
+  <a
+    href="/app/shop/contacts"
+  />
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Name":
+  <input
+    aria-invalid="false"
+    maxlength="150"
+    name="name"
+    required=""
+    value="Hari"
+  />
+
+  Name "Phone (optional)":
+  <input
+    aria-invalid="false"
+    autocomplete="tel"
+    inputmode="tel"
+    maxlength="30"
+    name="phone"
+    type="tel"
+    value="9800000000"
+  />
+
+  Name "Email (optional)":
+  <input
+    aria-invalid="false"
+    autocomplete="email"
+    inputmode="email"
+    name="email"
+    type="email"
+    value=""
+  />
+
+  Name "Address (optional)":
+  <input
+    aria-invalid="false"
+    autocomplete="street-address"
+    name="address"
+    value=""
+  />
+
+  Name "PAN (optional)":
+  <input
+    aria-invalid="false"
+    inputmode="numeric"
+    name="pan"
+    value=""
+  />
+
+  --------------------------------------------------
+  group:
+
+  Name "Party roles":
+  <fieldset
+    class="party-roles"
+  />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  checkbox:
+
+  Name "Customer":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Supplier":
+  <input
+    type="checkbox"
+  />
+
+  Name "Employee":
+  <input
+    type="checkbox"
+  />
+
+  Name "Rent":
+  <input
+    type="checkbox"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Save":
+  <button
+    type="submit"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <span
+          class="eyebrow"
+        >
+          PARTY DETAILS
+        </span>
+        <h1>
+          Add party
+        </h1>
+      </div>
+      <div
+        class="heading-actions"
+      >
+        <a
+          href="/app/shop/contacts"
+        >
+          Back
+        </a>
+      </div>
+    </div>
+    <form
+      class="panel narrow-form entry-master"
+      data-dirty="true"
+    >
+      <label
+        class="field "
+      >
+        <span>
+          Name
+        </span>
+        <input
+          aria-invalid="false"
+          maxlength="150"
+          name="name"
+          required=""
+          value="Hari"
+        />
+      </label>
+      <label
+        class="field "
+      >
+        <span>
+          Phone (optional)
+        </span>
+        <input
+          aria-invalid="false"
+          autocomplete="tel"
+          inputmode="tel"
+          maxlength="30"
+          name="phone"
+          type="tel"
+          value="9800000000"
+        />
+      </label>
+      <fieldset
+        class="party-roles"
+      >
+        <legend>
+          Party roles
+        </legend>
+        <p>
+          Choose one or more roles.
+        </p>
+        <div
+          class="role-grid"
+        >
+          <label
+            class="check"
+          >
+            <input
+              checked=""
+              type="checkbox"
+            />
+            <span>
+              Customer
+            </span>
+          </label>
+          <label
+            class="check"
+          >
+            <input
+              type="checkbox"
+            />
+            <span>
+              Supplier
+            </span>
+          </label>
+          <label
+            class="check"
+          >
+            <input
+              type="checkbox"
+            />
+            <span>
+              Employee
+            </span>
+          </label>
+          <label
+            class="check"
+          >
+            <input
+              type="checkbox"
+            />
+            <span>
+              Rent
+            </span>
+          </label>
+        </div>
+      </fieldset>
+      <details
+        class="optional-details"
+      >
+        <summary>
+          Contact details (optional)
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              Email (optional)
+            </span>
+            <input
+              aria-invalid="false"
+              autocomplete="email"
+              inputmode="email"
+              name="email"
+              type="email"
+              value=""
+            />
+          </label>
+          <label
+            class="field "
+          >
+            <span>
+              Address (optional)
+            </span>
+            <input
+              aria-invalid="false"
+              autocomplete="street-address"
+              name="address"
+              value=""
+            />
+          </label>
+          <label
+            class="field "
+          >
+            <span>
+              PAN (optional)
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="numeric"
+              name="pan"
+              value=""
+            />
+          </label>
+        </div>
+      </details>
+      <div
+        class="entry-actions"
+      >
+        <a
+          href="/app/shop/contacts"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+        >
+          <span>
+            Save
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/Masters.screen-fit.test.tsx:24:26
+     22|   mobile(); render(page('contacts'));
+     23|   fireEvent.change(screen.getByLabelText('Name'), { target: { value: '…
+     24|   fireEvent.click(screen.getByRole('button', { name: 'Continue to Role…
+       |                          ^
+     25|   fireEvent.click(screen.getByLabelText('Supplier')); fireEvent.click(…
+     26|   fireEvent.click(screen.getByRole('button', { name: 'Continue to Revi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  src/pages/Masters.screen-fit.test.tsx > reviews exact product price and chosen units without posting on Continue
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Continue to Price / unit"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Add product":
+  <h1 />
+
+  --------------------------------------------------
+  link:
+
+  Name "Back":
+  <a
+    href="/app/shop/items"
+  />
+
+  Name "Manage categories":
+  <a
+    href="/app/shop/item-categories"
+  />
+
+  Name "Cancel":
+  <a
+    href="/app/shop/items"
+  />
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Name":
+  <input
+    aria-invalid="false"
+    maxlength="150"
+    name="name"
+    required=""
+    value="Glass sheet"
+  />
+
+  Name "Unit":
+  <input
+    aria-invalid="false"
+    name="unit_label"
+    required=""
+    value="sq_ft"
+  />
+
+  Name "Selling price":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    name="sale_price"
+    required=""
+    value="0"
+  />
+
+  Name "New category name":
+  <input
+    aria-invalid="false"
+    maxlength="150"
+    value=""
+  />
+
+  Name "SKU (optional)":
+  <input
+    aria-invalid="false"
+    name="sku"
+    value=""
+  />
+
+  Name "Low stock alert quantity":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    name="low_stock_qty"
+    value="0"
+  />
+
+  Name "Target stock quantity":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    name="reorder_target_qty"
+    value="0"
+  />
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Item type":
+  <select
+    aria-invalid="false"
+  />
+
+  Name "Billed base unit":
+  <select
+    aria-invalid="false"
+  />
+
+  --------------------------------------------------
+  option:
+
+  Name "Stock item":
+  <option
+    value="stock"
+  />
+
+  Name "Service":
+  <option
+    value="service"
+  />
+
+  Name "Piece / unit":
+  <option
+    value="unit"
+  />
+
+  Name "Pair":
+  <option
+    value="pair"
+  />
+
+  Name "Dozen":
+  <option
+    value="dozen"
+  />
+
+  Name "Kilogram (kg)":
+  <option
+    value="kg"
+  />
+
+  Name "Gram (g)":
+  <option
+    value="g"
+  />
+
+  Name "Milligram (mg)":
+  <option
+    value="mg"
+  />
+
+  Name "Metric tonne (t)":
+  <option
+    value="tonne"
+  />
+
+  Name "Pound (lb)":
+  <option
+    value="lb"
+  />
+
+  Name "Ounce (oz)":
+  <option
+    value="oz"
+  />
+
+  Name "Litre (L)":
+  <option
+    value="l"
+  />
+
+  Name "Millilitre (mL)":
+  <option
+    value="ml"
+  />
+
+  Name "Centilitre (cL)":
+  <option
+    value="cl"
+  />
+
+  Name "US gallon (gal US)":
+  <option
+    value="us_gal"
+  />
+
+  Name "Imperial gallon (gal UK)":
+  <option
+    value="imp_gal"
+  />
+
+  Name "Millimetre (mm)":
+  <option
+    value="mm"
+  />
+
+  Name "Centimetre (cm)":
+  <option
+    value="cm"
+  />
+
+  Name "Metre (m)":
+  <option
+    value="m"
+  />
+
+  Name "Inch (in)":
+  <option
+    value="in"
+  />
+
+  Name "Foot (ft)":
+  <option
+    value="ft"
+  />
+
+  Name "Yard (yd)":
+  <option
+    value="yd"
+  />
+
+  Name "Square millimetre (mm²)":
+  <option
+    value="sq_mm"
+  />
+
+  Name "Square centimetre (cm²)":
+  <option
+    value="sq_cm"
+  />
+
+  Name "Square metre (m²)":
+  <option
+    value="sq_m"
+  />
+
+  Name "Square inch (in²)":
+  <option
+    value="sq_in"
+  />
+
+  Name "Square foot (ft²)":
+  <option
+    value="sq_ft"
+  />
+
+  Name "Square yard (yd²)":
+  <option
+    value="sq_yd"
+  />
+
+  Name "Cubic millimetre (mm³)":
+  <option
+    value="cu_mm"
+  />
+
+  Name "Cubic centimetre (cm³)":
+  <option
+    value="cu_cm"
+  />
+
+  Name "Cubic metre (m³)":
+  <option
+    value="cu_m"
+  />
+
+  Name "Cubic inch (in³)":
+  <option
+    value="cu_in"
+  />
+
+  Name "Cubic foot (ft³)":
+  <option
+    value="cu_ft"
+  />
+
+  Name "Cubic yard (yd³)":
+  <option
+    value="cu_yd"
+  />
+
+  Name "Board foot (bd ft)":
+  <option
+    value="board_ft"
+  />
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "Count":
+  <optgroup
+    label="Count"
+  />
+
+  Name "Weight":
+  <optgroup
+    label="Weight"
+  />
+
+  Name "Liquid volume":
+  <optgroup
+    label="Liquid volume"
+  />
+
+  Name "Length":
+  <optgroup
+    label="Length"
+  />
+
+  Name "Area":
+  <optgroup
+    label="Area"
+  />
+
+  Name "Cubic volume":
+  <optgroup
+    label="Cubic volume"
+  />
+
+  Name "Enabled entry methods":
+  <fieldset
+    class="party-roles"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Create category":
+  <button
+    disabled=""
+    fill="outline"
+    type="button"
+  />
+
+  Name "Add custom unit":
+  <button
+    fill="outline"
+    type="button"
+  />
+
+  Name "Save":
+  <button
+    type="submit"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="subtle"
+  />
+
+  --------------------------------------------------
+  checkbox:
+
+  Name "Quantity":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Amount":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Pack / custom unit":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Length":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Area":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Cubic volume":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <span
+          class="eyebrow"
+        >
+          PRODUCT DETAILS
+        </span>
+        <h1>
+          Add product
+        </h1>
+      </div>
+      <div
+        class="heading-actions"
+      >
+        <a
+          href="/app/shop/items"
+        >
+          Back
+        </a>
+      </div>
+    </div>
+    <form
+      class="panel narrow-form entry-master"
+      data-dirty="true"
+    >
+      <label
+        class="field "
+      >
+        <span>
+          Name
+        </span>
+        <input
+          aria-invalid="false"
+          maxlength="150"
+          name="name"
+          required=""
+          value="Glass sheet"
+        />
+      </label>
+      <div
+        class="form-grid"
+      >
+        <label
+          class="field "
+        >
+          <span>
+            Item type
+          </span>
+          <select
+            aria-invalid="false"
+          >
+            <option
+              value="stock"
+            >
+              Stock item
+            </option>
+            <option
+              value="service"
+            >
+              Service
+            </option>
+          </select>
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Unit
+          </span>
+          <input
+            aria-invalid="false"
+            name="unit_label"
+            required=""
+            value="sq_ft"
+          />
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Selling price
+          </span>
+          <input
+            aria-invalid="false"
+            inputmode="decimal"
+            name="sale_price"
+            required=""
+            value="0"
+          />
+        </label>
+      </div>
+      <details
+        class="optional-details"
+      >
+        <summary>
+          Item category
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              New category name
+            </span>
+            <input
+              aria-invalid="false"
+              maxlength="150"
+              value=""
+            />
+          </label>
+          <button
+            disabled=""
+            fill="outline"
+            type="button"
+          >
+            Create category
+          </button>
+          <a
+            href="/app/shop/item-categories"
+          >
+            Manage categories
+          </a>
+        </div>
+      </details>
+      <details
+        class="optional-details"
+      >
+        <summary>
+          Stock details (optional)
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              SKU (optional)
+            </span>
+            <input
+              aria-invalid="false"
+              name="sku"
+              value=""
+            />
+          </label>
+          <label
+            class="field "
+          >
+            <span>
+              Low stock alert quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              name="low_stock_qty"
+              value="0"
+            />
+          </label>
+        </div>
+      </details>
+      <details
+        class="optional-details"
+      >
+        <summary>
+          Reorder settings
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              Target stock quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              name="reorder_target_qty"
+              value="0"
+            />
+          </label>
+          <p>
+            Zero disables target reordering. Target must cover low-stock quantity.
+          </p>
+          <small>
+            Preferred supplier
+          </small>
+        </div>
+      </details>
+      <details
+        class="optional-details"
+      >
+        <summary>
+          POS measurements / scheduling
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              Billed base unit
+            </span>
+            <select
+              aria-invalid="false"
+            >
+              <optgroup
+                label="Count"
+              >
+                <option
+                  value="unit"
+                >
+                  Piece / unit
+                </option>
+                <option
+                  value="pair"
+                >
+                  Pair
+                </option>
+                <option
+                  value="dozen"
+                >
+                  Dozen
+                </option>
+              </optgroup>
+              <optgroup
+                label="Weight"
+              >
+                <option
+                  value="kg"
+                >
+                  Kilogram (kg)
+                </option>
+                <option
+                  value="g"
+                >
+                  Gram (g)
+                </option>
+                <option
+                  value="mg"
+                >
+                  Milligram (mg)
+                </option>
+                <option
+                  value="tonne"
+                >
+                  Metric tonne (t)
+                </option>
+                <option
+                  value="lb"
+                >
+                  Pound (lb)
+                </option>
+                <option
+                  value="oz"
+                >
+                  Ounce (oz)
+                </option>
+              </optgroup>
+              <optgroup
+                label="Liquid volume"
+              >
+                <option
+                  value="l"
+                >
+                  Litre (L)
+                </option>
+                <option
+                  value="ml"
+                >
+                  Millilitre (mL)
+                </option>
+                <option
+                  value="cl"
+                >
+                  Centilitre (cL)
+                </option>
+                <option
+                  value="us_gal"
+                >
+                  US gallon (gal US)
+                </option>
+                <option
+                  value="imp_gal"
+                >
+                  Imperial gallon (gal UK)
+                </option>
+              </optgroup>
+              <optgroup
+                label="Length"
+              >
+                <option
+                  value="mm"
+                >
+                  Millimetre (mm)
+                </option>
+                <option
+                  value="cm"
+                >
+                  Centimetre (cm)
+                </option>
+                <option
+                  value="m"
+                >
+                  Metre (m)
+                </option>
+                <option
+                  value="in"
+                >
+                  Inch (in)
+                </option>
+                <option
+                  value="ft"
+                >
+                  Foot (ft)
+                </option>
+                <option
+                  value="yd"
+                >
+                  Yard (yd)
+                </option>
+              </optgroup>
+              <optgroup
+                label="Area"
+              >
+                <option
+                  value="sq_mm"
+                >
+                  Square millimetre (mm²)
+                </option>
+                <option
+                  value="sq_cm"
+                >
+                  Square centimetre (cm²)
+                </option>
+                <option
+                  value="sq_m"
+                >
+                  Square metre (m²)
+                </option>
+                <option
+                  value="sq_in"
+                >
+                  Square inch (in²)
+                </option>
+                <option
+                  value="sq_ft"
+                >
+                  Square foot (ft²)
+                </option>
+                <option
+                  value="sq_yd"
+                >
+                  Square yard (yd²)
+                </option>
+              </optgroup>
+              <optgroup
+                label="Cubic volume"
+              >
+                <option
+                  value="cu_mm"
+                >
+                  Cubic millimetre (mm³)
+                </option>
+                <option
+                  value="cu_cm"
+                >
+                  Cubic centimetre (cm³)
+                </option>
+                <option
+                  value="cu_m"
+                >
+                  Cubic metre (m³)
+                </option>
+                <option
+                  value="cu_in"
+                >
+                  Cubic inch (in³)
+                </option>
+                <option
+                  value="cu_ft"
+                >
+                  Cubic foot (ft³)
+                </option>
+                <option
+                  value="cu_yd"
+                >
+                  Cubic yard (yd³)
+                </option>
+                <option
+                  value="board_ft"
+                >
+                  Board foot (bd ft)
+                </option>
+              </optgroup>
+            </select>
+          </label>
+          <p>
+            One stock quantity uses this base unit. Custom conversions refer to this unit.
+          </p>
+          <fieldset
+            class="party-roles"
+          >
+            <legend>
+              Enabled entry methods
+            </legend>
+            <div
+              class="role-grid"
+            >
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Quantity
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Amount
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Pack / custom unit
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Length
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Area
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Cubic volume
+                </span>
+              </label>
+            </div>
+          </fieldset>
+          <button
+            fill="outline"
+            type="button"
+          >
+            Add custom unit
+          </button>
+        </div>
+      </details>
+      <p
+        class="subtle"
+      >
+        Stock changes through purchases, returns, and stock counts.
+      </p>
+      <div
+        class="entry-actions"
+      >
+        <a
+          href="/app/shop/items"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+        >
+          <span>
+            Save
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/Masters.screen-fit.test.tsx:34:113
+     32| it('reviews exact product price and chosen units without posting on Co…
+     33|   mobile(); render(page('items'));
+     34|   fireEvent.change(screen.getByLabelText('Name'), { target: { value: '…
+       |                                                                                                                 ^
+     35|   fireEvent.change(screen.getByLabelText('Selling price'), { target: {…
+     36|   fireEvent.click(screen.getByRole('button', { name: 'Continue to Revi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  src/pages/Masters.screen-fit.test.tsx > keeps edited party balances behind review disclosure and retains PATCH
+Error: expect(element).not.toBeInTheDocument()
+
+expected document not to contain element, found <span>
+  Customer owes / credit
+</span> instead
+ ❯ src/pages/Masters.screen-fit.test.tsx:44:60
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  src/pages/Masters.screen-fit.test.tsx > locks uncertain master inputs and offers original retry
+Error: expect(element).toBeDisabled()
+
+Received element is not disabled:
+  <input
+  aria-invalid="false"
+  maxlength="150"
+  name="name"
+  required=""
+  value=""
+/>
+ ❯ src/pages/Masters.screen-fit.test.tsx:52:41
+     50| it('locks uncertain master inputs and offers original retry', () => {
+     51|   mobile(); state.uncertain = true; render(page('items'));
+     52|   expect(screen.getByLabelText('Name')).toBeDisabled(); expect(screen.…
+       |                                         ^
+     53|   fireEvent.click(screen.getByRole('button', { name: 'Retry original a…
+     54| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  src/pages/Masters.screen-fit.test.tsx > reveals rejected product price step and retains entered name
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Continue to Price / unit"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Add product":
+  <h1 />
+
+  --------------------------------------------------
+  link:
+
+  Name "Back":
+  <a
+    href="/app/shop/items"
+  />
+
+  Name "Manage categories":
+  <a
+    href="/app/shop/item-categories"
+  />
+
+  Name "Cancel":
+  <a
+    href="/app/shop/items"
+  />
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Name":
+  <input
+    aria-invalid="false"
+    maxlength="150"
+    name="name"
+    required=""
+    value="Glass"
+  />
+
+  Name "Unit":
+  <input
+    aria-invalid="false"
+    name="unit_label"
+    required=""
+    value="sq_ft"
+  />
+
+  Name "Selling price":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    name="sale_price"
+    required=""
+    value="0"
+  />
+
+  Name "New category name":
+  <input
+    aria-invalid="false"
+    maxlength="150"
+    value=""
+  />
+
+  Name "SKU (optional)":
+  <input
+    aria-invalid="false"
+    name="sku"
+    value=""
+  />
+
+  Name "Low stock alert quantity":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    name="low_stock_qty"
+    value="0"
+  />
+
+  Name "Target stock quantity":
+  <input
+    aria-invalid="false"
+    inputmode="decimal"
+    name="reorder_target_qty"
+    value="0"
+  />
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Item type":
+  <select
+    aria-invalid="false"
+  />
+
+  Name "Billed base unit":
+  <select
+    aria-invalid="false"
+  />
+
+  --------------------------------------------------
+  option:
+
+  Name "Stock item":
+  <option
+    value="stock"
+  />
+
+  Name "Service":
+  <option
+    value="service"
+  />
+
+  Name "Piece / unit":
+  <option
+    value="unit"
+  />
+
+  Name "Pair":
+  <option
+    value="pair"
+  />
+
+  Name "Dozen":
+  <option
+    value="dozen"
+  />
+
+  Name "Kilogram (kg)":
+  <option
+    value="kg"
+  />
+
+  Name "Gram (g)":
+  <option
+    value="g"
+  />
+
+  Name "Milligram (mg)":
+  <option
+    value="mg"
+  />
+
+  Name "Metric tonne (t)":
+  <option
+    value="tonne"
+  />
+
+  Name "Pound (lb)":
+  <option
+    value="lb"
+  />
+
+  Name "Ounce (oz)":
+  <option
+    value="oz"
+  />
+
+  Name "Litre (L)":
+  <option
+    value="l"
+  />
+
+  Name "Millilitre (mL)":
+  <option
+    value="ml"
+  />
+
+  Name "Centilitre (cL)":
+  <option
+    value="cl"
+  />
+
+  Name "US gallon (gal US)":
+  <option
+    value="us_gal"
+  />
+
+  Name "Imperial gallon (gal UK)":
+  <option
+    value="imp_gal"
+  />
+
+  Name "Millimetre (mm)":
+  <option
+    value="mm"
+  />
+
+  Name "Centimetre (cm)":
+  <option
+    value="cm"
+  />
+
+  Name "Metre (m)":
+  <option
+    value="m"
+  />
+
+  Name "Inch (in)":
+  <option
+    value="in"
+  />
+
+  Name "Foot (ft)":
+  <option
+    value="ft"
+  />
+
+  Name "Yard (yd)":
+  <option
+    value="yd"
+  />
+
+  Name "Square millimetre (mm²)":
+  <option
+    value="sq_mm"
+  />
+
+  Name "Square centimetre (cm²)":
+  <option
+    value="sq_cm"
+  />
+
+  Name "Square metre (m²)":
+  <option
+    value="sq_m"
+  />
+
+  Name "Square inch (in²)":
+  <option
+    value="sq_in"
+  />
+
+  Name "Square foot (ft²)":
+  <option
+    value="sq_ft"
+  />
+
+  Name "Square yard (yd²)":
+  <option
+    value="sq_yd"
+  />
+
+  Name "Cubic millimetre (mm³)":
+  <option
+    value="cu_mm"
+  />
+
+  Name "Cubic centimetre (cm³)":
+  <option
+    value="cu_cm"
+  />
+
+  Name "Cubic metre (m³)":
+  <option
+    value="cu_m"
+  />
+
+  Name "Cubic inch (in³)":
+  <option
+    value="cu_in"
+  />
+
+  Name "Cubic foot (ft³)":
+  <option
+    value="cu_ft"
+  />
+
+  Name "Cubic yard (yd³)":
+  <option
+    value="cu_yd"
+  />
+
+  Name "Board foot (bd ft)":
+  <option
+    value="board_ft"
+  />
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "":
+  <details
+    class="optional-details"
+  />
+
+  Name "Count":
+  <optgroup
+    label="Count"
+  />
+
+  Name "Weight":
+  <optgroup
+    label="Weight"
+  />
+
+  Name "Liquid volume":
+  <optgroup
+    label="Liquid volume"
+  />
+
+  Name "Length":
+  <optgroup
+    label="Length"
+  />
+
+  Name "Area":
+  <optgroup
+    label="Area"
+  />
+
+  Name "Cubic volume":
+  <optgroup
+    label="Cubic volume"
+  />
+
+  Name "Enabled entry methods":
+  <fieldset
+    class="party-roles"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Create category":
+  <button
+    disabled=""
+    fill="outline"
+    type="button"
+  />
+
+  Name "Add custom unit":
+  <button
+    fill="outline"
+    type="button"
+  />
+
+  Name "Save":
+  <button
+    type="submit"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="subtle"
+  />
+
+  --------------------------------------------------
+  checkbox:
+
+  Name "Quantity":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Amount":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Pack / custom unit":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Length":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Area":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  Name "Cubic volume":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="page-heading"
+    >
+      <div>
+        <span
+          class="eyebrow"
+        >
+          PRODUCT DETAILS
+        </span>
+        <h1>
+          Add product
+        </h1>
+      </div>
+      <div
+        class="heading-actions"
+      >
+        <a
+          href="/app/shop/items"
+        >
+          Back
+        </a>
+      </div>
+    </div>
+    <form
+      class="panel narrow-form entry-master"
+      data-dirty="true"
+    >
+      <label
+        class="field "
+      >
+        <span>
+          Name
+        </span>
+        <input
+          aria-invalid="false"
+          maxlength="150"
+          name="name"
+          required=""
+          value="Glass"
+        />
+      </label>
+      <div
+        class="form-grid"
+      >
+        <label
+          class="field "
+        >
+          <span>
+            Item type
+          </span>
+          <select
+            aria-invalid="false"
+          >
+            <option
+              value="stock"
+            >
+              Stock item
+            </option>
+            <option
+              value="service"
+            >
+              Service
+            </option>
+          </select>
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Unit
+          </span>
+          <input
+            aria-invalid="false"
+            name="unit_label"
+            required=""
+            value="sq_ft"
+          />
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Selling price
+          </span>
+          <input
+            aria-invalid="false"
+            inputmode="decimal"
+            name="sale_price"
+            required=""
+            value="0"
+          />
+        </label>
+      </div>
+      <details
+        class="optional-details"
+      >
+        <summary>
+          Item category
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              New category name
+            </span>
+            <input
+              aria-invalid="false"
+              maxlength="150"
+              value=""
+            />
+          </label>
+          <button
+            disabled=""
+            fill="outline"
+            type="button"
+          >
+            Create category
+          </button>
+          <a
+            href="/app/shop/item-categories"
+          >
+            Manage categories
+          </a>
+        </div>
+      </details>
+      <details
+        class="optional-details"
+      >
+        <summary>
+          Stock details (optional)
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              SKU (optional)
+            </span>
+            <input
+              aria-invalid="false"
+              name="sku"
+              value=""
+            />
+          </label>
+          <label
+            class="field "
+          >
+            <span>
+              Low stock alert quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              name="low_stock_qty"
+              value="0"
+            />
+          </label>
+        </div>
+      </details>
+      <details
+        class="optional-details"
+      >
+        <summary>
+          Reorder settings
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              Target stock quantity
+            </span>
+            <input
+              aria-invalid="false"
+              inputmode="decimal"
+              name="reorder_target_qty"
+              value="0"
+            />
+          </label>
+          <p>
+            Zero disables target reordering. Target must cover low-stock quantity.
+          </p>
+          <small>
+            Preferred supplier
+          </small>
+        </div>
+      </details>
+      <details
+        class="optional-details"
+      >
+        <summary>
+          POS measurements / scheduling
+        </summary>
+        <div>
+          <label
+            class="field "
+          >
+            <span>
+              Billed base unit
+            </span>
+            <select
+              aria-invalid="false"
+            >
+              <optgroup
+                label="Count"
+              >
+                <option
+                  value="unit"
+                >
+                  Piece / unit
+                </option>
+                <option
+                  value="pair"
+                >
+                  Pair
+                </option>
+                <option
+                  value="dozen"
+                >
+                  Dozen
+                </option>
+              </optgroup>
+              <optgroup
+                label="Weight"
+              >
+                <option
+                  value="kg"
+                >
+                  Kilogram (kg)
+                </option>
+                <option
+                  value="g"
+                >
+                  Gram (g)
+                </option>
+                <option
+                  value="mg"
+                >
+                  Milligram (mg)
+                </option>
+                <option
+                  value="tonne"
+                >
+                  Metric tonne (t)
+                </option>
+                <option
+                  value="lb"
+                >
+                  Pound (lb)
+                </option>
+                <option
+                  value="oz"
+                >
+                  Ounce (oz)
+                </option>
+              </optgroup>
+              <optgroup
+                label="Liquid volume"
+              >
+                <option
+                  value="l"
+                >
+                  Litre (L)
+                </option>
+                <option
+                  value="ml"
+                >
+                  Millilitre (mL)
+                </option>
+                <option
+                  value="cl"
+                >
+                  Centilitre (cL)
+                </option>
+                <option
+                  value="us_gal"
+                >
+                  US gallon (gal US)
+                </option>
+                <option
+                  value="imp_gal"
+                >
+                  Imperial gallon (gal UK)
+                </option>
+              </optgroup>
+              <optgroup
+                label="Length"
+              >
+                <option
+                  value="mm"
+                >
+                  Millimetre (mm)
+                </option>
+                <option
+                  value="cm"
+                >
+                  Centimetre (cm)
+                </option>
+                <option
+                  value="m"
+                >
+                  Metre (m)
+                </option>
+                <option
+                  value="in"
+                >
+                  Inch (in)
+                </option>
+                <option
+                  value="ft"
+                >
+                  Foot (ft)
+                </option>
+                <option
+                  value="yd"
+                >
+                  Yard (yd)
+                </option>
+              </optgroup>
+              <optgroup
+                label="Area"
+              >
+                <option
+                  value="sq_mm"
+                >
+                  Square millimetre (mm²)
+                </option>
+                <option
+                  value="sq_cm"
+                >
+                  Square centimetre (cm²)
+                </option>
+                <option
+                  value="sq_m"
+                >
+                  Square metre (m²)
+                </option>
+                <option
+                  value="sq_in"
+                >
+                  Square inch (in²)
+                </option>
+                <option
+                  value="sq_ft"
+                >
+                  Square foot (ft²)
+                </option>
+                <option
+                  value="sq_yd"
+                >
+                  Square yard (yd²)
+                </option>
+              </optgroup>
+              <optgroup
+                label="Cubic volume"
+              >
+                <option
+                  value="cu_mm"
+                >
+                  Cubic millimetre (mm³)
+                </option>
+                <option
+                  value="cu_cm"
+                >
+                  Cubic centimetre (cm³)
+                </option>
+                <option
+                  value="cu_m"
+                >
+                  Cubic metre (m³)
+                </option>
+                <option
+                  value="cu_in"
+                >
+                  Cubic inch (in³)
+                </option>
+                <option
+                  value="cu_ft"
+                >
+                  Cubic foot (ft³)
+                </option>
+                <option
+                  value="cu_yd"
+                >
+                  Cubic yard (yd³)
+                </option>
+                <option
+                  value="board_ft"
+                >
+                  Board foot (bd ft)
+                </option>
+              </optgroup>
+            </select>
+          </label>
+          <p>
+            One stock quantity uses this base unit. Custom conversions refer to this unit.
+          </p>
+          <fieldset
+            class="party-roles"
+          >
+            <legend>
+              Enabled entry methods
+            </legend>
+            <div
+              class="role-grid"
+            >
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Quantity
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Amount
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Pack / custom unit
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Length
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Area
+                </span>
+              </label>
+              <label
+                class="check"
+              >
+                <input
+                  checked=""
+                  type="checkbox"
+                />
+                <span>
+                  Cubic volume
+                </span>
+              </label>
+            </div>
+          </fieldset>
+          <button
+            fill="outline"
+            type="button"
+          >
+            Add custom unit
+          </button>
+        </div>
+      </details>
+      <p
+        class="subtle"
+      >
+        Stock changes through purchases, returns, and stock counts.
+      </p>
+      <div
+        class="entry-actions"
+      >
+        <a
+          href="/app/shop/items"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+        >
+          <span>
+            Save
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/Masters.screen-fit.test.tsx:57:153
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  src/pages/Reports.test.tsx > pages all report rows and keeps exact values and all rows available for print
+Error: expect(element).not.toBeVisible()
+
+Received element is visible:
+  <td />
+ ❯ src/pages/Reports.test.tsx:18:94
+     16| it('pages all report rows and keeps exact values and all rows availabl…
+     17|   mobile(); render(<ReportTable rows={sample.rows} />);
+     18|   expect(screen.getByText('Party 1')).toBeVisible(); expect(screen.get…
+       |                                                                                              ^
+     19|   fireEvent.click(screen.getByRole('button', { name: 'Next rows' })); …
+     20|   fireEvent.click(screen.getByRole('button', { name: 'Next rows' })); …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  src/pages/Reports.test.tsx > opens filters separately and preserves report exports and chosen BS range
+Error: expect(element).not.toBeVisible()
+
+Received element is visible:
+  <input
+  aria-invalid="false"
+  value="2083-01-01"
+/>
+ ❯ src/pages/Reports.test.tsx:26:127
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  src/pages/Reports.test.tsx > starts empty statements in filters and preserves party and supplier-channel scope
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Filters"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Reports":
+  <h1 />
+
+  Name "Party statement":
+  <h2 />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="subtle"
+  />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  button:
+
+  Name "Print":
+  <button
+    fill="outline"
+  />
+
+  Name "Pick party":
+  <button
+    type="button"
+  />
+
+  --------------------------------------------------
+  link:
+
+  Name "Download CSV":
+  <a
+    class="export-link"
+    href="/api/app/shop/reports/statement/export?from=2083-01-01&to=2083-01-03"
+  />
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Report":
+  <select
+    aria-invalid="false"
+  />
+
+  Name "Account":
+  <select
+    aria-invalid="false"
+  />
+
+  --------------------------------------------------
+  option:
+
+  Name "Overview":
+  <option
+    value="overview"
+  />
+
+  Name "Profit & loss":
+  <option
+    value="profit-loss"
+  />
+
+  Name "Balance sheet":
+  <option
+    value="balance-sheet"
+  />
+
+  Name "Customers owe":
+  <option
+    value="receivables"
+  />
+
+  Name "Still to pay":
+  <option
+    value="payables"
+  />
+
+  Name "Sales":
+  <option
+    value="sales"
+  />
+
+  Name "Purchases":
+  <option
+    value="purchases"
+  />
+
+  Name "Expenses":
+  <option
+    value="expenses"
+  />
+
+  Name "Money":
+  <option
+    value="money"
+  />
+
+  Name "Cash & bank book":
+  <option
+    value="cashbook"
+  />
+
+  Name "Party statement":
+  <option
+    value="statement"
+  />
+
+  Name "Stock valuation":
+  <option
+    value="stock"
+  />
+
+  Name "Low stock":
+  <option
+    value="low-stock"
+  />
+
+  Name "Stock movements":
+  <option
+    value="stock-movements"
+  />
+
+  Name "Customer aging":
+  <option
+    value="customer-aging"
+  />
+
+  Name "Payable aging":
+  <option
+    value="supplier-aging"
+  />
+
+  Name "Balance reconciliation":
+  <option
+    value="reconciliation"
+  />
+
+  Name "Trial balance":
+  <option
+    value="trial-balance"
+  />
+
+  Name "Customer channel":
+  <option
+    value=""
+  />
+
+  Name "Supplier channel":
+  <option
+    value="2"
+  />
+
+  --------------------------------------------------
+  textbox:
+
+  Name "From (BS)":
+  <input
+    aria-invalid="false"
+    value="2083-01-01"
+  />
+
+  Name "To (BS)":
+  <input
+    aria-invalid="false"
+    value="2083-01-03"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="no-print"
+    >
+      <div
+        class="page-heading"
+      >
+        <div>
+          <span
+            class="eyebrow"
+          >
+            CLEAR NUMBERS. BETTER DECISIONS.
+          </span>
+          <h1>
+            Reports
+          </h1>
+          <p>
+            Read-only. Based on posted entries and dated reversals.
+          </p>
+        </div>
+        <div
+          class="heading-actions"
+        >
+          <button
+            fill="outline"
+          >
+            Print
+          </button>
+          <a
+            class="export-link"
+            href="/api/app/shop/reports/statement/export?from=2083-01-01&to=2083-01-03"
+          >
+            Download CSV
+          </a>
+        </div>
+      </div>
+      <div
+        class="panel report-filters"
+      >
+        <label
+          class="field "
+        >
+          <span>
+            Report
+          </span>
+          <select
+            aria-invalid="false"
+          >
+            <option
+              value="overview"
+            >
+              Overview
+            </option>
+            <option
+              value="profit-loss"
+            >
+              Profit & loss
+            </option>
+            <option
+              value="balance-sheet"
+            >
+              Balance sheet
+            </option>
+            <option
+              value="receivables"
+            >
+              Customers owe
+            </option>
+            <option
+              value="payables"
+            >
+              Still to pay
+            </option>
+            <option
+              value="sales"
+            >
+              Sales
+            </option>
+            <option
+              value="purchases"
+            >
+              Purchases
+            </option>
+            <option
+              value="expenses"
+            >
+              Expenses
+            </option>
+            <option
+              value="money"
+            >
+              Money
+            </option>
+            <option
+              value="cashbook"
+            >
+              Cash & bank book
+            </option>
+            <option
+              value="statement"
+            >
+              Party statement
+            </option>
+            <option
+              value="stock"
+            >
+              Stock valuation
+            </option>
+            <option
+              value="low-stock"
+            >
+              Low stock
+            </option>
+            <option
+              value="stock-movements"
+            >
+              Stock movements
+            </option>
+            <option
+              value="customer-aging"
+            >
+              Customer aging
+            </option>
+            <option
+              value="supplier-aging"
+            >
+              Payable aging
+            </option>
+            <option
+              value="reconciliation"
+            >
+              Balance reconciliation
+            </option>
+            <option
+              value="trial-balance"
+            >
+              Trial balance
+            </option>
+          </select>
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            From (BS)
+          </span>
+          <input
+            aria-invalid="false"
+            value="2083-01-01"
+          />
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            To (BS)
+          </span>
+          <input
+            aria-invalid="false"
+            value="2083-01-03"
+          />
+        </label>
+        <label
+          class="field "
+        >
+          <span>
+            Account
+          </span>
+          <select
+            aria-invalid="false"
+          >
+            <option
+              value=""
+            >
+              Customer channel
+            </option>
+            <option
+              value="2"
+            >
+              Supplier channel
+            </option>
+          </select>
+        </label>
+      </div>
+      <div
+        class="panel section"
+      >
+        <button
+          type="button"
+        >
+          Pick party
+        </button>
+      </div>
+    </div>
+    <section
+      class="report-body"
+    >
+      <h2>
+        Party statement
+      </h2>
+      <p
+        class="subtle"
+      >
+        2083-01-01
+         — 
+        2083-01-03
+         BS · NPR
+      </p>
+      <p>
+        Choose contact to view statement.
+      </p>
+    </section>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/Reports.test.tsx:33:17
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  10 failed | 1 passed (11)
+   Start at  17:42:51
+   Duration  6.24s (transform 830ms, setup 1.58s, import 2.27s, tests 2.94s, environment 7.37s)
+
+npm ERR! Lifecycle script `test.unit` failed with error: 
+npm ERR! Error: command failed 
+npm ERR!   in workspace: frontend@0.0.1 
+npm ERR!   at location: E:\laravel pojects\dairy main\newapp\frontend 

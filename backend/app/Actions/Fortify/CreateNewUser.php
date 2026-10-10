@@ -3,7 +3,9 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
+use App\Service\NotificationService;
 use App\Support\Money;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -51,12 +53,17 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
-            'name' => $input['name'],
-            'phone' => $input['phone'],
-            'country_code' => $input['country_code'],
-            'email' => strtolower(trim($input['email'])),
-            'password' => Hash::make($input['password']),
-        ]);
+        return DB::transaction(function () use ($input) {
+            $user = User::create([
+                'name' => $input['name'],
+                'phone' => $input['phone'],
+                'country_code' => $input['country_code'],
+                'email' => strtolower(trim($input['email'])),
+                'password' => Hash::make($input['password']),
+            ]);
+            app(NotificationService::class)->enqueue('welcome', $user->id, [], ['email'], 'welcome:'.$user->id);
+
+            return $user;
+        }, 3);
     }
 }

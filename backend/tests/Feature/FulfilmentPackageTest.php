@@ -72,6 +72,211 @@ class FulfilmentPackageTest extends TestCase
         return $this->postJson($s['base'].'/package/'.$package['id'].'/'.$action, ['mutation_uuid' => (string) Str::uuid(), 'version' => $package['version'], 'workflow_version' => $this->current($s)['version'], 'business_date_bs' => 20830103, 'reason' => 'Reverse exact package source'])->assertStatus($status)->json('data') ?? [];
     }
 
+    private function transitInput(array $s, array $package, string $qty = '1', int $date = 20830103): array
+    {
+        $source = DB::table('workflow_dispatch_allocations')->whereIn('fulfilment_line_id', DB::table('workflow_fulfilment_lines')->where('fulfilment_id', $package['fulfilment_id'])->select('id'))->value('id');
+
+        return ['version' => $s['bill']['version'], 'workflow_version' => $this->current($s)['version'], 'business_date_bs' => $date, 'reason' => 'Actual undelivered goods received', 'lines' => [['source_line_id' => $s['bill']['lines'][0]['id'], 'qty' => $qty, 'return_source' => (string) $source, 'return_mode' => 'transit']]];
+    }
+
+    private function transitReturn(array $s, array $package, string $qty = '1', int $date = 20830103): array
+    {
+        $path = $s['base'].'/document/'.$s['bill']['id'].'/returns';
+        $input = $this->transitInput($s, $package, $qty, $date);
+        $preview = $this->postJson($path.'/preview', $input)->assertOk()->json('data');
+        $payload = [...$input, 'mutation_uuid' => (string) Str::uuid(), 'expected_fingerprint' => $preview['fingerprint']];
+        $result = $this->postJson($path, $payload)->assertCreated()->json('data');
+        $this->postJson($path, $payload)->assertOk()->assertJsonPath('data.id', $result['id']);
+
+        return $result;
+    }
+
+    private function pennyBill(array $s): array
+    {
+        $s['order'] = $this->postJson($s['base'].'/workflows', ['mutation_uuid' => (string) Str::uuid(), 'kind' => 'sales_order', 'contact_id' => $s['party'], 'business_date_bs' => 20830102, 'lines' => [['item_id' => $s['item'], 'qty' => '3', 'unit_price' => '0.01']], 'invoice_discount' => '0.02', 'expected_total_paisa' => '1'])->assertCreated()->json('data');
+        $path = $s['base'].'/workflow/'.$s['order']['id'].'/ordered-bills';
+        $input = ['version' => 1, 'business_date_bs' => 20830102, 'paid_now' => '0', 'lines' => [['position' => 1, 'qty' => '3']]];
+        $preview = $this->postJson($path.'/preview', $input)->assertOk()->json('data');
+        $s['bill'] = $this->postJson($path, [...$input, 'mutation_uuid' => (string) Str::uuid(), 'expected_total_paisa' => '1', 'expected_fingerprint' => $preview['fingerprint']])->assertCreated()->json('data');
+
+        return $s;
+    }
+
+    public function test_transit_return_uses_original_cost_after_later_stock_then_only_remaining_goods_are_delivered(): void
+    {
+        $s = $this->shop();
+        $package = $this->action($s, $this->pack($s, '2'), 'ship');
+        $supplier = $this->postJson($s['base'].'/contacts', ['name' => 'Later supplier', 'is_customer' => false, 'is_supplier' => true])->assertCreated()->json('data.id');
+        $this->postJson($s['base'].'/documents/purchase', ['mutation_uuid' => (string) Str::uuid(), 'type' => 'purchase', 'contact_id' => $supplier, 'business_date_bs' => 20830103, 'paid_now' => '0', 'lines' => [['item_id' => $s['item'], 'qty' => '2', 'unit_price' => '200']], 'expected_total_paisa' => '40000'])->assertCreated();
+        $this->reverse($s, $package, 'cancel', 409);
+        $returned = $this->transitReturn($s, $package);
+        $this->assertSame('10000', $returned['total_paisa']);
+        $this->assertSame('transit', DB::table('workflow_return_allocations')->value('return_mode'));
+        $this->assertSame(5000, $this->balance($s, 'goods_in_transit'));
+        $this->assertSame(0, $this->balance($s, 'cogs'));
+        $this->assertSame(0, $this->balance($s, 'sales'));
+        $this->assertSame(-40000, $this->balance($s, 'sales_unfulfilled'));
+        $this->getJson($s['base'].'/items/'.$s['item'])->assertOk()->assertJsonPath('data.qty_milli', '11000')->assertJsonPath('data.value_paisa', '85000');
+        $this->getJson($s['base'].'/workflow/'.$s['order']['id'])->assertOk()->assertJsonPath('data.fulfilment.lines.0.shipped_qty_milli', '1000')->assertJsonPath('data.fulfilment.lines.0.credited_transit_qty_milli', '1000')->assertJsonPath('data.fulfilment.lines.0.completed_qty_milli', '0');
+        $this->getJson($s['base'].'/package/'.$package['id'])->assertOk()->assertJsonPath('data.lines.0.remaining_delivery_qty_milli', '1000')->assertJsonPath('data.lines.0.credited_transit_qty_milli', '1000')->assertJsonPath('data.lines.0.delivered_qty_milli', '0');
+        $moves = DB::table('stock_movements')->count();
+        $package = $this->action($s, $package, 'deliver', 20830103);
+        $this->assertSame($moves, DB::table('stock_movements')->count());
+        $this->assertSame(0, $this->balance($s, 'goods_in_transit'));
+        $this->assertSame(5000, $this->balance($s, 'cogs'));
+        $this->assertSame(-10000, $this->balance($s, 'sales'));
+        $this->assertSame('1000', $package['lines'][0]['delivered_qty_milli']);
+        $this->assertSame('0', $package['lines'][0]['remaining_delivery_qty_milli']);
+        $this->assertCount(1, $package['delivery_confirmations']);
+        $this->getJson($s['base'].'/workflow/'.$s['order']['id'])->assertOk()->assertJsonPath('data.fulfilment.lines.0.completed_qty_milli', '1000')->assertJsonPath('data.fulfilment.lines.0.remaining_qty_milli', '3000');
+        $cancel = ['mutation_uuid' => (string) Str::uuid(), 'business_date_bs' => 20830103, 'reason' => 'Restore undelivered return'];
+        $this->postJson($s['base'].'/document/'.$returned['id'].'/cancel', $cancel)->assertStatus(409);
+        $package = $this->reverse($s, $package, 'undo-delivery');
+        $this->assertSame(5000, $this->balance($s, 'goods_in_transit'));
+        $this->postJson($s['base'].'/document/'.$returned['id'].'/cancel', $cancel)->assertCreated();
+        $this->assertSame(10000, $this->balance($s, 'goods_in_transit'));
+        $this->assertSame(-50000, $this->balance($s, 'sales_unfulfilled'));
+        $this->getJson($s['base'].'/items/'.$s['item'])->assertOk()->assertJsonPath('data.qty_milli', '10000')->assertJsonPath('data.value_paisa', '80000');
+    }
+
+    public function test_transit_zero_credit_from_middle_package_leaves_penny_for_remaining_actual_delivery(): void
+    {
+        $s = $this->pennyBill($this->shop());
+        $first = $this->action($s, $this->pack($s, '1'), 'ship');
+        $middle = $this->action($s, $this->pack($s, '1'), 'ship');
+        $last = $this->action($s, $this->pack($s, '1'), 'ship');
+        $returned = $this->transitReturn($s, $middle);
+        $this->assertSame('0', $returned['total_paisa']);
+        $this->assertSame(-50001, $this->balance($s, 'sales_unfulfilled'));
+        $this->postJson($s['base'].'/package/'.$middle['id'].'/deliver/preview', ['version' => $middle['version'], 'workflow_version' => $this->current($s)['version'], 'business_date_bs' => 20830103, 'handover_confirmed' => true])->assertStatus(409);
+        $this->action($s, $first, 'deliver', 20830103);
+        $this->action($s, $last, 'deliver', 20830103);
+        $this->assertSame(-50000, $this->balance($s, 'sales_unfulfilled'));
+        $this->assertSame(-1, $this->balance($s, 'sales'));
+        $this->assertSame(10000, $this->balance($s, 'cogs'));
+        $this->assertSame(0, $this->balance($s, 'goods_in_transit'));
+        $this->getJson($s['base'].'/workflow/'.$s['order']['id'])->assertOk()->assertJsonPath('data.fulfilment.lines.0.completed_qty_milli', '2000')->assertJsonPath('data.fulfilment.lines.0.shipped_qty_milli', '0')->assertJsonPath('data.fulfilment.lines.0.remaining_qty_milli', '0');
+        $this->getJson($s['base'].'/document/'.$s['bill']['id'])->assertOk()->assertJsonPath('data.lines.0.unfulfilled_qty_milli', '0');
+    }
+
+    public function test_transit_zero_journal_post_and_cancel_still_protect_package_history_dates(): void
+    {
+        $s = $this->shop();
+        $s['item'] = $this->postJson($s['base'].'/items', ['name' => 'Free cost goods', 'kind' => 'stock', 'unit_label' => 'kg', 'pos_unit' => 'kg', 'sale_price' => '0.01'])->assertCreated()->json('data.id');
+        $this->postJson($s['base'].'/stock-adjustments', ['mutation_uuid' => (string) Str::uuid(), 'item_id' => $s['item'], 'counted_qty' => '3', 'expected_qty_milli' => '0', 'unit_cost' => '0', 'zero_cost_confirmed' => true, 'business_date_bs' => 20830102, 'reason' => 'Free cost opening sample'])->assertCreated();
+        $s = $this->pennyBill($s);
+        $package = $this->action($s, $this->pack($s, '3'), 'ship');
+        $returned = $this->transitReturn($s, $package, '1', 20830104);
+        $this->assertNull(DB::table('documents')->where('id', $returned['id'])->value('journal_id'));
+        $this->postJson($s['base'].'/document/'.$returned['id'].'/cancel', ['mutation_uuid' => (string) Str::uuid(), 'business_date_bs' => 20830105, 'reason' => 'Undo zero journal return'])->assertCreated();
+        $input = ['version' => $package['version'], 'workflow_version' => $this->current($s)['version'], 'handover_confirmed' => true, 'business_date_bs' => 20830104];
+        $this->postJson($s['base'].'/package/'.$package['id'].'/deliver/preview', $input)->assertUnprocessable();
+        $this->action($s, $package, 'deliver', 20830105);
+        $this->assertSame(-1, $this->balance($s, 'sales'));
+        $this->assertSame(-50000, $this->balance($s, 'sales_unfulfilled'));
+    }
+
+    public function test_transit_review_is_required_and_cannot_be_reused_after_source_delivery_or_changed_reason(): void
+    {
+        $s = $this->shop();
+        $package = $this->action($s, $this->pack($s, '2'), 'ship');
+        $path = $s['base'].'/document/'.$s['bill']['id'].'/returns';
+        $input = $this->transitInput($s, $package);
+        $this->postJson($path, [...$input, 'mutation_uuid' => (string) Str::uuid()])->assertUnprocessable();
+        $preview = $this->postJson($path.'/preview', $input)->assertOk()->json('data');
+        $this->postJson($path, [...$input, 'reason' => 'Changed reviewed reason', 'expected_fingerprint' => $preview['fingerprint'], 'mutation_uuid' => (string) Str::uuid()])->assertStatus(409);
+        $this->action($s, $package, 'deliver', 20830103);
+        $this->postJson($path, [...$input, 'expected_fingerprint' => $preview['fingerprint'], 'mutation_uuid' => (string) Str::uuid()])->assertStatus(409);
+        $this->assertSame(0, DB::table('workflow_return_allocations')->count());
+    }
+
+    public function test_transit_review_and_retry_enforce_foreign_sources_roles_and_revoked_membership(): void
+    {
+        $s = $this->shop();
+        $package = $this->action($s, $this->pack($s, '2'), 'ship');
+        $input = $this->transitInput($s, $package);
+        $path = $s['base'].'/document/'.$s['bill']['id'].'/returns';
+        $other = $this->shop();
+        $foreign = $this->action($other, $this->pack($other, '1'), 'ship');
+        $foreignInput = $this->transitInput($other, $foreign);
+        $this->actingAs($s['actor'], 'tenant');
+        $this->postJson($path.'/preview', [...$input, 'lines' => [[...$input['lines'][0], 'return_source' => $foreignInput['lines'][0]['return_source']]]])->assertNotFound();
+        $this->postJson($other['base'].'/document/'.$other['bill']['id'].'/returns/preview', $foreignInput)->assertNotFound();
+        $preview = $this->postJson($path.'/preview', $input)->assertOk()->json('data');
+        $payload = [...$input, 'mutation_uuid' => (string) Str::uuid(), 'expected_fingerprint' => $preview['fingerprint']];
+        DB::table('tenant_user')->where('tenant_id', $s['tenant']['id'])->where('user_id', $s['actor']->id)->update(['role' => 'cashier']);
+        $this->postJson($path.'/preview', $input)->assertForbidden();
+        $this->postJson($path, $payload)->assertForbidden();
+        DB::table('tenant_user')->where('tenant_id', $s['tenant']['id'])->where('user_id', $s['actor']->id)->update(['role' => 'manager']);
+        $returned = $this->postJson($path, $payload)->assertCreated()->json('data');
+        $this->postJson($path, $payload)->assertOk()->assertJsonPath('data.id', $returned['id']);
+        DB::table('tenant_user')->where('tenant_id', $s['tenant']['id'])->where('user_id', $s['actor']->id)->update(['role' => 'cashier']);
+        $this->postJson($path, $payload)->assertForbidden();
+        DB::table('tenant_user')->where('tenant_id', $s['tenant']['id'])->where('user_id', $s['actor']->id)->update(['active' => false]);
+        $this->postJson($path, $payload)->assertNotFound();
+        $this->assertSame(1, DB::table('workflow_return_allocations')->count());
+    }
+
+    public function test_transit_review_binds_stock_context_and_refund_choice_without_changing_order_version(): void
+    {
+        $s = $this->shop();
+        $package = $this->action($s, $this->pack($s, '2'), 'ship');
+        $input = $this->transitInput($s, $package);
+        $path = $s['base'].'/document/'.$s['bill']['id'].'/returns';
+        $preview = $this->postJson($path.'/preview', $input)->assertOk()->json('data');
+        $this->assertSame('5000', $preview['lines'][0]['inventory_cost_paisa']);
+        $this->assertSame('0', $preview['refund_paisa']);
+        $this->postJson($path, [...$input, 'refund_now' => true, 'expected_fingerprint' => $preview['fingerprint'], 'mutation_uuid' => (string) Str::uuid()])->assertStatus(409);
+        $this->postJson($s['base'].'/stock-adjustments', ['mutation_uuid' => (string) Str::uuid(), 'item_id' => $s['item'], 'counted_qty' => '9', 'expected_qty_milli' => '8000', 'unit_cost' => '70', 'business_date_bs' => 20830103, 'reason' => 'Independent inbound count'])->assertCreated();
+        $this->assertSame($input['workflow_version'], $this->current($s)['version']);
+        $this->postJson($path, [...$input, 'expected_fingerprint' => $preview['fingerprint'], 'mutation_uuid' => (string) Str::uuid()])->assertStatus(409);
+        $this->transitReturn($s, $package);
+        $this->getJson($s['base'].'/items/'.$s['item'])->assertOk()->assertJsonPath('data.qty_milli', '10000')->assertJsonPath('data.value_paisa', '52000');
+    }
+
+    public function test_fully_returned_transit_package_cannot_claim_delivery_and_reverses_dependencies_in_order(): void
+    {
+        $s = $this->shop();
+        $package = $this->action($s, $this->pack($s, '5'), 'ship');
+        $first = $this->transitReturn($s, $package, '1');
+        $last = $this->transitReturn($s, $package, '4');
+        $this->assertSame(0, $this->balance($s, 'goods_in_transit'));
+        $this->assertSame(0, $this->balance($s, 'sales_unfulfilled'));
+        $this->assertSame(0, $this->balance($s, 'sales'));
+        $this->assertSame(0, $this->balance($s, 'cogs'));
+        $this->getJson($s['base'].'/package/'.$package['id'])->assertOk()->assertJsonPath('data.lines.0.remaining_delivery_qty_milli', '0')->assertJsonPath('data.lines.0.delivered_qty_milli', '0');
+        $this->postJson($s['base'].'/package/'.$package['id'].'/deliver/preview', ['version' => $package['version'], 'workflow_version' => $this->current($s)['version'], 'business_date_bs' => 20830103, 'handover_confirmed' => true])->assertStatus(409);
+        $this->reverse($s, $package, 'cancel', 409);
+        $cancel = ['mutation_uuid' => (string) Str::uuid(), 'business_date_bs' => 20830103, 'reason' => 'Reverse exact source return'];
+        $this->postJson($s['base'].'/document/'.$first['id'].'/cancel', $cancel)->assertUnprocessable();
+        $this->postJson($s['base'].'/document/'.$last['id'].'/cancel', $cancel)->assertCreated();
+        $this->postJson($s['base'].'/document/'.$first['id'].'/cancel', [...$cancel, 'mutation_uuid' => (string) Str::uuid()])->assertCreated();
+        $this->reverse($s, $package, 'cancel');
+        $this->postJson($s['base'].'/document/'.$s['bill']['id'].'/cancel', [...$cancel, 'mutation_uuid' => (string) Str::uuid()])->assertCreated();
+        foreach (['goods_in_transit', 'sales_unfulfilled', 'receivables', 'sales', 'cogs'] as $key) {
+            $this->assertSame(0, $this->balance($s, $key));
+        }
+        $this->getJson($s['base'].'/items/'.$s['item'])->assertOk()->assertJsonPath('data.qty_milli', '10000')->assertJsonPath('data.value_paisa', '50000');
+    }
+
+    public function test_plain_invoice_return_rejects_fulfilment_modes_and_sources_instead_of_receiving_stock(): void
+    {
+        $s = $this->shop();
+        $bill = $this->postJson($s['base'].'/documents/sale', ['mutation_uuid' => (string) Str::uuid(), 'contact_id' => $s['party'], 'business_date_bs' => 20830102, 'paid_now' => '0', 'lines' => [['item_id' => $s['item'], 'qty' => '1', 'unit_price' => '100']], 'expected_total_paisa' => '10000'])->assertCreated()->json('data');
+        $input = ['business_date_bs' => 20830103, 'reason' => 'Reject misleading source mode', 'lines' => [['source_line_id' => $bill['lines'][0]['id'], 'qty' => '1', 'return_mode' => 'unfulfilled']]];
+        $path = $s['base'].'/document/'.$bill['id'].'/returns';
+        $this->postJson($path.'/preview', $input)->assertUnprocessable();
+        $this->postJson($path, [...$input, 'mutation_uuid' => (string) Str::uuid()])->assertUnprocessable();
+        $input['lines'][0] = [...$input['lines'][0], 'return_mode' => 'completed', 'return_source' => '1'];
+        $this->postJson($path.'/preview', $input)->assertUnprocessable();
+        $this->assertSame(2, DB::table('stock_movements')->count());
+        $this->assertSame(0, DB::table('workflow_return_allocations')->count());
+        unset($input['lines'][0]['return_source']);
+        $preview = $this->postJson($path.'/preview', $input)->assertOk()->json('data');
+        $this->postJson($path, [...$input, 'expected_fingerprint' => $preview['fingerprint'], 'mutation_uuid' => (string) Str::uuid()])->assertCreated();
+        $this->getJson($s['base'].'/items/'.$s['item'])->assertOk()->assertJsonPath('data.qty_milli', '10000')->assertJsonPath('data.value_paisa', '50000');
+    }
+
     public function test_pack_ship_and_confirm_delivery_have_distinct_money_stock_and_progress_effects(): void
     {
         $s = $this->shop();
@@ -269,6 +474,7 @@ class FulfilmentPackageTest extends TestCase
         $package = $this->postJson($deliverPath, $deliverPayload)->assertCreated()->json('data');
         $this->assertArrayNotHasKey('delivery_journal_id', $package);
         $this->assertArrayNotHasKey('recognition_journal_id', $package['shipment']);
+        $this->assertArrayNotHasKey('inventory_cost_paisa', $package['delivery_confirmations'][0]['allocations'][0]);
         $this->postJson($deliverPath, $deliverPayload)->assertOk();
         DB::table('tenant_user')->where('tenant_id', $s['tenant']['id'])->where('user_id', $s['actor']->id)->update(['active' => false]);
         $this->postJson($shipPath, $shipPayload)->assertNotFound();

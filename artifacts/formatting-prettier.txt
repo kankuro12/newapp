@@ -1,0 +1,184 @@
+.prettierrc.json 128ms
+ACCEPTANCE-TESTS.md 417ms
+AGENTS.md 23ms
+APP-SPECIFICATION.md 730ms
+artifacts/c1a3-mobile-qa.md 33ms
+artifacts/fulfilment-preview.tsx 321ms
+artifacts/mobile-heading-fixture-data.ts 62ms
+artifacts/mobile-heading-fixture-shell.tsx 56ms
+artifacts/mobile-heading-fixture-source.tsx 288ms
+artifacts/mobile-heading-fixture.html 73ms
+artifacts/screen-fit-catalogue-fixture-Businesses.tsx 49ms
+artifacts/screen-fit-catalogue-fixture-data.ts 30ms
+artifacts/screen-fit-catalogue-fixture-Masters.tsx 183ms
+artifacts/screen-fit-catalogue-fixture-Picker.tsx 67ms
+artifacts/screen-fit-catalogue-fixture-Reports.tsx 87ms
+artifacts/screen-fit-catalogue-fixture-shell.tsx 18ms
+artifacts/screen-fit-catalogue-fixture.html 11ms
+artifacts/screen-fit-daily-fixture-data.ts 19ms
+artifacts/screen-fit-daily-fixture-shell.tsx 45ms
+artifacts/screen-fit-daily-fixture-source.tsx 179ms
+artifacts/screen-fit-daily-fixture.html 6ms
+artifacts/screen-fit-fixture-data.ts 9ms
+artifacts/screen-fit-fixture-home.tsx 99ms
+artifacts/screen-fit-fixture-shell.tsx 15ms
+artifacts/screen-fit-fixture.html 5ms
+artifacts/screen-fit-payment-fixture-data.ts 11ms
+artifacts/screen-fit-payment-fixture-records.tsx 200ms
+artifacts/screen-fit-payment-fixture-regular.tsx 183ms
+artifacts/screen-fit-payment-fixture-shell.tsx 22ms
+artifacts/screen-fit-payment-fixture.html 7ms
+backend/.github/dependabot.yml 58ms
+backend/.github/workflows/dependabot-auto-merge.yml 5ms (unchanged)
+backend/.github/workflows/issues.yml 8ms (unchanged)
+backend/.github/workflows/pull-requests.yml 4ms (unchanged)
+backend/.github/workflows/tests.yml 16ms (unchanged)
+backend/.github/workflows/update-changelog.yml 5ms (unchanged)
+backend/.styleci.yml 6ms (unchanged)
+backend/AGENTS.md 98ms
+backend/boost.json 5ms
+backend/CHANGELOG.md 281ms
+backend/CLAUDE.md 54ms
+backend/composer.json 8ms
+backend/package.json 3ms
+backend/README.md 21ms
+backend/resources/country-calling-codes.json 45ms (unchanged)
+backend/resources/css/app.css 75ms
+backend/resources/js/app.js 12ms (unchanged)
+backend/vite.config.js 19ms
+BUILD-PACK.md 42ms
+BUILD-PROGRESS.md 559ms
+C1B-IMPLEMENTATION.md 199ms
+COMPETITOR-RESEARCH.md 389ms
+COUNTRY-PHONE.md 12ms
+DEPLOYMENT.md 196ms
+docs/superpowers/plans/2026-10-02-mobile-entry.md 33ms
+docs/superpowers/plans/2026-10-10-tenant-platform.md 281ms
+docs/superpowers/specs/2026-10-10-tenant-platform-design.md 216ms
+frontend/.vscode/extensions.json 19ms
+frontend/capacitor.config.ts 5ms
+frontend/cypress.config.ts 8ms
+frontend/cypress/e2e/test.cy.ts 4ms
+frontend/cypress/fixtures/example.json 3ms (unchanged)
+frontend/cypress/support/commands.ts 5ms
+frontend/cypress/support/e2e.ts 4ms
+frontend/eslint.config.js 12ms
+frontend/index.html 19ms
+frontend/ionic.config.json 6ms (unchanged)
+frontend/package-lock.json 343ms (unchanged)
+frontend/package.json 2ms (unchanged)
+frontend/public/help/user-manual.html 330ms
+frontend/public/manifest.json 2ms (unchanged)
+frontend/public/manifest.webmanifest 2ms
+frontend/src/App.test.tsx 18ms
+frontend/src/App.tsx 45ms
+frontend/src/components/EntrySteps.test.tsx 23ms
+frontend/src/components/EntrySteps.tsx 41ms
+frontend/src/components/FulfilmentEntry.test.tsx 104ms
+frontend/src/components/FulfilmentEntry.tsx 126ms
+frontend/src/components/FulfilmentPanel.tsx 58ms
+frontend/src/components/Heading.test.tsx 32ms
+frontend/src/components/MeasurementUnits.tsx 6ms
+frontend/src/components/Picker.test.tsx 47ms
+frontend/src/components/Picker.tsx 35ms
+frontend/src/components/SourceOrderAllocation.test.tsx 13ms
+frontend/src/components/SourceOrderAllocation.tsx 26ms
+frontend/src/components/ui.test.tsx 23ms
+frontend/src/components/ui.tsx 64ms
+frontend/src/lib/api.test.ts 37ms
+frontend/src/lib/api.ts 75ms
+frontend/src/lib/barcode.test.ts 23ms
+frontend/src/lib/barcode.ts 41ms
+frontend/src/lib/context.ts 5ms
+frontend/src/lib/firebaseConfig.ts 9ms
+frontend/src/lib/i18n.ts 124ms
+frontend/src/lib/live.test.ts 16ms
+frontend/src/lib/measurement.ts 9ms
+frontend/src/lib/money.test.ts 9ms
+frontend/src/lib/money.ts 34ms
+frontend/src/lib/pricing.test.ts 18ms
+frontend/src/lib/pricing.ts 28ms
+frontend/src/lib/push.test.ts 27ms
+frontend/src/lib/push.ts 47ms
+frontend/src/lib/pwa.test.ts 9ms
+frontend/src/lib/pwa.ts 4ms
+frontend/src/lib/types.ts 48ms
+frontend/src/lib/useReviewedOffer.ts 11ms
+frontend/src/main.tsx 20ms
+frontend/src/pages/Auth.tsx 83ms
+frontend/src/pages/BarcodeTools.test.tsx 27ms
+frontend/src/pages/BarcodeTools.tsx 116ms
+frontend/src/pages/BasketOffers.test.tsx 91ms
+frontend/src/pages/BasketOffers.tsx 212ms
+frontend/src/pages/Billing.test.tsx 11ms
+frontend/src/pages/Billing.tsx 21ms
+frontend/src/pages/BillingCheckout.test.tsx 20ms
+frontend/src/pages/BillingCheckout.tsx 68ms
+frontend/src/pages/Businesses.test.tsx 25ms
+frontend/src/pages/Businesses.tsx 52ms
+frontend/src/pages/CatalogTools.test.tsx 28ms
+frontend/src/pages/CatalogTools.tsx 117ms
+frontend/src/pages/CheckoutOffers.test.tsx 70ms
+frontend/src/pages/DailyForms.test.tsx 126ms
+frontend/src/pages/DailyForms.tsx 174ms
+frontend/src/pages/Dashboard.test.tsx 27ms
+frontend/src/pages/Dashboard.tsx 45ms
+frontend/src/pages/DocumentForm.test.tsx 29ms
+frontend/src/pages/DocumentForm.tsx 147ms
+frontend/src/pages/DocumentFormOffers.test.tsx 45ms
+frontend/src/pages/DocumentOffers.test.tsx 30ms
+frontend/src/pages/DocumentOffers.tsx 19ms
+frontend/src/pages/DraftOfferPosting.test.tsx 28ms
+frontend/src/pages/FulfilmentDetail.test.tsx 15ms
+frontend/src/pages/FulfilmentDetail.tsx 30ms
+frontend/src/pages/ImportTools.test.tsx 63ms
+frontend/src/pages/ImportTools.tsx 83ms
+frontend/src/pages/LabelTools.test.tsx 28ms
+frontend/src/pages/LabelTools.tsx 102ms
+frontend/src/pages/Masters.screen-fit.test.tsx 54ms
+frontend/src/pages/Masters.tsx 123ms
+frontend/src/pages/MeasurementSetup.test.tsx 16ms
+frontend/src/pages/MoneyList.test.tsx 22ms
+frontend/src/pages/More.test.tsx 18ms
+frontend/src/pages/More.tsx 19ms
+frontend/src/pages/Notifications.test.tsx 15ms
+frontend/src/pages/Notifications.tsx 23ms
+frontend/src/pages/PartyTools.test.tsx 34ms
+frontend/src/pages/PartyTools.tsx 137ms
+frontend/src/pages/Platform.tsx 38ms
+frontend/src/pages/PlatformPackages.test.tsx 20ms
+frontend/src/pages/PlatformPackages.tsx 36ms
+frontend/src/pages/Pos.test.tsx 29ms
+frontend/src/pages/Pos.tsx 373ms
+frontend/src/pages/PosOffers.test.tsx 51ms
+frontend/src/pages/PriceLists.test.tsx 48ms
+frontend/src/pages/PriceLists.tsx 137ms
+frontend/src/pages/Records.tsx 89ms
+frontend/src/pages/RegularPayments.test.tsx 46ms
+frontend/src/pages/RegularPayments.tsx 84ms
+frontend/src/pages/Reports.test.tsx 25ms
+frontend/src/pages/Reports.tsx 55ms
+frontend/src/pages/Settings.tsx 108ms
+frontend/src/pages/UserManual.tsx 4ms
+frontend/src/pages/Workflows.test.tsx 22ms
+frontend/src/pages/Workflows.tsx 109ms
+frontend/src/pages/Workspace.tsx 56ms
+frontend/src/setupTests.ts 5ms
+frontend/src/sw.ts 13ms
+frontend/src/theme/app.css 831ms
+frontend/src/theme/variables.css 2ms (unchanged)
+frontend/src/vite-env.d.ts 3ms (unchanged)
+frontend/tsconfig.json 4ms (unchanged)
+frontend/tsconfig.node.json 2ms (unchanged)
+frontend/vite.config.ts 12ms
+IMPLEMENTATION-PLAN.md 252ms
+INDUSTRY-POS.md 29ms
+MONOREPO-CONTRACT.md 121ms
+NICHE-FEATURES.md 450ms
+package-lock.json 234ms (unchanged)
+package.json 2ms (unchanged)
+README.md 63ms
+REGULAR-EXPENSES-PLAN.md 21ms
+REPOSITORY-REVIEW.md 108ms
+SCREEN-FIT.md 62ms
+THIRD-PARTY-NOTICES.md 61ms

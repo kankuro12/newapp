@@ -4,16 +4,30 @@ import { vi } from 'vitest';
 import App from './App';
 
 test('anonymous visitor receives sign-in fields after session check', async () => {
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ message: 'Unauthenticated.' }), { status: 401 })));
+  vi.stubGlobal(
+    'fetch',
+    vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ message: 'Unauthenticated.' }), { status: 401 }),
+      ),
+  );
   render(<App />);
-  expect(await screen.findByRole('heading', { name: 'Your business, in good order.' })).toBeDefined();
+  expect(
+    await screen.findByRole('heading', { name: 'Your business, in good order.' }),
+  ).toBeDefined();
   expect(screen.getByLabelText('Email')).toBeDefined();
   expect(screen.getByLabelText('Password')).toBeDefined();
   vi.unstubAllGlobals();
 });
 
 test('unavailable session shows retry without inviting duplicate sign-in', async () => {
-  const fetch = vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValue(new Response(JSON.stringify({ message: 'Unauthenticated.' }), { status: 401 }));
+  const fetch = vi
+    .fn()
+    .mockRejectedValueOnce(new Error('offline'))
+    .mockResolvedValue(
+      new Response(JSON.stringify({ message: 'Unauthenticated.' }), { status: 401 }),
+    );
   vi.stubGlobal('fetch', fetch);
   render(<App />);
   expect(await screen.findByRole('alert')).toHaveTextContent('Connection unavailable');

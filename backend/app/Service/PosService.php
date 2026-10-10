@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 class PosService
 {
-    public const PROFILES = ['general', 'meat', 'restaurant', 'barber', 'salon', 'milk', 'glass', 'wood'];
+    public const PROFILES = ['general', 'meat', 'restaurant', 'barber', 'salon', 'milk', 'glass', 'wood', 'gym'];
 
     public const METHODS = ['quantity', 'amount', 'pack', 'length', 'area', 'volume'];
 

@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\BarcodeController as Barcodes;
 use App\Http\Controllers\BasketController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BusinessController as B;
 use App\Http\Controllers\CatalogController as Catalog;
 use App\Http\Controllers\FulfilmentController as Fulfilment;
 use App\Http\Controllers\ImportController as Imports;
 use App\Http\Controllers\MasterController as M;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PackageController;
 use App\Http\Controllers\PartyController as Party;
 use App\Http\Controllers\PlatformController as P;
 use App\Http\Controllers\PosController as Pos;
@@ -17,7 +20,24 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->middleware(['auth:sanctum', 'auth:tenant'])->group(function () {
     Route::get('me', [B::class, 'me']);
+    Route::delete('notifications/devices/{id}', [NotificationController::class, 'revoke'])->whereNumber('id');
     Route::middleware('verified')->group(function () {
+        Route::match(['get', 'patch'], 'notifications/preferences', [NotificationController::class, 'preferences'])->middleware('throttle:30,1');
+        Route::get('notifications/devices', [NotificationController::class, 'devices']);
+        Route::post('notifications/devices', [NotificationController::class, 'register'])->middleware('throttle:30,1');
+        Route::get('billing/gateways', [BillingController::class, 'gateways']);
+        Route::get('billing/accounts/{id}/payments', [BillingController::class, 'payments'])->whereNumber('id');
+        Route::get('billing/accounts/{id}/businesses', [BillingController::class, 'businesses'])->whereNumber('id');
+        Route::post('billing/accounts/{id}/checkout', [BillingController::class, 'checkout'])->whereNumber('id');
+        Route::get('billing/accounts/{id}/payments/{reference}', [BillingController::class, 'payment'])->whereNumber('id')->whereUuid('reference');
+        Route::post('billing/accounts/{id}/payments/{reference}/confirm', [BillingController::class, 'confirm'])->whereNumber('id')->whereUuid('reference');
+        Route::get('billing/packages', [BillingController::class, 'packages']);
+        Route::get('billing/accounts/{id}/subscription', [BillingController::class, 'subscription'])->whereNumber('id');
+        Route::post('billing/accounts/{id}/trial', [BillingController::class, 'trial'])->whereNumber('id');
+        Route::get('billing/accounts', [BillingController::class, 'index']);
+        Route::post('billing/accounts', [BillingController::class, 'store']);
+        Route::get('billing/accounts/{id}', [BillingController::class, 'show'])->whereNumber('id');
+        Route::post('billing/accounts/{id}/businesses', [BillingController::class, 'business'])->whereNumber('id');
         Route::get('businesses', [B::class, 'businesses'])->name('businesses.index');
         Route::post('businesses', [B::class, 'createBusiness'])->name('businesses.store');
         Route::post('invitations/{token}', [M::class, 'acceptInvitation'])->name('invitations.accept');
@@ -119,6 +139,7 @@ Route::prefix('api')->middleware(['auth:sanctum', 'auth:tenant'])->group(functio
             Route::post('document/{document}/post', [B::class, 'postDraft'])->name('documents.post');
             Route::post('document/{document}/clone', [B::class, 'cloneDraft'])->name('documents.clone');
             Route::post('document/{document}/returns', [B::class, 'returns'])->name('documents.returns.store');
+            Route::post('document/{document}/returns/preview', [B::class, 'returnPreview'])->name('documents.returns.preview');
             Route::post('{source}/{id}/cancel', [B::class, 'cancel'])->where('source', 'document|payments|stock-adjustments')->whereNumber('id');
             Route::get('payments/preview', [B::class, 'paymentPreview']);
             Route::get('payments', [B::class, 'payments'])->name('payments.index');
@@ -156,6 +177,9 @@ Route::post('platform-auth/login', [P::class, 'login'])->middleware('throttle:5,
 Route::middleware('auth:superadmin')->group(function () {
     Route::post('platform-auth/logout', [P::class, 'logout']);
     Route::get('api/platform/me', [P::class, 'me']);
+    Route::get('api/platform/packages', [PackageController::class, 'index']);
+    Route::post('api/platform/packages', [PackageController::class, 'save']);
+    Route::patch('api/platform/packages/{id}', [PackageController::class, 'save'])->whereNumber('id');
     Route::get('api/platform/tenants', [P::class, 'tenants']);
     Route::patch('api/platform/tenants/{id}/access', [P::class, 'access'])->whereNumber('id');
 });

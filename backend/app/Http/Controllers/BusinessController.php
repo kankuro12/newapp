@@ -48,7 +48,7 @@ class BusinessController extends Controller
                 $item = array_map(fn ($id) => (string) $id, $item);
             } elseif ($item !== null && (preg_match('/(?:_paisa|_milli|_bps|_id)$/', (string) $key) || $key === 'id' || $key === 'next_number' || $key === 'discount_value')) {
                 $item = (string) $item;
-            } elseif (in_array($key, ['is_customer', 'is_supplier', 'is_employee', 'is_rent', 'is_system', 'is_money', 'active', 'enabled', 'cashier_allowed', 'auto_generate', 'tax_recording_enabled', 'vat_recoverable'], true) && $item !== null) {
+            } elseif (in_array($key, ['is_customer', 'is_supplier', 'is_employee', 'is_rent', 'is_system', 'is_money', 'active', 'enabled', 'package_enabled', 'cashier_allowed', 'auto_generate', 'tax_recording_enabled', 'vat_recoverable'], true) && $item !== null) {
                 $item = (bool) $item;
             } elseif (is_array($item) || is_object($item)) {
                 $item = self::json($item);
@@ -78,7 +78,7 @@ class BusinessController extends Controller
 
     public function createBusiness(Request $r, TenantService $service): JsonResponse
     {
-        $input = $r->validate(['name' => 'required|string|max:150', 'address' => 'nullable|string|max:500', 'phone' => 'nullable|string|max:30', 'pan' => 'nullable|string|max:30', 'default_locale' => 'sometimes|in:en,ne']);
+        $input = $r->validate(['billing_account_id' => 'sometimes|integer|min:1', 'name' => 'required|string|max:150', 'business_type' => 'sometimes|in:general,meat,restaurant,barber,salon,milk,glass,wood,gym', 'address' => 'nullable|string|max:500', 'phone' => 'nullable|string|max:30', 'pan' => 'nullable|string|max:30', 'default_locale' => 'sometimes|in:en,ne']);
 
         return response()->json(['data' => self::json($service->create(auth('tenant')->id(), $input))], 201);
     }
@@ -230,9 +230,19 @@ class BusinessController extends Controller
 
     public function returns(Request $r, string $tenant, int $document, DocumentService $service): JsonResponse
     {
-        $input = $r->validate(['mutation_uuid' => 'required|uuid', 'business_date_bs' => $this->dateRule(), 'reason' => 'required|string|min:5|max:500', 'lines' => 'required|array|min:1|max:100', 'lines.*.source_line_id' => 'required|integer|min:1', 'lines.*.return_source' => ['sometimes', 'required', 'string', 'regex:/^(unfulfilled|[1-9][0-9]{0,18})$/'], 'lines.*.qty' => 'required|string|max:20', 'refund_now' => 'sometimes|boolean', 'money_account_id' => 'nullable|integer|min:1', 'overdraft_confirmed' => 'sometimes|boolean']);
+        $input = $r->validate(['mutation_uuid' => 'required|uuid', ...$this->returnRules()]);
 
         return $this->result($service->createReturn(auth('tenant')->id(), $document, $input, $input['mutation_uuid']));
+    }
+
+    private function returnRules(): array
+    {
+        return ['version' => 'sometimes|required|integer|min:1', 'workflow_version' => 'sometimes|required|integer|min:1', 'expected_fingerprint' => 'sometimes|required|string|size:64', 'business_date_bs' => $this->dateRule(), 'reason' => 'required|string|min:5|max:500', 'lines' => 'required|array|min:1|max:100', 'lines.*.source_line_id' => 'required|integer|min:1', 'lines.*.return_source' => ['sometimes', 'required', 'string', 'regex:/^(unfulfilled|[1-9][0-9]{0,18})$/'], 'lines.*.return_mode' => 'sometimes|required|in:unfulfilled,transit,completed', 'lines.*.qty' => 'required|string|max:20', 'refund_now' => 'sometimes|boolean', 'money_account_id' => 'nullable|integer|min:1', 'overdraft_confirmed' => 'sometimes|boolean'];
+    }
+
+    public function returnPreview(Request $r, string $tenant, int $document, DocumentService $service): JsonResponse
+    {
+        return response()->json(['data' => self::json($service->returnPreview(auth('tenant')->id(), $document, $r->validate($this->returnRules())))]);
     }
 
     public function cancel(Request $r, string $tenant, string $source, int $id): JsonResponse

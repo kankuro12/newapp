@@ -4,22 +4,137 @@ import { expect, it, vi } from 'vitest';
 import Pos from './Pos';
 import { Context } from '../lib/context';
 import type { Business } from '../lib/types';
-const state=vi.hoisted(()=>({request:vi.fn(),save:vi.fn()}));
-vi.mock('../lib/api',()=>({ApiError:class extends Error{},useOnline:()=>true,request:state.request,useLiveData:()=>({}),useSave:()=>({busy:false,uncertain:false,save:state.save}),useData:(path:string)=>({loading:false,reload:vi.fn(),data:path.includes('/pos/config')?{data:{methods:['quantity'],units:{unit:['count','1','1']},resources:[]}}:path.includes('/items?')?{data:[{id:'5',name:'Work',kind:'service',sale_price_paisa:'10000',unit_label:'unit',pos_unit:'unit'}],last_page:1}:path.includes('/basket-offers')?{data:[{id:'7',name:'Save ten',discount_mode:'fixed',discount_value:'1000',minimum_spend_paisa:'0',starts_bs:null,ends_bs:null}]}:{data:{accounts:[{id:'1',name:'Cash'}]}}})}));
-vi.mock('@ionic/react',()=>({IonButton:({children,type='button',...props}:React.ButtonHTMLAttributes<HTMLButtonElement>)=><button type={type} {...props}>{children}</button>,IonIcon:()=>null,IonSpinner:()=>null}));
-vi.mock('./Records',()=>({Pagination:()=>null}));vi.mock('./CatalogTools',()=>({CategoryFilter:()=>null}));vi.mock('./BarcodeTools',()=>({ScanItem:()=>null}));vi.mock('./PriceLists',()=>({PriceListSelect:()=>null}));vi.mock('../components/Picker',()=>({default:()=>null}));
-it('invalidates previous preview when choosing an offer and sends only fresh reviewed saving',async()=>{
-  const resolve:Array<(value:unknown)=>void>=[];state.request.mockImplementation(()=>new Promise(done=>resolve.push(done)));state.save.mockClear();
-  render(<MemoryRouter><Context.Provider value={{base:'/api/app/shop',path:'/app/shop',business:{id:'1',role:'owner',pos_profile:'general'} as Business,today:20830103,revision:0,changed:()=>{},t:s=>s,locale:'en'}}><Pos/></Context.Provider></MemoryRouter>);
-  fireEvent.click(screen.getByRole('button',{name:/Work रु/}));fireEvent.click(screen.getByRole('button',{name:'Add to cart'}));
-  await waitFor(()=>expect(resolve).toHaveLength(1));resolve[0]({data:{lines:[{item_id:'5',qty_milli:'1000',unit_price_paisa:'10000',total_paisa:'10000'}],total_paisa:'10000',fingerprint:'a'.repeat(64)}});
-  await waitFor(()=>expect(screen.getByRole('button',{name:'Save bill + payment'})).toBeEnabled());
-  fireEvent.change(screen.getByLabelText('Basket offer (optional)'),{target:{value:'7'}});
-  expect(screen.getByRole('button',{name:'Save bill + payment'})).toBeDisabled();
-  await waitFor(()=>expect(resolve).toHaveLength(2));expect(JSON.parse(state.request.mock.calls[1][1].body)).toMatchObject({basket_offer_id:'7'});
-  resolve[1]({data:{lines:[{item_id:'5',qty_milli:'1000',unit_price_paisa:'10000',gross_paisa:'10000',before_offer_paisa:'10000',line_discount_paisa:'1000',total_paisa:'10170'}],total_paisa:'10170',invoice_discount_paisa:'0',tax_paisa:'1170',basket_offer:{name:'Save ten',discount_paisa:'1000',allocation_mode:'line'},fingerprint:'b'.repeat(64)}});
-  await waitFor(()=>expect(screen.getByRole('button',{name:'Save bill + payment'})).toBeEnabled());expect(screen.getByText('Save ten')).toBeInTheDocument();
-  expect(screen.getByText('रु 100.00',{selector:'strong'})).toBeInTheDocument();expect(screen.getByText('रु 11.70',{selector:'strong'})).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button',{name:'Save bill + payment'}));
-  expect(state.save.mock.calls[0][1]).toMatchObject({basket_offer_id:'7',expected_total_paisa:'10170',expected_fingerprint:'b'.repeat(64),paid_now:'101.70'});
+const state = vi.hoisted(() => ({ request: vi.fn(), save: vi.fn() }));
+vi.mock('../lib/api', () => ({
+  ApiError: class extends Error {},
+  useOnline: () => true,
+  request: state.request,
+  useLiveData: () => ({}),
+  useSave: () => ({ busy: false, uncertain: false, save: state.save }),
+  useData: (path: string) => ({
+    loading: false,
+    reload: vi.fn(),
+    data: path.includes('/pos/config')
+      ? { data: { methods: ['quantity'], units: { unit: ['count', '1', '1'] }, resources: [] } }
+      : path.includes('/items?')
+        ? {
+            data: [
+              {
+                id: '5',
+                name: 'Work',
+                kind: 'service',
+                sale_price_paisa: '10000',
+                unit_label: 'unit',
+                pos_unit: 'unit',
+              },
+            ],
+            last_page: 1,
+          }
+        : path.includes('/basket-offers')
+          ? {
+              data: [
+                {
+                  id: '7',
+                  name: 'Save ten',
+                  discount_mode: 'fixed',
+                  discount_value: '1000',
+                  minimum_spend_paisa: '0',
+                  starts_bs: null,
+                  ends_bs: null,
+                },
+              ],
+            }
+          : { data: { accounts: [{ id: '1', name: 'Cash' }] } },
+  }),
+}));
+vi.mock('@ionic/react', () => ({
+  IonButton: ({
+    children,
+    type = 'button',
+    ...props
+  }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+    <button type={type} {...props}>
+      {children}
+    </button>
+  ),
+  IonIcon: () => null,
+  IonSpinner: () => null,
+}));
+vi.mock('./Records', () => ({ Pagination: () => null }));
+vi.mock('./CatalogTools', () => ({ CategoryFilter: () => null }));
+vi.mock('./BarcodeTools', () => ({ ScanItem: () => null }));
+vi.mock('./PriceLists', () => ({ PriceListSelect: () => null }));
+vi.mock('../components/Picker', () => ({ default: () => null }));
+it('invalidates previous preview when choosing an offer and sends only fresh reviewed saving', async () => {
+  const resolve: Array<(value: unknown) => void> = [];
+  state.request.mockImplementation(() => new Promise((done) => resolve.push(done)));
+  state.save.mockClear();
+  render(
+    <MemoryRouter>
+      <Context.Provider
+        value={{
+          base: '/api/app/shop',
+          path: '/app/shop',
+          business: { id: '1', role: 'owner', pos_profile: 'general' } as Business,
+          today: 20830103,
+          revision: 0,
+          changed: () => {},
+          t: (s) => s,
+          locale: 'en',
+        }}
+      >
+        <Pos />
+      </Context.Provider>
+    </MemoryRouter>,
+  );
+  fireEvent.click(screen.getByRole('button', { name: /Work रु/ }));
+  fireEvent.click(screen.getByRole('button', { name: 'Add to cart' }));
+  await waitFor(() => expect(resolve).toHaveLength(1));
+  resolve[0]({
+    data: {
+      lines: [{ item_id: '5', qty_milli: '1000', unit_price_paisa: '10000', total_paisa: '10000' }],
+      total_paisa: '10000',
+      fingerprint: 'a'.repeat(64),
+    },
+  });
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: 'Save bill + payment' })).toBeEnabled(),
+  );
+  fireEvent.change(screen.getByLabelText('Basket offer (optional)'), { target: { value: '7' } });
+  expect(screen.getByRole('button', { name: 'Save bill + payment' })).toBeDisabled();
+  await waitFor(() => expect(resolve).toHaveLength(2));
+  expect(JSON.parse(state.request.mock.calls[1][1].body)).toMatchObject({ basket_offer_id: '7' });
+  resolve[1]({
+    data: {
+      lines: [
+        {
+          item_id: '5',
+          qty_milli: '1000',
+          unit_price_paisa: '10000',
+          gross_paisa: '10000',
+          before_offer_paisa: '10000',
+          line_discount_paisa: '1000',
+          total_paisa: '10170',
+        },
+      ],
+      total_paisa: '10170',
+      invoice_discount_paisa: '0',
+      tax_paisa: '1170',
+      basket_offer: { name: 'Save ten', discount_paisa: '1000', allocation_mode: 'line' },
+      fingerprint: 'b'.repeat(64),
+    },
+  });
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: 'Save bill + payment' })).toBeEnabled(),
+  );
+  expect(screen.getByText('Save ten')).toBeInTheDocument();
+  expect(screen.getByText('रु 100.00', { selector: 'strong' })).toBeInTheDocument();
+  expect(screen.getByText('रु 11.70', { selector: 'strong' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Save bill + payment' }));
+  expect(state.save.mock.calls[0][1]).toMatchObject({
+    basket_offer_id: '7',
+    expected_total_paisa: '10170',
+    expected_fingerprint: 'b'.repeat(64),
+    paid_now: '101.70',
+  });
 });

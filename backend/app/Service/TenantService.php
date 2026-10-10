@@ -20,7 +20,7 @@ class TenantService
                 $a->fail('Create branches from the main business.');
             }
             try {
-                $branch = $this->create($actor, ['name' => $input['name'], 'parent_tenant_id' => $parent->id, 'pos_profile' => $input['pos_profile'], ...$parent->only(['address', 'phone', 'pan', 'default_locale', 'tax_recording_enabled', 'default_tax_bps'])]);
+                $branch = $this->create($actor, ['name' => $input['name'], 'parent_tenant_id' => $parent->id, 'billing_account_id' => $parent->billing_account_id, 'pos_profile' => $input['pos_profile'], ...$parent->only(['address', 'phone', 'pan', 'default_locale', 'tax_recording_enabled', 'default_tax_bps'])]);
             } finally {
                 app(CurrentTenant::class)->set($parent);
             }
@@ -34,7 +34,16 @@ class TenantService
         abort_if(DB::table('users')->where('id', $actor)->whereNotNull('disabled_at')->exists(), 403);
 
         return DB::transaction(function () use ($actor, $input) {
-            $tenant = Tenant::create([...$input, 'slug' => (Str::slug($input['name']) ?: 'business').'-'.Str::lower(Str::random(6)), 'trial_ends_at' => now()->addDays(14), 'access_status' => 'trial']);
+            $billing = app(BillingService::class);
+            $account = isset($input['billing_account_id']) ? $billing->account($actor, (int) $input['billing_account_id']) : $billing->defaultAccount($actor, $input['name']);
+            $entitlements = $billing->prepareBusiness($actor, (int) $account->id);
+            $type = $input['business_type'] ?? $input['pos_profile'] ?? 'general';
+            abort_unless(in_array($type, PosService::PROFILES, true), 422, 'Choose one business type.');
+            $billing->requireProduct((int) $account->id, $type === 'general' ? 'bookkeeping' : $type);
+            unset($input['business_type']);
+            $input['pos_profile'] = $type;
+            $input['billing_account_id'] = $account->id;
+            $tenant = Tenant::create([...$input, 'slug' => (Str::slug($input['name']) ?: 'business').'-'.Str::lower(Str::random(6)), 'trial_ends_at' => $entitlements['end_at'] ?? now()->addDays(14), 'access_until' => $entitlements['status'] === 'active' ? $entitlements['end_at'] : null, 'access_status' => $entitlements['status'] === 'active' ? 'active' : 'trial']);
             DB::table('tenant_user')->insert(['tenant_id' => $tenant->id, 'user_id' => $actor, 'role' => 'owner', 'active' => true]);
             app(CurrentTenant::class)->set($tenant);
             try {

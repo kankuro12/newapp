@@ -10,7 +10,7 @@
 - Money: integer paisa. Qty: integer thousandths. Never JavaScript/PHP money floats.
 - Preserve posting cleanup and reversal paths.
 - No dairy source or database changes. Do not share APP_KEY, storage or sessions.
-- No Git stage/commit/push/reset, branch creation/switch, history rewrite or .gitignore
-  edits unless user explicitly asks. Initial cloning was specifically authorized.
+- No Git stage/commit/push/reset, branch creation/switch, history rewrite or .gitignore edits unless
+  user explicitly asks. Initial cloning was specifically authorized.
 - Do not spawn subagents without user authorization.
 - Short handoff: changed files, behavior, checks and unverified items.

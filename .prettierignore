@@ -1,0 +1,10 @@
+**/node_modules/**
+backend/vendor/**
+backend/storage/**
+backend/bootstrap/cache/**
+frontend/dist/**
+.git/**
+.codex/**
+.agents/**
+graphify-out/**
+artifacts/**/*.txt

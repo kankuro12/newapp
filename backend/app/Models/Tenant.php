@@ -10,6 +10,6 @@ class Tenant extends Model
 
     protected function casts(): array
     {
-        return ['opening_finalized_at' => 'datetime', 'access_until' => 'datetime', 'trial_ends_at' => 'datetime', 'tax_recording_enabled' => 'boolean'];
+        return ['package_enabled' => 'boolean', 'opening_finalized_at' => 'datetime', 'access_until' => 'datetime', 'trial_ends_at' => 'datetime', 'tax_recording_enabled' => 'boolean'];
     }
 }

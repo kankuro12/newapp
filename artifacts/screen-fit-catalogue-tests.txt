@@ -1,0 +1,13 @@
+
+> frontend@0.0.1 test.unit
+> vitest "--run" "src/pages/Masters.screen-fit.test.tsx" "src/pages/Reports.test.tsx" "src/pages/Businesses.test.tsx" "src/pages/MeasurementSetup.test.tsx"
+
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+
+ Test Files  4 passed (4)
+      Tests  12 passed (12)
+   Start at  17:52:27
+   Duration  8.40s (transform 1.12s, setup 2.20s, import 3.08s, tests 3.57s, environment 7.87s)
+

@@ -375,51 +375,132 @@ class DocumentService
         });
     }
 
+    private function returnPlan(int $actor, Tenant $tenant, int $sourceId, array $input): array
+    {
+        $this->a->authorize($actor, ['owner', 'manager', 'accountant']);
+        $original = $this->a->requireRow('documents', $sourceId);
+        if ($original->status !== 'posted' || ! in_array($original->type, ['sale', 'purchase'])) {
+            $this->a->fail('Choose posted sale/purchase.');
+        }
+        $date = NepaliDate::normalize($input['business_date_bs']);
+        $this->a->assertOpenDate($tenant, $date);
+        if ($date < $original->business_date_bs) {
+            $this->a->fail('Return date precedes original bill.');
+        }
+
+        $transit = collect($input['lines'])->contains(fn ($row) => ($row['return_mode'] ?? null) === 'transit');
+        if ($transit && (! isset($input['version'], $input['workflow_version']) || ($original->fulfilment_policy ?? null) !== 'bill_first')) {
+            $this->a->fail('Review the current bill and order before a transit return.', 'version');
+        }
+        if (isset($input['version'])) {
+            abort_unless($original->version == $input['version'], 409, 'Source bill changed. Review again.');
+        }
+        $workflow = $original->workflow_id ? $this->a->requireRow('business_workflows', $original->workflow_id) : null;
+        if (isset($input['workflow_version'])) {
+            abort_unless($workflow && $workflow->version == $input['workflow_version'], 409, 'Source order changed. Review again.');
+        }
+        $newLines = [];
+        $history = [];
+        $returnAllocations = [];
+
+        $seen = [];
+        foreach ($input['lines'] as $i => $row) {
+            $line = $this->a->requireRow('document_lines', $row['source_line_id']);
+            if ($line->document_id != $sourceId || isset($seen[$line->id])) {
+                $this->a->fail('Invalid or duplicate original line.');
+            } $seen[$line->id] = true;
+            if (($original->fulfilment_policy ?? null) !== 'bill_first' && (isset($row['return_source']) || ($row['return_mode'] ?? 'completed') !== 'completed')) {
+                $this->a->fail('This invoice has no bill-first fulfilment source. Use its ordinary return.', 'lines.'.$i.'.return_source');
+            }
+            $prior = $this->a->rows('document_lines')->where('source_line_id', $line->id)->whereIn('document_id', $this->a->rows('documents')->where('status', 'posted')->select('id'))->get();
+            $returnedQty = (int) $prior->sum('qty_milli');
+            $history[] = ['source_line_id' => (int) $line->id, 'prior' => $prior->all()];
+            $qty = Money::quantity($row['qty']);
+            if ($qty <= 0 || $returnedQty + $qty > $line->qty_milli) {
+                $this->a->fail('Return exceeds available quantity.', 'lines.'.$i.'.qty');
+            }
+            $new = ['position' => $i + 1, 'item_id' => $line->item_id, 'source_line_id' => $line->id, 'description' => $line->description, 'unit_snapshot' => $line->unit_snapshot, 'qty_milli' => $qty, 'unit_price_paisa' => $line->unit_price_paisa, 'tax_category' => $line->tax_category, 'tax_bps' => $line->tax_bps];
+            if ($line->measurement_snapshot) {
+                $new['measurement_snapshot'] = json_encode(['mode' => 'return', 'source_measurement' => json_decode($line->measurement_snapshot, true)]);
+            }
+            foreach (['gross_paisa', 'line_discount_paisa', 'invoice_discount_paisa', 'net_base_paisa', 'tax_paisa', 'inventory_cost_paisa'] as $component) {
+                $new[$component] = Money::multiplyDivide((int) $line->$component, $returnedQty + $qty, (int) $line->qty_milli) - (int) $prior->sum($component);
+            }
+            if (($original->fulfilment_policy ?? null) === 'bill_first') {
+                $allocation = app(FulfilmentService::class)->billFirstReturnPlan($original, $line, $row, $qty, $date, $new);
+                $returnAllocations[$i + 1] = $allocation;
+                $new['inventory_cost_paisa'] = $allocation['inventory_cost_paisa'];
+            }
+            $new['total_paisa'] = $new['net_base_paisa'] + $new['tax_paisa'];
+            $newLines[] = $new;
+        }
+        $total = array_sum(array_column($newLines, 'total_paisa'));
+        $stockContext = [];
+        $sourceContext = [];
+        foreach ($newLines as $line) {
+            $allocation = $returnAllocations[$line['position']] ?? null;
+            if ($allocation && $allocation['dispatch_allocation_id']) {
+                $dispatch = $this->a->requireRow('workflow_dispatch_allocations', $allocation['dispatch_allocation_id']);
+                $physical = $this->a->requireRow('workflow_fulfilment_lines', $dispatch->fulfilment_line_id);
+                $stage = $this->a->requireRow('workflow_fulfilments', $physical->fulfilment_id);
+                $sourceContext[] = ['dispatch' => (array) $dispatch, 'stage' => (array) $stage, 'package' => (array) $this->a->rows('workflow_packages')->where('fulfilment_id', $stage->id)->first()];
+            }
+            $item = $this->a->requireRow('items', $line['item_id']);
+            if ($item->kind !== 'stock' || ($allocation && $allocation['dispatch_allocation_id'] === null)) {
+                continue;
+            }
+            if ($date < ($tenant->last_stock_date_bs ?? 0)) {
+                $this->a->fail('Stock date precedes last stock transaction.', 'business_date_bs');
+            }
+            $pool = $this->a->rows('inventory_balances')->where('item_id', $line['item_id'])->first();
+            $stockContext[$line['item_id']] ??= ['qty_milli' => (int) ($pool->qty_milli ?? 0), 'value_paisa' => (int) ($pool->value_paisa ?? 0)];
+        }
+        $balance = $this->money->invoiceBalance($sourceId);
+        $refund = ! empty($input['refund_now']) ? min($total, max(0, $total - $balance['signed_due_paisa'])) : 0;
+        $refundAccount = null;
+        if ($refund > 0) {
+            if (empty($input['money_account_id'])) {
+                $this->a->fail('Choose payment account.', 'money_account_id');
+            }
+            $refundAccount = $this->a->requireRow('accounts', $input['money_account_id'] ?? 0);
+            if (! $refundAccount->is_money || $refundAccount->archived_at) {
+                $this->a->fail('Choose active cash/bank account.', 'money_account_id');
+            }
+        }
+        $plan = ['business_date_bs' => $date, 'total_paisa' => $total, 'lines' => $newLines, 'return_allocations' => $returnAllocations, 'refund_paisa' => $refund];
+        $context = ['original' => (array) $original, 'workflow' => (array) $workflow, 'history' => $history, 'sources' => $sourceContext, 'stock' => $stockContext, 'last_stock_date_bs' => $tenant->last_stock_date_bs, 'invoice_balance' => $balance, 'refund_account' => (array) $refundAccount, 'reason' => $input['reason'], 'refund_now' => (bool) ($input['refund_now'] ?? false), 'overdraft_confirmed' => (bool) ($input['overdraft_confirmed'] ?? false)];
+        $plan['fingerprint'] = hash_hmac('sha256', json_encode(['plan' => $plan, 'context' => $context], JSON_THROW_ON_ERROR), config('app.key'));
+
+        return $plan;
+    }
+
+    public function returnPreview(int $actor, int $sourceId, array $input): array
+    {
+        return DB::transaction(function () use ($actor, $sourceId, $input) {
+            $tenant = $this->a->lockTenant(app(CurrentTenant::class)->id(), $actor);
+
+            return $this->returnPlan($actor, $tenant, $sourceId, $input);
+        });
+    }
+
     public function createReturn(int $actor, int $sourceId, array $input, string $uuid): array
     {
         return $this->a->mutate($actor, $uuid, 'document.return.'.$sourceId, $input, function (Tenant $tenant) use ($actor, $sourceId, $input) {
-            $this->a->authorize($actor, ['owner', 'manager', 'accountant']);
+            $plan = $this->returnPlan($actor, $tenant, $sourceId, $input);
+            $transit = collect($plan['return_allocations'])->contains(fn ($row) => $row['return_mode'] === 'transit');
+            if ($transit && empty($input['expected_fingerprint'])) {
+                $this->a->fail('Review the transit return before saving.', 'expected_fingerprint');
+            }
+            if (isset($input['expected_fingerprint'])) {
+                abort_unless(hash_equals($plan['fingerprint'], $input['expected_fingerprint']), 409, 'Return changed. Review again.');
+            }
             $original = $this->a->requireRow('documents', $sourceId);
-            if ($original->status !== 'posted' || ! in_array($original->type, ['sale', 'purchase'])) {
-                $this->a->fail('Choose posted sale/purchase.');
-            }
-            $date = NepaliDate::normalize($input['business_date_bs']);
-            $this->a->assertOpenDate($tenant, $date);
-            if ($date < $original->business_date_bs) {
-                $this->a->fail('Return date precedes original bill.');
-            }
+            $date = $plan['business_date_bs'];
+            $newLines = $plan['lines'];
+            $returnAllocations = $plan['return_allocations'];
+            $total = $plan['total_paisa'];
             $type = $original->type.'_return';
-            $newLines = [];
-            $returnAllocations = [];
             $journalLines = [];
-            $seen = [];
-            foreach ($input['lines'] as $i => $row) {
-                $line = $this->a->requireRow('document_lines', $row['source_line_id']);
-                if ($line->document_id != $sourceId || isset($seen[$line->id])) {
-                    $this->a->fail('Invalid or duplicate original line.');
-                } $seen[$line->id] = true;
-                $prior = $this->a->rows('document_lines')->where('source_line_id', $line->id)->whereIn('document_id', $this->a->rows('documents')->where('status', 'posted')->select('id'))->get();
-                $returnedQty = (int) $prior->sum('qty_milli');
-                $qty = Money::quantity($row['qty']);
-                if ($qty <= 0 || $returnedQty + $qty > $line->qty_milli) {
-                    $this->a->fail('Return exceeds available quantity.', 'lines.'.$i.'.qty');
-                }
-                $new = ['position' => $i + 1, 'item_id' => $line->item_id, 'source_line_id' => $line->id, 'description' => $line->description, 'unit_snapshot' => $line->unit_snapshot, 'qty_milli' => $qty, 'unit_price_paisa' => $line->unit_price_paisa, 'tax_category' => $line->tax_category, 'tax_bps' => $line->tax_bps];
-                if ($line->measurement_snapshot) {
-                    $new['measurement_snapshot'] = json_encode(['mode' => 'return', 'source_measurement' => json_decode($line->measurement_snapshot, true)]);
-                }
-                foreach (['gross_paisa', 'line_discount_paisa', 'invoice_discount_paisa', 'net_base_paisa', 'tax_paisa', 'inventory_cost_paisa'] as $component) {
-                    $new[$component] = Money::multiplyDivide((int) $line->$component, $returnedQty + $qty, (int) $line->qty_milli) - (int) $prior->sum($component);
-                }
-                if (($original->fulfilment_policy ?? null) === 'bill_first') {
-                    $allocation = app(FulfilmentService::class)->billFirstReturnPlan($original, $line, $row, $qty, $date, $new);
-                    $returnAllocations[$i + 1] = $allocation;
-                    $new['inventory_cost_paisa'] = $allocation['inventory_cost_paisa'];
-                }
-                $new['total_paisa'] = $new['net_base_paisa'] + $new['tax_paisa'];
-                $newLines[] = $new;
-            }
-            $total = array_sum(array_column($newLines, 'total_paisa'));
             $sourceOrder = $original->source_order_snapshot ? json_decode($original->source_order_snapshot, true) : null;
             if ($sourceOrder) {
                 $sourceOrder['allocation'] = 'cumulative_source_bill_return';
@@ -540,7 +621,7 @@ class DocumentService
                     $this->a->fail('Cancel related refunds first.');
                 }
             }
-            app(FulfilmentService::class)->beforeBillCancellation($actor, $doc);
+            app(FulfilmentService::class)->beforeBillCancellation($actor, $doc, $date);
             foreach ($this->a->rows('stock_movements')->whereIn('document_line_id', $this->a->rows('document_lines')->where('document_id', $id)->select('id'))->where('source_event', 'post')->orderByDesc('id')->get() as $movement) {
                 $this->stock->reverse($actor, (int) $movement->id, $date);
             }

@@ -1,0 +1,13 @@
+
+> frontend@0.0.1 test.unit
+> vitest "--run" "src/components/FulfilmentEntry.test.tsx"
+
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  08:48:29
+   Duration  10.14s (transform 434ms, setup 1.26s, import 1.32s, tests 2.10s, environment 4.02s)
+

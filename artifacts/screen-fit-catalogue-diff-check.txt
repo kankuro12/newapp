@@ -1,0 +1,14 @@
+warning: LF will be replaced by CRLF in frontend/public/help/user-manual.html.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/lib/i18n.ts.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/pages/Businesses.tsx.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/pages/Masters.tsx.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/pages/MeasurementSetup.test.tsx.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/pages/Reports.tsx.
+The file will have its original line endings in your working directory
+warning: LF will be replaced by CRLF in frontend/src/theme/app.css.
+The file will have its original line endings in your working directory

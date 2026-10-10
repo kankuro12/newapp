@@ -1,0 +1,1 @@
+ INVALID OPTION The "--no-interaction" option does not exist.

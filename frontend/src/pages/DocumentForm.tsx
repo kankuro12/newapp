@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useWorkspace } from '../lib/context';
 import { useData, useSave } from '../lib/api';
 import { bsDisplay, calculate, currency, format, amount, quantity } from '../lib/money';
-import type { Doc, Item, Lookup, Party, Workflow }  from '../lib/types';
+import type { Doc, Item, Lookup, Party, Workflow } from '../lib/types';
 import Picker from '../components/Picker';
 import EntrySteps from '../components/EntrySteps';
 import { applyQuantityPrices } from '../lib/pricing';
@@ -15,43 +15,986 @@ import { OfferReview } from './DocumentOffers';
 import { useReviewedOffer } from '../lib/useReviewedOffer';
 import { Check, Errors, Field, Heading, Loading, Select, Submit } from '../components/ui';
 
-interface Line { item_id?: string; expense_category_id?: string; name: string; unit: string; qty: string; unit_price: string; discount: string; tax_bps: string; tax_rate?: string; discount_mode?: string; tax_category: string; available?: string }
+interface Line {
+  item_id?: string;
+  expense_category_id?: string;
+  name: string;
+  unit: string;
+  qty: string;
+  unit_price: string;
+  discount: string;
+  tax_bps: string;
+  tax_rate?: string;
+  discount_mode?: string;
+  tax_category: string;
+  available?: string;
+}
 export default function DocumentForm({ workflowKind }: { workflowKind?: string } = {}) {
-  const { type: routeType = 'sale' } = useParams(); const type = workflowKind === 'purchase_order' ? 'purchase' : workflowKind ? 'sale' : routeType; const { base, path, today, business, changed, t } = useWorkspace(); const navigate = useNavigate(); const lookup = useData<{ data: Lookup }>(`${base}/lookup`); const [party, setParty] = useState<Party>(); const [lines, setLines] = useState<Line[]>([]); const [date, setDate] = useState(bsDisplay(today)); const [notes, setNotes] = useState(''); const [supplierRef, setSupplierRef] = useState(''); const [discount, setDiscount] = useState('0'); const [payMode, setPayMode] = useState('paid'); const [paid, setPaid] = useState('0'); const [account, setAccount] = useState(''); const [tender, setTender] = useState(''); const [recoverable, setRecoverable] = useState(false); const [overdraft, setOverdraft] = useState(false); const form = useSave();
-  const [basketOffer,setBasketOffer]=useState(''); const locked=form.busy||form.uncertain; const [priceList,setPriceList]=useState('');const expense = type === 'expense'; const sale = type === 'sale'; const title = workflowKind ? ({quote:'New quote',sales_order:'New sales order',purchase_order:'New purchase order'}[workflowKind] || 'New order') : sale ? 'New sale' : expense ? 'Record expense' : 'New purchase'; const accounts = lookup.data?.data.accounts || []; const selectedAccount = account || accounts[0]?.id || ''; const [discountMode,setDiscountMode] = useState('fixed'); const [promotional,setPromotional] = useState(false); let preview = { invoiceDiscount: 0n, lines: [] as ReturnType<typeof calculate>['lines'], subtotal: 0n, tax: 0n, total: 0n }; let previewError: Error | undefined;
-  const [params] = useSearchParams(); const workflowId = workflowKind ? params.get('edit') : null; const workflowSource = workflowKind ? workflowId || params.get('copy') : null; const draftId = params.get('draft'); const workflowData = useData<{data:Workflow}>(workflowSource ? `${base}/workflow/${workflowSource}` : null); const [niche,setNiche] = useState(['glass','wood'].includes(business.pos_profile||'') ? business.pos_profile! : 'general'); const [jobTitle,setJobTitle] = useState(''); const [reference,setReference] = useState(''); const [specifications,setSpecifications] = useState(''); const [validUntil,setValidUntil] = useState(''); const draftData = useData<{ data: Doc & { vat_recoverable: boolean; supplier_bill_number?: string; due_date_bs?: number; supplier_bill_date_bs?: number } }>(draftId ? `${base}/document/${draftId}` : null); const [due,setDue] = useState(''); const [supplierDate,setSupplierDate] = useState('');
-  useEffect(() => { if (!draftData.data) return; const doc = draftData.data.data; setPromotional(doc.lines.some(line => line.unit_price_paisa === '0')); setParty(doc.party_snapshot); setDate(bsDisplay(doc.business_date_bs)); setNotes(doc.notes || ''); setSupplierRef(doc.supplier_bill_number || ''); setSupplierDate(doc.supplier_bill_date_bs ? bsDisplay(doc.supplier_bill_date_bs) : ''); setDue(doc.due_date_bs ? bsDisplay(doc.due_date_bs) : ''); setBasketOffer(String(doc.draft_input?.basket_offer_id || '')); setDiscountMode(doc.draft_input?.invoice_discount_bps === undefined ? 'fixed' : 'percent'); setDiscount(doc.draft_input?.invoice_discount_bps === undefined ? doc.draft_input?.invoice_discount ?? format(doc.invoice_discount_paisa) : format(doc.draft_input.invoice_discount_bps)); setRecoverable(!!doc.vat_recoverable); setPayMode('later'); setLines(doc.lines.map((line,i) => { const raw=doc.draft_input?.lines?.[i]; return { item_id: line.item_id || undefined, expense_category_id: line.expense_category_id || undefined, name: line.description, unit: line.unit_snapshot, qty: raw?.qty ?? format(line.qty_milli, 3), unit_price: raw?.unit_price ?? format(line.unit_price_paisa), discount: raw?.discount_bps === undefined ? raw?.discount ?? format(line.line_discount_paisa) : format(raw.discount_bps), discount_mode: raw?.discount_bps === undefined ? 'fixed' : 'percent', tax_bps: String(raw?.tax_bps ?? line.tax_bps), tax_category: raw?.tax_category ?? line.tax_category }; })); }, [draftData.data]);
-  useEffect(() => { if (!workflowData.data) return; const row = workflowData.data.data; setParty(row.party_snapshot); setDate(workflowId ? bsDisplay(row.business_date_bs) : bsDisplay(today)); setNotes(row.notes || ''); setNiche(row.niche); setJobTitle(row.title || ''); setReference(row.reference || ''); setSpecifications(row.specifications || ''); setValidUntil(workflowId && row.valid_until_bs ? bsDisplay(row.valid_until_bs) : ''); setDue(row.due_date_bs ? bsDisplay(row.due_date_bs) : ''); const raw=row.bill_input?.offer_input; setBasketOffer(workflowId ? String(row.bill_input?.basket_offer_id || '') : ''); setDiscountMode(raw?.invoice_discount_bps === undefined ? 'fixed' : 'percent'); setDiscount(raw?.invoice_discount_bps === undefined ? raw?.invoice_discount ?? format(row.invoice_discount_paisa) : format(raw.invoice_discount_bps)); setPromotional(row.lines.some(line=>line.unit_price_paisa==='0')); setLines(row.lines.map((line,i)=>{ const entry=raw?.lines?.[i]; return {item_id:line.item_id||undefined,name:line.description,unit:line.unit_snapshot,qty:entry?.qty ?? format(line.qty_milli,3),unit_price:entry?.unit_price ?? format(line.unit_price_paisa),discount:entry?.discount_bps === undefined ? entry?.discount ?? format(line.line_discount_paisa) : format(entry.discount_bps),discount_mode:entry?.discount_bps === undefined ? 'fixed' : 'percent',tax_bps:String(entry?.tax_bps ?? line.tax_bps),tax_category:entry?.tax_category ?? line.tax_category};})); }, [workflowData.data,workflowId,today]);
-  function priced(line: Line) { return { item_id: line.item_id, expense_category_id: line.expense_category_id, qty: line.qty, unit_price: line.unit_price, ...(line.discount_mode === 'percent' ? { discount_bps: amount(line.discount).toString() } : { discount: line.discount }), tax_bps: line.tax_rate === undefined ? line.tax_bps : amount(line.tax_rate).toString(), tax_category: line.tax_category }; }
-  try { if (lines.length) preview = calculate(lines.map(priced), discountMode === 'fixed' ? discount : '0', discountMode === 'percent' ? amount(discount).toString() : undefined); } catch (error) { previewError = error as Error; }
-  const reviewEndpoint=workflowKind ? workflowId ? base+'/workflow/'+workflowId+'/preview' : base+'/workflows/preview' : draftId ? base+'/document/'+draftId+'/draft/preview' : base+'/documents/'+type+'/preview';
-  let reviewInput:object={}; if (!previewError) reviewInput={kind:workflowKind,version:workflowId ? workflowData.data?.data.version : draftId ? draftData.data?.data.version : undefined,contact_id:party?.id,business_date_bs:date,lines:lines.map(priced),...(discountMode==='percent'?{invoice_discount_bps:amount(discount).toString()}:{invoice_discount:discount}),basket_offer_id:basketOffer||null,promotional_confirmed:promotional};
-  const offerReview=useReviewedOffer(reviewEndpoint,reviewInput,!!basketOffer&&sale&&lines.length>0&&!previewError,locked);
-  const offerBlocked=!!basketOffer&&!offerReview.preview; const proofInput=basketOffer ? {basket_offer_id:basketOffer,expected_fingerprint:offerReview.preview?.fingerprint} : {basket_offer_id:null};
-  if (basketOffer&&offerReview.preview) { const reviewed=offerReview.preview; preview={subtotal:BigInt(reviewed.subtotal_paisa),invoiceDiscount:BigInt(reviewed.invoice_discount_paisa),tax:BigInt(reviewed.tax_paisa),total:BigInt(reviewed.total_paisa),lines:reviewed.lines.map(line=>({gross:BigInt(line.gross_paisa),discount:BigInt(line.line_discount_paisa),base:BigInt(line.net_base_paisa),invoiceDiscount:BigInt(line.invoice_discount_paisa),tax:BigInt(line.tax_paisa),total:BigInt(line.total_paisa)}))}; }
-  let paidNow = 0n; let change = 0n; try { paidNow = payMode === 'paid' ? preview.total : payMode === 'partial' ? amount(paid || '0') : 0n; if (tender && sale) change = amount(tender) - paidNow; } catch (error) { previewError = error as Error; }
-  function addItem(row: Item | Party) {
-    const item = row as Item; const existing = lines.findIndex(line => line.item_id === item.id);
-    if (existing >= 0) { let qty: string; try { qty = format(quantity(lines[existing].qty) + 1000n, 3); } catch { return; } setLines(previous => previous.map((line, i) => i === existing ? { ...line, qty } : line)); return; }
-    setLines(previous => [...previous, { item_id: item.id, name: item.name, unit: item.unit_label, qty: '1', unit_price: format(item.suggested_price_paisa || (sale ? item.sale_price_paisa : item.last_purchase_price_paisa || item.sale_price_paisa)), discount: '0', tax_bps: business.tax_recording_enabled ? item.default_tax_bps : '0', tax_category: business.tax_recording_enabled ? item.default_tax_category : 'outside_scope', available: item.kind === 'stock' ? item.qty_milli : undefined }]);
+  const { type: routeType = 'sale' } = useParams();
+  const type = workflowKind === 'purchase_order' ? 'purchase' : workflowKind ? 'sale' : routeType;
+  const { base, path, today, business, changed, t } = useWorkspace();
+  const navigate = useNavigate();
+  const lookup = useData<{ data: Lookup }>(`${base}/lookup`);
+  const [party, setParty] = useState<Party>();
+  const [lines, setLines] = useState<Line[]>([]);
+  const [date, setDate] = useState(bsDisplay(today));
+  const [notes, setNotes] = useState('');
+  const [supplierRef, setSupplierRef] = useState('');
+  const [discount, setDiscount] = useState('0');
+  const [payMode, setPayMode] = useState('paid');
+  const [paid, setPaid] = useState('0');
+  const [account, setAccount] = useState('');
+  const [tender, setTender] = useState('');
+  const [recoverable, setRecoverable] = useState(false);
+  const [overdraft, setOverdraft] = useState(false);
+  const form = useSave();
+  const [basketOffer, setBasketOffer] = useState('');
+  const locked = form.busy || form.uncertain;
+  const [priceList, setPriceList] = useState('');
+  const expense = type === 'expense';
+  const sale = type === 'sale';
+  const title = workflowKind
+    ? { quote: 'New quote', sales_order: 'New sales order', purchase_order: 'New purchase order' }[
+        workflowKind
+      ] || 'New order'
+    : sale
+      ? 'New sale'
+      : expense
+        ? 'Record expense'
+        : 'New purchase';
+  const accounts = lookup.data?.data.accounts || [];
+  const selectedAccount = account || accounts[0]?.id || '';
+  const [discountMode, setDiscountMode] = useState('fixed');
+  const [promotional, setPromotional] = useState(false);
+  let preview = {
+    invoiceDiscount: 0n,
+    lines: [] as ReturnType<typeof calculate>['lines'],
+    subtotal: 0n,
+    tax: 0n,
+    total: 0n,
+  };
+  let previewError: Error | undefined;
+  const [params] = useSearchParams();
+  const workflowId = workflowKind ? params.get('edit') : null;
+  const workflowSource = workflowKind ? workflowId || params.get('copy') : null;
+  const draftId = params.get('draft');
+  const workflowData = useData<{ data: Workflow }>(
+    workflowSource ? `${base}/workflow/${workflowSource}` : null,
+  );
+  const [niche, setNiche] = useState(
+    ['glass', 'wood'].includes(business.pos_profile || '') ? business.pos_profile! : 'general',
+  );
+  const [jobTitle, setJobTitle] = useState('');
+  const [reference, setReference] = useState('');
+  const [specifications, setSpecifications] = useState('');
+  const [validUntil, setValidUntil] = useState('');
+  const draftData = useData<{
+    data: Doc & {
+      vat_recoverable: boolean;
+      supplier_bill_number?: string;
+      due_date_bs?: number;
+      supplier_bill_date_bs?: number;
+    };
+  }>(draftId ? `${base}/document/${draftId}` : null);
+  const [due, setDue] = useState('');
+  const [supplierDate, setSupplierDate] = useState('');
+  useEffect(() => {
+    if (!draftData.data) return;
+    const doc = draftData.data.data;
+    setPromotional(doc.lines.some((line) => line.unit_price_paisa === '0'));
+    setParty(doc.party_snapshot);
+    setDate(bsDisplay(doc.business_date_bs));
+    setNotes(doc.notes || '');
+    setSupplierRef(doc.supplier_bill_number || '');
+    setSupplierDate(doc.supplier_bill_date_bs ? bsDisplay(doc.supplier_bill_date_bs) : '');
+    setDue(doc.due_date_bs ? bsDisplay(doc.due_date_bs) : '');
+    setBasketOffer(String(doc.draft_input?.basket_offer_id || ''));
+    setDiscountMode(doc.draft_input?.invoice_discount_bps === undefined ? 'fixed' : 'percent');
+    setDiscount(
+      doc.draft_input?.invoice_discount_bps === undefined
+        ? (doc.draft_input?.invoice_discount ?? format(doc.invoice_discount_paisa))
+        : format(doc.draft_input.invoice_discount_bps),
+    );
+    setRecoverable(!!doc.vat_recoverable);
+    setPayMode('later');
+    setLines(
+      doc.lines.map((line, i) => {
+        const raw = doc.draft_input?.lines?.[i];
+        return {
+          item_id: line.item_id || undefined,
+          expense_category_id: line.expense_category_id || undefined,
+          name: line.description,
+          unit: line.unit_snapshot,
+          qty: raw?.qty ?? format(line.qty_milli, 3),
+          unit_price: raw?.unit_price ?? format(line.unit_price_paisa),
+          discount:
+            raw?.discount_bps === undefined
+              ? (raw?.discount ?? format(line.line_discount_paisa))
+              : format(raw.discount_bps),
+          discount_mode: raw?.discount_bps === undefined ? 'fixed' : 'percent',
+          tax_bps: String(raw?.tax_bps ?? line.tax_bps),
+          tax_category: raw?.tax_category ?? line.tax_category,
+        };
+      }),
+    );
+  }, [draftData.data]);
+  useEffect(() => {
+    if (!workflowData.data) return;
+    const row = workflowData.data.data;
+    setParty(row.party_snapshot);
+    setDate(workflowId ? bsDisplay(row.business_date_bs) : bsDisplay(today));
+    setNotes(row.notes || '');
+    setNiche(row.niche);
+    setJobTitle(row.title || '');
+    setReference(row.reference || '');
+    setSpecifications(row.specifications || '');
+    setValidUntil(workflowId && row.valid_until_bs ? bsDisplay(row.valid_until_bs) : '');
+    setDue(row.due_date_bs ? bsDisplay(row.due_date_bs) : '');
+    const raw = row.bill_input?.offer_input;
+    setBasketOffer(workflowId ? String(row.bill_input?.basket_offer_id || '') : '');
+    setDiscountMode(raw?.invoice_discount_bps === undefined ? 'fixed' : 'percent');
+    setDiscount(
+      raw?.invoice_discount_bps === undefined
+        ? (raw?.invoice_discount ?? format(row.invoice_discount_paisa))
+        : format(raw.invoice_discount_bps),
+    );
+    setPromotional(row.lines.some((line) => line.unit_price_paisa === '0'));
+    setLines(
+      row.lines.map((line, i) => {
+        const entry = raw?.lines?.[i];
+        return {
+          item_id: line.item_id || undefined,
+          name: line.description,
+          unit: line.unit_snapshot,
+          qty: entry?.qty ?? format(line.qty_milli, 3),
+          unit_price: entry?.unit_price ?? format(line.unit_price_paisa),
+          discount:
+            entry?.discount_bps === undefined
+              ? (entry?.discount ?? format(line.line_discount_paisa))
+              : format(entry.discount_bps),
+          discount_mode: entry?.discount_bps === undefined ? 'fixed' : 'percent',
+          tax_bps: String(entry?.tax_bps ?? line.tax_bps),
+          tax_category: entry?.tax_category ?? line.tax_category,
+        };
+      }),
+    );
+  }, [workflowData.data, workflowId, today]);
+  function priced(line: Line) {
+    return {
+      item_id: line.item_id,
+      expense_category_id: line.expense_category_id,
+      qty: line.qty,
+      unit_price: line.unit_price,
+      ...(line.discount_mode === 'percent'
+        ? { discount_bps: amount(line.discount).toString() }
+        : { discount: line.discount }),
+      tax_bps: line.tax_rate === undefined ? line.tax_bps : amount(line.tax_rate).toString(),
+      tax_category: line.tax_category,
+    };
   }
-  function changeLine(index: number, key: keyof Line, value: string) { setLines(previous => previous.map((line, i) => i === index ? { ...line, [key]: value } : line)); }
+  try {
+    if (lines.length)
+      preview = calculate(
+        lines.map(priced),
+        discountMode === 'fixed' ? discount : '0',
+        discountMode === 'percent' ? amount(discount).toString() : undefined,
+      );
+  } catch (error) {
+    previewError = error as Error;
+  }
+  const reviewEndpoint = workflowKind
+    ? workflowId
+      ? base + '/workflow/' + workflowId + '/preview'
+      : base + '/workflows/preview'
+    : draftId
+      ? base + '/document/' + draftId + '/draft/preview'
+      : base + '/documents/' + type + '/preview';
+  let reviewInput: object = {};
+  if (!previewError)
+    reviewInput = {
+      kind: workflowKind,
+      version: workflowId
+        ? workflowData.data?.data.version
+        : draftId
+          ? draftData.data?.data.version
+          : undefined,
+      contact_id: party?.id,
+      business_date_bs: date,
+      lines: lines.map(priced),
+      ...(discountMode === 'percent'
+        ? { invoice_discount_bps: amount(discount).toString() }
+        : { invoice_discount: discount }),
+      basket_offer_id: basketOffer || null,
+      promotional_confirmed: promotional,
+    };
+  const offerReview = useReviewedOffer(
+    reviewEndpoint,
+    reviewInput,
+    !!basketOffer && sale && lines.length > 0 && !previewError,
+    locked,
+  );
+  const offerBlocked = !!basketOffer && !offerReview.preview;
+  const proofInput = basketOffer
+    ? { basket_offer_id: basketOffer, expected_fingerprint: offerReview.preview?.fingerprint }
+    : { basket_offer_id: null };
+  if (basketOffer && offerReview.preview) {
+    const reviewed = offerReview.preview;
+    preview = {
+      subtotal: BigInt(reviewed.subtotal_paisa),
+      invoiceDiscount: BigInt(reviewed.invoice_discount_paisa),
+      tax: BigInt(reviewed.tax_paisa),
+      total: BigInt(reviewed.total_paisa),
+      lines: reviewed.lines.map((line) => ({
+        gross: BigInt(line.gross_paisa),
+        discount: BigInt(line.line_discount_paisa),
+        base: BigInt(line.net_base_paisa),
+        invoiceDiscount: BigInt(line.invoice_discount_paisa),
+        tax: BigInt(line.tax_paisa),
+        total: BigInt(line.total_paisa),
+      })),
+    };
+  }
+  let paidNow = 0n;
+  let change = 0n;
+  try {
+    paidNow = payMode === 'paid' ? preview.total : payMode === 'partial' ? amount(paid || '0') : 0n;
+    if (tender && sale) change = amount(tender) - paidNow;
+  } catch (error) {
+    previewError = error as Error;
+  }
+  function addItem(row: Item | Party) {
+    const item = row as Item;
+    const existing = lines.findIndex((line) => line.item_id === item.id);
+    if (existing >= 0) {
+      let qty: string;
+      try {
+        qty = format(quantity(lines[existing].qty) + 1000n, 3);
+      } catch {
+        return;
+      }
+      setLines((previous) => previous.map((line, i) => (i === existing ? { ...line, qty } : line)));
+      return;
+    }
+    setLines((previous) => [
+      ...previous,
+      {
+        item_id: item.id,
+        name: item.name,
+        unit: item.unit_label,
+        qty: '1',
+        unit_price: format(
+          item.suggested_price_paisa ||
+            (sale
+              ? item.sale_price_paisa
+              : item.last_purchase_price_paisa || item.sale_price_paisa),
+        ),
+        discount: '0',
+        tax_bps: business.tax_recording_enabled ? item.default_tax_bps : '0',
+        tax_category: business.tax_recording_enabled ? item.default_tax_category : 'outside_scope',
+        available: item.kind === 'stock' ? item.qty_milli : undefined,
+      },
+    ]);
+  }
+  function changeLine(index: number, key: keyof Line, value: string) {
+    setLines((previous) =>
+      previous.map((line, i) => (i === index ? { ...line, [key]: value } : line)),
+    );
+  }
   async function save(draft: boolean) {
     if (!lines.length || previewError || offerBlocked || locked) return;
-    if (workflowKind) { await form.save<Workflow>(workflowId ? base+'/workflow/'+workflowId : base+'/workflows', {...proofInput,kind:workflowKind,version:workflowId ? workflowData.data?.data.version : undefined,contact_id:party?.id,business_date_bs:date,due_date_bs:due||null,valid_until_bs:validUntil||null,niche,title:jobTitle||null,reference:reference||null,specifications:specifications||null,notes,lines:lines.map(priced),...(discountMode==='percent'?{invoice_discount_bps:amount(discount).toString()}:{invoice_discount:discount}),promotional_confirmed:promotional,expected_total_paisa:preview.total.toString()},row=>{changed();navigate(path+'/workflow/'+row.id);},workflowId?'PATCH':'POST'); return; }
-    const input = { ...proofInput, contact_id: party?.id, business_date_bs: date, due_date_bs: due || undefined, notes, supplier_bill_number: supplierRef || undefined, supplier_bill_date_bs: supplierDate || undefined, version: draftId ? draftData.data?.data.version : undefined, lines: lines.map(priced), ...(discountMode === 'percent' ? { invoice_discount_bps: amount(discount).toString() } : { invoice_discount: discount }), promotional_confirmed: promotional, paid_now: format(paidNow), money_account_id: selectedAccount || undefined, expected_total_paisa: preview.total.toString(), vat_recoverable: recoverable, overdraft_confirmed: overdraft };
-    await form.save<Doc>(draftId ? `${base}/document/${draftId}/draft` : `${base}/documents/${type}${draft ? '/drafts' : ''}`, input, doc => { changed(); navigate(`${path}/document/${doc.id}`); }, draftId ? 'PATCH' : 'POST');
+    if (workflowKind) {
+      await form.save<Workflow>(
+        workflowId ? base + '/workflow/' + workflowId : base + '/workflows',
+        {
+          ...proofInput,
+          kind: workflowKind,
+          version: workflowId ? workflowData.data?.data.version : undefined,
+          contact_id: party?.id,
+          business_date_bs: date,
+          due_date_bs: due || null,
+          valid_until_bs: validUntil || null,
+          niche,
+          title: jobTitle || null,
+          reference: reference || null,
+          specifications: specifications || null,
+          notes,
+          lines: lines.map(priced),
+          ...(discountMode === 'percent'
+            ? { invoice_discount_bps: amount(discount).toString() }
+            : { invoice_discount: discount }),
+          promotional_confirmed: promotional,
+          expected_total_paisa: preview.total.toString(),
+        },
+        (row) => {
+          changed();
+          navigate(path + '/workflow/' + row.id);
+        },
+        workflowId ? 'PATCH' : 'POST',
+      );
+      return;
+    }
+    const input = {
+      ...proofInput,
+      contact_id: party?.id,
+      business_date_bs: date,
+      due_date_bs: due || undefined,
+      notes,
+      supplier_bill_number: supplierRef || undefined,
+      supplier_bill_date_bs: supplierDate || undefined,
+      version: draftId ? draftData.data?.data.version : undefined,
+      lines: lines.map(priced),
+      ...(discountMode === 'percent'
+        ? { invoice_discount_bps: amount(discount).toString() }
+        : { invoice_discount: discount }),
+      promotional_confirmed: promotional,
+      paid_now: format(paidNow),
+      money_account_id: selectedAccount || undefined,
+      expected_total_paisa: preview.total.toString(),
+      vat_recoverable: recoverable,
+      overdraft_confirmed: overdraft,
+    };
+    await form.save<Doc>(
+      draftId
+        ? `${base}/document/${draftId}/draft`
+        : `${base}/documents/${type}${draft ? '/drafts' : ''}`,
+      input,
+      (doc) => {
+        changed();
+        navigate(`${path}/document/${doc.id}`);
+      },
+      draftId ? 'PATCH' : 'POST',
+    );
   }
-  if (workflowSource && (workflowData.loading || workflowData.error)) return <Loading error={workflowData.error} retry={workflowData.reload}/>;
-  if (!['sale','purchase','expense'].includes(type)) return <p>Choose sale, purchase or expense.</p>;
+  if (workflowSource && (workflowData.loading || workflowData.error))
+    return <Loading error={workflowData.error} retry={workflowData.reload} />;
+  if (!['sale', 'purchase', 'expense'].includes(type))
+    return <p>Choose sale, purchase or expense.</p>;
   if (business.role === 'cashier' && !sale) return <p>Action unavailable for this role.</p>;
-  return <><Heading eyebrow="ONE SIMPLE ENTRY" title={t(title)} description={workflowKind ? t('Quote/order only. Stock and money update when billed.') : 'Save once. Your stock and balances update together.'}><Link to={path + (workflowKind ? '/workflows' : sale ? '/sales' : expense ? '/expenses' : '/purchases')}>{t('Back')}</Link></Heading><fieldset disabled={locked} className="entry-lock"><EntrySteps labels={[t('Party'), t('Items'), t('Review')]} total={currency(preview.total)} t={t} busy={locked} error={form.error} canContinue={[true, lines.length > 0 && !previewError]} dirty={lines.length > 0 || !!party} onSubmit={event => { event.preventDefault(); void save(false); }}><div className="form-main"><Errors error={form.error || previewError || lookup.error} /><section className="panel" data-entry-step="0"><div className="section-title"><h2><span className="step-dot">1</span>{sale ? 'Who are you selling to?' : expense ? 'Who was paid?' : 'Who are you buying from?'}</h2></div><div className="form-grid"><div>{party ? <div className="selected-party"><strong>{party.name}</strong><small>{party.phone}</small><IonButton fill="clear" size="small" onClick={() => setParty(undefined)}>Change</IonButton></div> : <>{(sale || expense) && <p className="default-party"><strong>{sale ? 'Walk-in customer' : 'General expense'}</strong><small>{sale ? 'Paid in full. Choose customer for credit.' : 'Choose supplier, employee or rent payee for an unpaid expense.'}</small></p>}<Picker kind="contacts" customer={sale} payable={expense} onPick={row => setParty(row as Party)} /></>}<Link to={path + '/contacts/new'} className="form-link">{t('Add party')}</Link></div><Field label={t('Business date (BS)')} name="business_date_bs" inputMode="numeric" placeholder="2083-06-16" value={date} onChange={e => setDate(e.target.value)} required /></div>{!workflowKind && !sale && !expense && <Field label="Supplier bill reference" name="supplier_bill_number" value={supplierRef} onChange={e => setSupplierRef(e.target.value)} />}<WorkflowFields enabled={!!workflowKind} kind={workflowKind||''} niche={niche} setNiche={setNiche} title={jobTitle} setTitle={setJobTitle} reference={reference} setReference={setReference} specifications={specifications} setSpecifications={setSpecifications} due={due} setDue={setDue} validUntil={validUntil} setValidUntil={setValidUntil} t={t}/></section><section className="panel" data-entry-step="1"><div className="section-title"><h2><span className="step-dot">2</span>{expense ? 'What did you spend on?' : 'Add your items'}</h2><Link to={path + '/items/new'}>{!expense && t('Add product')}</Link></div>{expense ? <IonButton fill="outline" onClick={() => setLines(previous => [...previous, { expense_category_id: lookup.data?.data.categories[0]?.id || '', name: 'Expense', unit: 'expense', qty: '1', unit_price: '0', discount: '0', tax_bps: business.tax_recording_enabled ? business.default_tax_bps : '0', tax_category: business.tax_recording_enabled ? 'standard' : 'outside_scope' }])}><IonIcon icon={addOutline} slot="start" />Add expense</IonButton> : <Picker kind="items" onPick={addItem} contactId={party?.id} priceChannel={sale?'sale':'purchase'} priceListId={priceList} businessDate={date} />}{!expense&&<PriceListSelect channel={sale?'sale':'purchase'} value={priceList} onChange={setPriceList} disabled={form.busy||form.uncertain}/>} {!expense&&lines.length>0&&<ReviewedPrices lines={lines} contactId={party?.id} channel={sale?'sale':'purchase'} date={date} listId={priceList} busy={form.busy||form.uncertain} onApply={prices=>setLines(applyQuantityPrices(lines,prices))}/>}{!lines.length && <div className="line-empty"><IonIcon icon={receiptOutline} /><span>{expense ? 'Add an expense category and amount.' : 'Search and add your first item.'}</span></div>}{lines.map((line, i) => <div className="line-editor" key={`${line.item_id||'expense'}-${i}`}><div className="line-heading"><strong>{line.name}</strong>{line.available && <small>{format(line.available, 3)} {line.unit} available</small>}<button type="button" className="icon-button" aria-label={`Remove ${line.name}`} onClick={() => setLines(previous => previous.filter((_, index) => index !== i))}><IonIcon icon={closeOutline} /></button></div>{expense && <Select label={t('Category')} name={`lines.${i}.expense_category_id`} value={line.expense_category_id || ''} onChange={value => changeLine(i, 'expense_category_id', value)}>{lookup.data?.data.categories.map(category => <option value={category.id} key={category.id}>{category.name}</option>)}</Select>}<div className="line-inputs">{!expense && <Field label={`${t('Quantity')} (${line.unit})`} name={`lines.${i}.qty`} inputMode="decimal" value={line.qty} onChange={e => changeLine(i, 'qty', e.target.value)} required />}<Field label={t(expense ? 'Amount' : 'Price')} name={`lines.${i}.unit_price`} inputMode="decimal" value={line.unit_price} onChange={e => changeLine(i, 'unit_price', e.target.value)} required /><div className="line-total"><span>{t('Total')}</span><strong>{currency(preview.lines[i]?.total || 0n)}</strong></div></div><details><summary>Discount & bookkeeping tax</summary><div className="form-grid"><Select label="Discount type" value={line.discount_mode || 'fixed'} onChange={value => changeLine(i, 'discount_mode', value)}><option value="fixed">Amount (NPR)</option><option value="percent">Percent (%)</option></Select><Field label={line.discount_mode === 'percent' ? 'Line discount (%)' : 'Line discount (NPR)'} inputMode="decimal" value={line.discount} onChange={e => changeLine(i, 'discount', e.target.value)} />{business.tax_recording_enabled && <><Field label="Tax rate (%)" inputMode="decimal" value={line.tax_rate ?? format(line.tax_bps)} onChange={e => changeLine(i, 'tax_rate', e.target.value)} /><Select label="Tax category" value={line.tax_category} onChange={value => { changeLine(i, 'tax_category', value); if (value !== 'standard') changeLine(i, 'tax_rate', '0'); }}>{['standard','zero','exempt','outside_scope'].map(category => <option key={category} value={category}>{category.replaceAll('_', ' ')}</option>)}</Select></>}</div></details></div>)}<details className="bill-extras"><summary>{workflowKind ? t('Discount & notes') : 'Bill discount, due date & notes'}</summary>{!workflowKind && party && <small>{t('Blank due date uses party payment days')}: {sale?party.sales_terms_days||0:party.purchase_terms_days||0}</small>}{!workflowKind && <Field label="Due date (BS, optional)" value={due} onChange={e => setDue(e.target.value)} />}{!workflowKind && !sale && !expense && <Field label="Supplier bill date (BS, optional)" value={supplierDate} onChange={e => setSupplierDate(e.target.value)} />}<fieldset disabled={!!basketOffer} className="entry-lock"><Select label="Bill discount type" value={discountMode} onChange={setDiscountMode}><option value="fixed">Amount (NPR)</option><option value="percent">Percent (%)</option></Select><Field label={discountMode === 'percent' ? 'Bill discount (%)' : 'Bill discount (NPR)'} inputMode="decimal" value={discount} onChange={e => setDiscount(e.target.value)} /></fieldset>{sale && ['owner','manager'].includes(business.role) && <Check checked={promotional} onChange={setPromotional}>Confirm promotional free items</Check>}<Field label={t('Notes')} value={notes} onChange={e => setNotes(e.target.value)} /></details>{!workflowKind && !sale && business.tax_recording_enabled && <Check checked={recoverable} onChange={setRecoverable}>Tax is recoverable for this purchase/expense</Check>}</section></div><aside className="form-summary panel" data-entry-step="2"><h2><span className="step-dot">3</span>{t('Review & save')}</h2><p className="entry-review-party">{party?.name || (sale ? t('Walk-in customer') : t('General expense'))} · {bsDisplay(date)} BS · {lines.length} {t('items')}</p>{sale&&<BasketOfferSelect value={basketOffer} disabled={locked} onChange={value=>{setBasketOffer(value);if(value){setDiscount('0');setDiscountMode('fixed');}}}/>} {basketOffer&&<OfferReview review={offerReview} locked={locked}/>}<div className="summary-lines"><p><span>{t('Subtotal')}</span><strong>{currency(preview.subtotal)}</strong></p><p><span>{t('Discount')}</span><strong>{currency(lines.length && !previewError ? preview.invoiceDiscount + preview.lines.reduce((sum,line) => sum + line.discount, 0n) : 0n)}</strong></p><p><span>{t('Tax')}</span><strong>{currency(preview.tax)}</strong></p><p className="summary-total"><span>{t('Total')}</span><strong>{currency(preview.total)}</strong></p></div>{!workflowKind && <><div className="payment-tabs" role="group" aria-label="Payment status">{[['paid','Paid'], ['partial','Part paid'], ['later','Pay later']].map(([mode,label]) => <button type="button" key={mode} className={payMode === mode ? 'active' : ''} onClick={() => setPayMode(mode)}>{t(label)}</button>)}</div>{payMode === 'partial' && <Field label={t('Paid now')} name="paid_now" inputMode="decimal" value={paid} onChange={e => setPaid(e.target.value)} required />}{payMode !== 'later' && <Select label={t('Payment account')} value={selectedAccount} onChange={setAccount}>{accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}</Select>}{sale && payMode !== 'later' && accounts.find(a => a.id === selectedAccount)?.system_key === 'cash' && <Field label="Cash tendered (optional)" inputMode="decimal" value={tender} onChange={e => setTender(e.target.value)} />}{tender && change >= 0n && <p className="change-note">Change: <strong>{currency(change)}</strong></p>}<p className="due-preview"><span>{t('Still to pay')}</span><strong>{currency(preview.total - paidNow)}</strong></p>{!sale && ['owner','accountant'].includes(business.role) && <details><summary>Bank overdraft</summary><Check checked={overdraft} onChange={setOverdraft}>Confirm bank overdraft if needed</Check></details>}</>}<div className="form-submit"><Submit busy={form.busy} disabled={locked || offerBlocked || !lines.length || !!previewError || (!workflowKind && !business.opening_finalized_at && !draftId)}>{workflowKind ? t(workflowId?'Save changes':workflowKind==='quote'?'Save quote':'Save order') : draftId ? 'Save draft changes' : t('Post ' + type)}</Submit>{!workflowKind && <IonButton fill="clear" disabled={locked || offerBlocked || !!previewError || !lines.length || !!draftId} onClick={() => void save(true)}>{t('Save draft')}</IonButton>}</div>{!workflowKind && !business.opening_finalized_at && <Link to={path + '/opening'}>{t('Complete starting balances to post.')}</Link>}<small className="subtle">{workflowKind ? t('Review accepted prices before creating a bill.') : 'Stock and dues update automatically. No accounting entries to enter.'}</small></aside></EntrySteps></fieldset>{form.uncertain&&<IonButton disabled={form.busy} onClick={()=>void form.retry()}>{t('Retry original action')}</IonButton>}</>;
+  return (
+    <>
+      <Heading
+        eyebrow="ONE SIMPLE ENTRY"
+        title={t(title)}
+        description={
+          workflowKind
+            ? t('Quote/order only. Stock and money update when billed.')
+            : 'Save once. Your stock and balances update together.'
+        }
+      >
+        <Link
+          to={
+            path +
+            (workflowKind ? '/workflows' : sale ? '/sales' : expense ? '/expenses' : '/purchases')
+          }
+        >
+          {t('Back')}
+        </Link>
+      </Heading>
+      <fieldset disabled={locked} className="entry-lock">
+        <EntrySteps
+          labels={[t('Party'), t('Items'), t('Review')]}
+          total={currency(preview.total)}
+          t={t}
+          busy={locked}
+          error={form.error}
+          canContinue={[true, lines.length > 0 && !previewError]}
+          dirty={lines.length > 0 || !!party}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void save(false);
+          }}
+        >
+          <div className="form-main">
+            <Errors error={form.error || previewError || lookup.error} />
+            <section className="panel" data-entry-step="0">
+              <div className="section-title">
+                <h2>
+                  <span className="step-dot">1</span>
+                  {sale
+                    ? 'Who are you selling to?'
+                    : expense
+                      ? 'Who was paid?'
+                      : 'Who are you buying from?'}
+                </h2>
+              </div>
+              <div className="form-grid">
+                <div>
+                  {party ? (
+                    <div className="selected-party">
+                      <strong>{party.name}</strong>
+                      <small>{party.phone}</small>
+                      <IonButton fill="clear" size="small" onClick={() => setParty(undefined)}>
+                        Change
+                      </IonButton>
+                    </div>
+                  ) : (
+                    <>
+                      {(sale || expense) && (
+                        <p className="default-party">
+                          <strong>{sale ? 'Walk-in customer' : 'General expense'}</strong>
+                          <small>
+                            {sale
+                              ? 'Paid in full. Choose customer for credit.'
+                              : 'Choose supplier, employee or rent payee for an unpaid expense.'}
+                          </small>
+                        </p>
+                      )}
+                      <Picker
+                        kind="contacts"
+                        customer={sale}
+                        payable={expense}
+                        onPick={(row) => setParty(row as Party)}
+                      />
+                    </>
+                  )}
+                  <Link to={path + '/contacts/new'} className="form-link">
+                    {t('Add party')}
+                  </Link>
+                </div>
+                <Field
+                  label={t('Business date (BS)')}
+                  name="business_date_bs"
+                  inputMode="numeric"
+                  placeholder="2083-06-16"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  required
+                />
+              </div>
+              {!workflowKind && !sale && !expense && (
+                <Field
+                  label="Supplier bill reference"
+                  name="supplier_bill_number"
+                  value={supplierRef}
+                  onChange={(e) => setSupplierRef(e.target.value)}
+                />
+              )}
+              <WorkflowFields
+                enabled={!!workflowKind}
+                kind={workflowKind || ''}
+                niche={niche}
+                setNiche={setNiche}
+                title={jobTitle}
+                setTitle={setJobTitle}
+                reference={reference}
+                setReference={setReference}
+                specifications={specifications}
+                setSpecifications={setSpecifications}
+                due={due}
+                setDue={setDue}
+                validUntil={validUntil}
+                setValidUntil={setValidUntil}
+                t={t}
+              />
+            </section>
+            <section className="panel" data-entry-step="1">
+              <div className="section-title">
+                <h2>
+                  <span className="step-dot">2</span>
+                  {expense ? 'What did you spend on?' : 'Add your items'}
+                </h2>
+                <Link to={path + '/items/new'}>{!expense && t('Add product')}</Link>
+              </div>
+              {expense ? (
+                <IonButton
+                  fill="outline"
+                  onClick={() =>
+                    setLines((previous) => [
+                      ...previous,
+                      {
+                        expense_category_id: lookup.data?.data.categories[0]?.id || '',
+                        name: 'Expense',
+                        unit: 'expense',
+                        qty: '1',
+                        unit_price: '0',
+                        discount: '0',
+                        tax_bps: business.tax_recording_enabled ? business.default_tax_bps : '0',
+                        tax_category: business.tax_recording_enabled ? 'standard' : 'outside_scope',
+                      },
+                    ])
+                  }
+                >
+                  <IonIcon icon={addOutline} slot="start" />
+                  Add expense
+                </IonButton>
+              ) : (
+                <Picker
+                  kind="items"
+                  onPick={addItem}
+                  contactId={party?.id}
+                  priceChannel={sale ? 'sale' : 'purchase'}
+                  priceListId={priceList}
+                  businessDate={date}
+                />
+              )}
+              {!expense && (
+                <PriceListSelect
+                  channel={sale ? 'sale' : 'purchase'}
+                  value={priceList}
+                  onChange={setPriceList}
+                  disabled={form.busy || form.uncertain}
+                />
+              )}{' '}
+              {!expense && lines.length > 0 && (
+                <ReviewedPrices
+                  lines={lines}
+                  contactId={party?.id}
+                  channel={sale ? 'sale' : 'purchase'}
+                  date={date}
+                  listId={priceList}
+                  busy={form.busy || form.uncertain}
+                  onApply={(prices) => setLines(applyQuantityPrices(lines, prices))}
+                />
+              )}
+              {!lines.length && (
+                <div className="line-empty">
+                  <IonIcon icon={receiptOutline} />
+                  <span>
+                    {expense
+                      ? 'Add an expense category and amount.'
+                      : 'Search and add your first item.'}
+                  </span>
+                </div>
+              )}
+              {lines.map((line, i) => (
+                <div className="line-editor" key={`${line.item_id || 'expense'}-${i}`}>
+                  <div className="line-heading">
+                    <strong>{line.name}</strong>
+                    {line.available && (
+                      <small>
+                        {format(line.available, 3)} {line.unit} available
+                      </small>
+                    )}
+                    <button
+                      type="button"
+                      className="icon-button"
+                      aria-label={`Remove ${line.name}`}
+                      onClick={() =>
+                        setLines((previous) => previous.filter((_, index) => index !== i))
+                      }
+                    >
+                      <IonIcon icon={closeOutline} />
+                    </button>
+                  </div>
+                  {expense && (
+                    <Select
+                      label={t('Category')}
+                      name={`lines.${i}.expense_category_id`}
+                      value={line.expense_category_id || ''}
+                      onChange={(value) => changeLine(i, 'expense_category_id', value)}
+                    >
+                      {lookup.data?.data.categories.map((category) => (
+                        <option value={category.id} key={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
+                  <div className="line-inputs">
+                    {!expense && (
+                      <Field
+                        label={`${t('Quantity')} (${line.unit})`}
+                        name={`lines.${i}.qty`}
+                        inputMode="decimal"
+                        value={line.qty}
+                        onChange={(e) => changeLine(i, 'qty', e.target.value)}
+                        required
+                      />
+                    )}
+                    <Field
+                      label={t(expense ? 'Amount' : 'Price')}
+                      name={`lines.${i}.unit_price`}
+                      inputMode="decimal"
+                      value={line.unit_price}
+                      onChange={(e) => changeLine(i, 'unit_price', e.target.value)}
+                      required
+                    />
+                    <div className="line-total">
+                      <span>{t('Total')}</span>
+                      <strong>{currency(preview.lines[i]?.total || 0n)}</strong>
+                    </div>
+                  </div>
+                  <details>
+                    <summary>Discount & bookkeeping tax</summary>
+                    <div className="form-grid">
+                      <Select
+                        label="Discount type"
+                        value={line.discount_mode || 'fixed'}
+                        onChange={(value) => changeLine(i, 'discount_mode', value)}
+                      >
+                        <option value="fixed">Amount (NPR)</option>
+                        <option value="percent">Percent (%)</option>
+                      </Select>
+                      <Field
+                        label={
+                          line.discount_mode === 'percent'
+                            ? 'Line discount (%)'
+                            : 'Line discount (NPR)'
+                        }
+                        inputMode="decimal"
+                        value={line.discount}
+                        onChange={(e) => changeLine(i, 'discount', e.target.value)}
+                      />
+                      {business.tax_recording_enabled && (
+                        <>
+                          <Field
+                            label="Tax rate (%)"
+                            inputMode="decimal"
+                            value={line.tax_rate ?? format(line.tax_bps)}
+                            onChange={(e) => changeLine(i, 'tax_rate', e.target.value)}
+                          />
+                          <Select
+                            label="Tax category"
+                            value={line.tax_category}
+                            onChange={(value) => {
+                              changeLine(i, 'tax_category', value);
+                              if (value !== 'standard') changeLine(i, 'tax_rate', '0');
+                            }}
+                          >
+                            {['standard', 'zero', 'exempt', 'outside_scope'].map((category) => (
+                              <option key={category} value={category}>
+                                {category.replaceAll('_', ' ')}
+                              </option>
+                            ))}
+                          </Select>
+                        </>
+                      )}
+                    </div>
+                  </details>
+                </div>
+              ))}
+              <details className="bill-extras">
+                <summary>
+                  {workflowKind ? t('Discount & notes') : 'Bill discount, due date & notes'}
+                </summary>
+                {!workflowKind && party && (
+                  <small>
+                    {t('Blank due date uses party payment days')}:{' '}
+                    {sale ? party.sales_terms_days || 0 : party.purchase_terms_days || 0}
+                  </small>
+                )}
+                {!workflowKind && (
+                  <Field
+                    label="Due date (BS, optional)"
+                    value={due}
+                    onChange={(e) => setDue(e.target.value)}
+                  />
+                )}
+                {!workflowKind && !sale && !expense && (
+                  <Field
+                    label="Supplier bill date (BS, optional)"
+                    value={supplierDate}
+                    onChange={(e) => setSupplierDate(e.target.value)}
+                  />
+                )}
+                <fieldset disabled={!!basketOffer} className="entry-lock">
+                  <Select
+                    label="Bill discount type"
+                    value={discountMode}
+                    onChange={setDiscountMode}
+                  >
+                    <option value="fixed">Amount (NPR)</option>
+                    <option value="percent">Percent (%)</option>
+                  </Select>
+                  <Field
+                    label={discountMode === 'percent' ? 'Bill discount (%)' : 'Bill discount (NPR)'}
+                    inputMode="decimal"
+                    value={discount}
+                    onChange={(e) => setDiscount(e.target.value)}
+                  />
+                </fieldset>
+                {sale && ['owner', 'manager'].includes(business.role) && (
+                  <Check checked={promotional} onChange={setPromotional}>
+                    Confirm promotional free items
+                  </Check>
+                )}
+                <Field
+                  label={t('Notes')}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                />
+              </details>
+              {!workflowKind && !sale && business.tax_recording_enabled && (
+                <Check checked={recoverable} onChange={setRecoverable}>
+                  Tax is recoverable for this purchase/expense
+                </Check>
+              )}
+            </section>
+          </div>
+          <aside className="form-summary panel" data-entry-step="2">
+            <h2>
+              <span className="step-dot">3</span>
+              {t('Review & save')}
+            </h2>
+            <p className="entry-review-party">
+              {party?.name || (sale ? t('Walk-in customer') : t('General expense'))} ·{' '}
+              {bsDisplay(date)} BS · {lines.length} {t('items')}
+            </p>
+            {sale && (
+              <BasketOfferSelect
+                value={basketOffer}
+                disabled={locked}
+                onChange={(value) => {
+                  setBasketOffer(value);
+                  if (value) {
+                    setDiscount('0');
+                    setDiscountMode('fixed');
+                  }
+                }}
+              />
+            )}{' '}
+            {basketOffer && <OfferReview review={offerReview} locked={locked} />}
+            <div className="summary-lines">
+              <p>
+                <span>{t('Subtotal')}</span>
+                <strong>{currency(preview.subtotal)}</strong>
+              </p>
+              <p>
+                <span>{t('Discount')}</span>
+                <strong>
+                  {currency(
+                    lines.length && !previewError
+                      ? preview.invoiceDiscount +
+                          preview.lines.reduce((sum, line) => sum + line.discount, 0n)
+                      : 0n,
+                  )}
+                </strong>
+              </p>
+              <p>
+                <span>{t('Tax')}</span>
+                <strong>{currency(preview.tax)}</strong>
+              </p>
+              <p className="summary-total">
+                <span>{t('Total')}</span>
+                <strong>{currency(preview.total)}</strong>
+              </p>
+            </div>
+            {!workflowKind && (
+              <>
+                <div className="payment-tabs" role="group" aria-label="Payment status">
+                  {[
+                    ['paid', 'Paid'],
+                    ['partial', 'Part paid'],
+                    ['later', 'Pay later'],
+                  ].map(([mode, label]) => (
+                    <button
+                      type="button"
+                      key={mode}
+                      className={payMode === mode ? 'active' : ''}
+                      onClick={() => setPayMode(mode)}
+                    >
+                      {t(label)}
+                    </button>
+                  ))}
+                </div>
+                {payMode === 'partial' && (
+                  <Field
+                    label={t('Paid now')}
+                    name="paid_now"
+                    inputMode="decimal"
+                    value={paid}
+                    onChange={(e) => setPaid(e.target.value)}
+                    required
+                  />
+                )}
+                {payMode !== 'later' && (
+                  <Select
+                    label={t('Payment account')}
+                    value={selectedAccount}
+                    onChange={setAccount}
+                  >
+                    {accounts.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+                {sale &&
+                  payMode !== 'later' &&
+                  accounts.find((a) => a.id === selectedAccount)?.system_key === 'cash' && (
+                    <Field
+                      label="Cash tendered (optional)"
+                      inputMode="decimal"
+                      value={tender}
+                      onChange={(e) => setTender(e.target.value)}
+                    />
+                  )}
+                {tender && change >= 0n && (
+                  <p className="change-note">
+                    Change: <strong>{currency(change)}</strong>
+                  </p>
+                )}
+                <p className="due-preview">
+                  <span>{t('Still to pay')}</span>
+                  <strong>{currency(preview.total - paidNow)}</strong>
+                </p>
+                {!sale && ['owner', 'accountant'].includes(business.role) && (
+                  <details>
+                    <summary>Bank overdraft</summary>
+                    <Check checked={overdraft} onChange={setOverdraft}>
+                      Confirm bank overdraft if needed
+                    </Check>
+                  </details>
+                )}
+              </>
+            )}
+            <div className="form-submit">
+              <Submit
+                busy={form.busy}
+                disabled={
+                  locked ||
+                  offerBlocked ||
+                  !lines.length ||
+                  !!previewError ||
+                  (!workflowKind && !business.opening_finalized_at && !draftId)
+                }
+              >
+                {workflowKind
+                  ? t(
+                      workflowId
+                        ? 'Save changes'
+                        : workflowKind === 'quote'
+                          ? 'Save quote'
+                          : 'Save order',
+                    )
+                  : draftId
+                    ? 'Save draft changes'
+                    : t('Post ' + type)}
+              </Submit>
+              {!workflowKind && (
+                <IonButton
+                  fill="clear"
+                  disabled={locked || offerBlocked || !!previewError || !lines.length || !!draftId}
+                  onClick={() => void save(true)}
+                >
+                  {t('Save draft')}
+                </IonButton>
+              )}
+            </div>
+            {!workflowKind && !business.opening_finalized_at && (
+              <Link to={path + '/opening'}>{t('Complete starting balances to post.')}</Link>
+            )}
+            <small className="subtle">
+              {workflowKind
+                ? t('Review accepted prices before creating a bill.')
+                : 'Stock and dues update automatically. No accounting entries to enter.'}
+            </small>
+          </aside>
+        </EntrySteps>
+      </fieldset>
+      {form.uncertain && (
+        <IonButton disabled={form.busy} onClick={() => void form.retry()}>
+          {t('Retry original action')}
+        </IonButton>
+      )}
+    </>
+  );
 }
 
-function WorkflowFields({enabled,kind,niche,setNiche,title,setTitle,reference,setReference,specifications,setSpecifications,due,setDue,validUntil,setValidUntil,t}:{enabled:boolean;kind:string;niche:string;setNiche:(v:string)=>void;title:string;setTitle:(v:string)=>void;reference:string;setReference:(v:string)=>void;specifications:string;setSpecifications:(v:string)=>void;due:string;setDue:(v:string)=>void;validUntil:string;setValidUntil:(v:string)=>void;t:(v:string)=>string}) {
- if(!enabled)return null;
- const niches:Record<string,string>={general:'General',glass:'Glass',wood:'Wood',laundry:'Laundry',repair:'Repair',tailor:'Tailoring',printing:'Printing',bakery:'Bakery',field_service:'Field service'};
- const hints:Record<string,string>={glass:'Glass type, dimensions, edges and installation',wood:'Timber type, dimensions, finish and cutting',laundry:'Garment/count/weight, stain, colour and damage',repair:'Device model/reference, reported issue and condition. No passwords.',tailor:'Measurements with units, fabric, style and fitting',printing:'Size, material, colours, artwork version and finish',bakery:'Size/weight, flavour, filling, decoration and pickup',field_service:'Site, work requested, visit and materials'};
- return <details className="optional-details" open><summary>{t('Job details / dates')}</summary><div><Select label={t('Business / job type')} value={niche} onChange={setNiche}>{Object.entries(niches).map(([key,label])=><option key={key} value={key}>{t(label)}</option>)}</Select><Field label={t('Job title')} maxLength={150} value={title} onChange={e=>setTitle(e.target.value)}/><Field label={t('Reference / device / job')} maxLength={150} value={reference} onChange={e=>setReference(e.target.value)}/><label className="field"><span>{t('Specifications / measurements')}</span><textarea rows={3} maxLength={4000} placeholder={hints[niche]} value={specifications} onChange={e=>setSpecifications(e.target.value)}/></label><Field label={t('Fulfilment date (BS, optional)')} inputMode="numeric" value={due} onChange={e=>setDue(e.target.value)}/>{kind==='quote'&&<Field label={t('Valid until (BS, optional)')} inputMode="numeric" value={validUntil} onChange={e=>setValidUntil(e.target.value)}/>}</div></details>;
+function WorkflowFields({
+  enabled,
+  kind,
+  niche,
+  setNiche,
+  title,
+  setTitle,
+  reference,
+  setReference,
+  specifications,
+  setSpecifications,
+  due,
+  setDue,
+  validUntil,
+  setValidUntil,
+  t,
+}: {
+  enabled: boolean;
+  kind: string;
+  niche: string;
+  setNiche: (v: string) => void;
+  title: string;
+  setTitle: (v: string) => void;
+  reference: string;
+  setReference: (v: string) => void;
+  specifications: string;
+  setSpecifications: (v: string) => void;
+  due: string;
+  setDue: (v: string) => void;
+  validUntil: string;
+  setValidUntil: (v: string) => void;
+  t: (v: string) => string;
+}) {
+  if (!enabled) return null;
+  const niches: Record<string, string> = {
+    general: 'General',
+    glass: 'Glass',
+    wood: 'Wood',
+    laundry: 'Laundry',
+    repair: 'Repair',
+    tailor: 'Tailoring',
+    printing: 'Printing',
+    bakery: 'Bakery',
+    field_service: 'Field service',
+  };
+  const hints: Record<string, string> = {
+    glass: 'Glass type, dimensions, edges and installation',
+    wood: 'Timber type, dimensions, finish and cutting',
+    laundry: 'Garment/count/weight, stain, colour and damage',
+    repair: 'Device model/reference, reported issue and condition. No passwords.',
+    tailor: 'Measurements with units, fabric, style and fitting',
+    printing: 'Size, material, colours, artwork version and finish',
+    bakery: 'Size/weight, flavour, filling, decoration and pickup',
+    field_service: 'Site, work requested, visit and materials',
+  };
+  return (
+    <details className="optional-details" open>
+      <summary>{t('Job details / dates')}</summary>
+      <div>
+        <Select label={t('Business / job type')} value={niche} onChange={setNiche}>
+          {Object.entries(niches).map(([key, label]) => (
+            <option key={key} value={key}>
+              {t(label)}
+            </option>
+          ))}
+        </Select>
+        <Field
+          label={t('Job title')}
+          maxLength={150}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <Field
+          label={t('Reference / device / job')}
+          maxLength={150}
+          value={reference}
+          onChange={(e) => setReference(e.target.value)}
+        />
+        <label className="field">
+          <span>{t('Specifications / measurements')}</span>
+          <textarea
+            rows={3}
+            maxLength={4000}
+            placeholder={hints[niche]}
+            value={specifications}
+            onChange={(e) => setSpecifications(e.target.value)}
+          />
+        </label>
+        <Field
+          label={t('Fulfilment date (BS, optional)')}
+          inputMode="numeric"
+          value={due}
+          onChange={(e) => setDue(e.target.value)}
+        />
+        {kind === 'quote' && (
+          <Field
+            label={t('Valid until (BS, optional)')}
+            inputMode="numeric"
+            value={validUntil}
+            onChange={(e) => setValidUntil(e.target.value)}
+          />
+        )}
+      </div>
+    </details>
+  );
 }
-

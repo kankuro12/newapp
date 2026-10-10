@@ -5,20 +5,735 @@ import { useEffect, useState } from 'react';
 import { useWorkspace } from '../lib/context';
 import { send, useData, useSave } from '../lib/api';
 import { currency, format } from '../lib/money';
+import EntrySteps from '../components/EntrySteps';
 import MeasurementUnits from '../components/MeasurementUnits';
 import type { Item, ItemCategory, Page, Party } from '../lib/types';
-import { Check, Empty, Errors, Field, Heading, Loading, OptionalDetails, Select, Submit } from '../components/ui';
+import {
+  Check,
+  Empty,
+  Errors,
+  Field,
+  Heading,
+  Loading,
+  OptionalDetails,
+  Select,
+  Submit,
+} from '../components/ui';
 import { Pagination } from './Records';
 import Picker from '../components/Picker';
 import { CategoryFilter } from './CatalogTools';
 
 export function MasterList({ resource }: { resource: 'contacts' | 'items' }) {
-  const { base, path, revision, t, business } = useWorkspace(); const [query,setQuery] = useState(''); const [page,setPage] = useState(1); const [archived,setArchived] = useState(false); const [category,setCategory] = useState<{id:string;name:string}>(); const { data, error, loading, reload } = useData<Page<Item & Party>>(`${base}/${resource}?q=${encodeURIComponent(query)}&page=${page}&archived=${archived ? '1' : '0'}&category_id=${category?.id||''}`, revision); const contacts = resource === 'contacts'; const navigate = useNavigate(); const cashier = business.role === 'cashier';
-  return <><Heading eyebrow={contacts ? 'GOOD RELATIONSHIPS. CLEAR BALANCES.' : 'A PLACE FOR EVERY PRODUCT.'} title={t(contacts ? 'Parties' : 'Items')} description={contacts ? 'One party, any roles: customer, supplier, employee, rent.' : 'Know what’s available before you sell.'}>{(!cashier || contacts) && <IonButton onClick={() => navigate(`${path}/${resource}/new`)}><IonIcon icon={addOutline} slot="start" />{t(contacts ? 'Add party' : 'Add product')}</IonButton>}{!cashier&&<Link to={`${path}/imports?resource=${resource}`}>{t('Import CSV')}</Link>}{!contacts&&!cashier&&<><Link to={path+'/item-categories'}>{t('Item categories')}</Link><Link to={path+'/reorders'}>{t('Reorder stock')}</Link></>}</Heading><div className="list-tools"><Field label={t('Search')} placeholder={contacts ? 'Name or contact…' : 'Item name…'} value={query} onChange={e => { setQuery(e.target.value); setPage(1); }} />{!contacts&&<CategoryFilter value={category} onChange={value=>{setCategory(value);setPage(1);}}/>}<Check checked={archived} onChange={setArchived}>Include archived</Check></div><section className="panel">{loading || error ? <Loading error={error} retry={reload} /> : data?.data.length ? <>{data.data.map(row => <Link to={`${path}/${resource}/${row.id}`} className="master-row" key={row.id}><span className={`icon-chip ${contacts ? 'purple' : 'green'}`}><IonIcon icon={contacts ? peopleOutline : cubeOutline} /></span><div className="master-name"><strong>{row.name}</strong><small>{contacts ? [row.is_customer && 'Customer', row.is_supplier && 'Supplier', row.is_employee && 'Employee', row.is_rent && 'Rent'].filter(Boolean).join(' · ') : `${row.sku || row.kind} · ${row.unit_label}${row.category_name?' · '+row.category_name:''}`}{row.archived_at && ' · Archived'}</small></div>{contacts ? !cashier && <div className="party-balances"><span>Customer owes <strong>{currency(row.receivable_paisa)}</strong></span><span>Still to pay <strong>{currency(row.payable_paisa)}</strong></span></div> : <div className="master-right"><strong>{currency(row.sale_price_paisa)}</strong><small>{row.kind === 'stock' ? `${format(row.qty_milli, 3)} ${row.unit_label} available` : 'Service · no stock'}</small></div>}</Link>)}<Pagination page={page} pages={data.last_page} change={setPage} /></> : <Empty title={t('No entries yet')} action={t(contacts ? 'Add party' : 'Add product')} onClick={() => navigate(`${path}/${resource}/new`)} />}</section></>;
+  const { base, path, revision, t, business } = useWorkspace();
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [archived, setArchived] = useState(false);
+  const [category, setCategory] = useState<{ id: string; name: string }>();
+  const { data, error, loading, reload } = useData<Page<Item & Party>>(
+    `${base}/${resource}?q=${encodeURIComponent(query)}&page=${page}&archived=${archived ? '1' : '0'}&category_id=${category?.id || ''}`,
+    revision,
+  );
+  const contacts = resource === 'contacts';
+  const navigate = useNavigate();
+  const cashier = business.role === 'cashier';
+  return (
+    <>
+      <Heading
+        eyebrow={contacts ? 'GOOD RELATIONSHIPS. CLEAR BALANCES.' : 'A PLACE FOR EVERY PRODUCT.'}
+        title={t(contacts ? 'Parties' : 'Items')}
+        description={
+          contacts
+            ? 'One party, any roles: customer, supplier, employee, rent.'
+            : 'Know what’s available before you sell.'
+        }
+      >
+        {(!cashier || contacts) && (
+          <IonButton onClick={() => navigate(`${path}/${resource}/new`)}>
+            <IonIcon icon={addOutline} slot="start" />
+            {t(contacts ? 'Add party' : 'Add product')}
+          </IonButton>
+        )}
+        {!cashier && <Link to={`${path}/imports?resource=${resource}`}>{t('Import CSV')}</Link>}
+        {!contacts && !cashier && (
+          <>
+            <Link to={path + '/item-categories'}>{t('Item categories')}</Link>
+            <Link to={path + '/reorders'}>{t('Reorder stock')}</Link>
+          </>
+        )}
+      </Heading>
+      <div className="list-tools">
+        <Field
+          label={t('Search')}
+          placeholder={contacts ? 'Name or contact…' : 'Item name…'}
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setPage(1);
+          }}
+        />
+        {!contacts && (
+          <CategoryFilter
+            value={category}
+            onChange={(value) => {
+              setCategory(value);
+              setPage(1);
+            }}
+          />
+        )}
+        <Check checked={archived} onChange={setArchived}>
+          Include archived
+        </Check>
+      </div>
+      <section className="panel">
+        {loading || error ? (
+          <Loading error={error} retry={reload} />
+        ) : data?.data.length ? (
+          <>
+            {data.data.map((row) => (
+              <Link to={`${path}/${resource}/${row.id}`} className="master-row" key={row.id}>
+                <span className={`icon-chip ${contacts ? 'purple' : 'green'}`}>
+                  <IonIcon icon={contacts ? peopleOutline : cubeOutline} />
+                </span>
+                <div className="master-name">
+                  <strong>{row.name}</strong>
+                  <small>
+                    {contacts
+                      ? [
+                          row.is_customer && 'Customer',
+                          row.is_supplier && 'Supplier',
+                          row.is_employee && 'Employee',
+                          row.is_rent && 'Rent',
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')
+                      : `${row.sku || row.kind} · ${row.unit_label}${row.category_name ? ' · ' + row.category_name : ''}`}
+                    {row.archived_at && ' · Archived'}
+                  </small>
+                </div>
+                {contacts ? (
+                  !cashier && (
+                    <div className="party-balances">
+                      <span>
+                        Customer owes <strong>{currency(row.receivable_paisa)}</strong>
+                      </span>
+                      <span>
+                        Still to pay <strong>{currency(row.payable_paisa)}</strong>
+                      </span>
+                    </div>
+                  )
+                ) : (
+                  <div className="master-right">
+                    <strong>{currency(row.sale_price_paisa)}</strong>
+                    <small>
+                      {row.kind === 'stock'
+                        ? `${format(row.qty_milli, 3)} ${row.unit_label} available`
+                        : 'Service · no stock'}
+                    </small>
+                  </div>
+                )}
+              </Link>
+            ))}
+            <Pagination page={page} pages={data.last_page} change={setPage} />
+          </>
+        ) : (
+          <Empty
+            title={t('No entries yet')}
+            action={t(contacts ? 'Add party' : 'Add product')}
+            onClick={() => navigate(`${path}/${resource}/new`)}
+          />
+        )}
+      </section>
+    </>
+  );
 }
 export function MasterForm({ resource }: { resource: 'contacts' | 'items' }) {
-  const { id } = useParams(); const { base,path,changed,t,business } = useWorkspace(); const contacts = resource === 'contacts'; const current = useData<{ data: Item & Party }>(id ? `${base}/${resource}/${id}` : null); const [name,setName] = useState(''); const [phone,setPhone] = useState(''); const [customer,setCustomer] = useState(true); const [supplier,setSupplier] = useState(false); const [employee,setEmployee] = useState(false); const [rent,setRent] = useState(false); const defaultUnit = ({meat:'kg',milk:'l',glass:'sq_ft',wood:'cu_ft'} as Record<string,string>)[business.pos_profile || 'general'] || 'unit'; const [kind,setKind] = useState(['barber','salon'].includes(business.pos_profile || '') ? 'service' : 'stock'); const [unit,setUnit] = useState(defaultUnit); const [posUnit,setPosUnit] = useState(defaultUnit); const [posMethods,setPosMethods] = useState(['quantity','amount','pack','length','area','volume']); const [customUnits,setCustomUnits] = useState<{label:string;qty:string}[]>([]); const [serviceMinutes,setServiceMinutes] = useState('30'); const [price,setPrice] = useState('0'); const [sku,setSku] = useState(''); const [low,setLow] = useState('0'); const [email,setEmail] = useState(''); const [address,setAddress] = useState(''); const [pan,setPan] = useState(''); const form = useSave(); const [archiveError,setArchiveError] = useState<Error>(); const [category,setCategory] = useState<{id:string;name:string}>(); const [supplierParty,setSupplierParty] = useState<{id:string;name:string}>(); const [target,setTarget] = useState('0'); const [newCategory,setNewCategory] = useState(''); const categoryForm = useSave(); const navigate = useNavigate();
-  useEffect(() => { const row = current.data?.data; if (!row) return; setName(row.name); setPhone(row.phone || ''); setCustomer(!!row.is_customer); setSupplier(!!row.is_supplier); setEmployee(!!row.is_employee); setRent(!!row.is_rent); setKind(row.kind || 'stock'); setUnit(row.unit_label || 'unit'); setPrice(format(row.sale_price_paisa || '0')); setSku(row.sku || ''); setLow(format(row.low_stock_qty_milli || '0', 3)); setEmail(row.email || ''); setAddress(row.address || ''); setPan(row.pan || ''); setPosUnit(row.pos_unit || 'unit'); setPosMethods(row.pos_methods || ['quantity','amount','pack','length','area','volume']); setCustomUnits(row.pos_custom_units || []); setServiceMinutes(String(row.service_minutes || 30)); setCategory(row.category_id?{id:row.category_id,name:row.category_name||'Category'}:undefined); setSupplierParty(row.preferred_supplier_id?{id:row.preferred_supplier_id,name:row.preferred_supplier_name||'Supplier'}:undefined); setTarget(format(row.reorder_target_qty_milli||'0',3)); }, [current.data]);
-  if (id && (current.loading || current.error)) return <Loading error={current.error} retry={current.reload} />; const row = current.data?.data; const canEdit = contacts || business.role !== 'cashier';
-  return <><Heading eyebrow={contacts ? 'PARTY DETAILS' : 'PRODUCT DETAILS'} title={id ? name : t(contacts ? 'Add party' : 'Add product')}><Link to={path + '/' + resource}>{t('Back')}</Link></Heading>{row && !contacts && <div className="metrics compact"><div className="panel metric"><span>{t('Available')}</span><strong>{format(row.qty_milli, 3)} {row.unit_label}</strong></div>{row.value_paisa && <div className="panel metric"><span>{t('Stock value')}</span><strong>{currency(row.value_paisa)}</strong></div>}{['owner','manager'].includes(business.role) && <Link className="panel quick-action" to={`${path}/stock/count?item=${id}`}>{t('Count stock')}</Link>}</div>}{row && contacts && business.role !== 'cashier' && <div className="metrics compact"><div className="panel metric"><span>Customer owes / credit</span><strong>{currency(row.receivable_paisa)}</strong></div><div className="panel metric"><span>Payable due / advance</span><strong>{currency(row.payable_paisa)}</strong></div><Link className="panel quick-action" to={`${path}/reports?report=statement&contact=${id}`}>View statement</Link><Link className="panel quick-action" to={`${path}/contacts/${id}/trading`}>{t('Payment terms / prices')}</Link><Link className="panel quick-action" to={`${path}/followups?contact=${id}&new=1`}>{t('Add follow-up')}</Link></div>}<form className="panel narrow-form entry-master" data-dirty={name && !id ? 'true' : 'false'} onSubmit={e => { e.preventDefault(); const input = contacts ? { name, phone: phone || null, email: email || null, address: address || null, pan: pan || null, is_customer: customer, is_supplier: supplier, is_employee: employee, is_rent: rent } : { name, kind, unit_label: unit, pos_unit: posUnit, pos_methods: posMethods, pos_custom_units: customUnits, service_minutes: Number(serviceMinutes), sale_price: price, sku: sku || null, low_stock_qty: low, category_id:category?.id||null, preferred_supplier_id:supplierParty?.id||null, reorder_target_qty:kind==='stock'?target:'0' }; void form.save(`${base}/${resource}${id ? '/' + id : ''}`, input, () => { changed(); navigate(`${path}/${resource}`); }, id ? 'PATCH' : 'POST'); }}><Errors error={form.error || archiveError} /><Field label={t('Name')} name="name" value={name} onChange={e => setName(e.target.value)} required maxLength={150} disabled={!canEdit} />{contacts ? <><Field label={t('Phone (optional)')} name="phone" type="tel" inputMode="tel" autoComplete="tel" maxLength={30} value={phone} onChange={e => setPhone(e.target.value)} /><fieldset className="party-roles"><legend>{t('Party roles')}</legend><p>{t('Choose one or more roles.')}</p><div className="role-grid"><Check checked={customer} onChange={setCustomer}>{t('Customer')}</Check><Check checked={supplier} onChange={setSupplier}>{t('Supplier')}</Check><Check checked={employee} onChange={setEmployee}>{t('Employee')}</Check><Check checked={rent} onChange={setRent}>{t('Rent')}</Check></div></fieldset><OptionalDetails label={t('Contact details (optional)')}><Field label={t('Email (optional)')} name="email" type="email" inputMode="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} /><Field label={t('Address (optional)')} name="address" autoComplete="street-address" value={address} onChange={e => setAddress(e.target.value)} /><Field label={t('PAN (optional)')} name="pan" inputMode="numeric" value={pan} onChange={e => setPan(e.target.value)} /></OptionalDetails></> : <><div className="form-grid"><Select label={t('Item type')} value={kind} onChange={setKind}><option value="stock">{t('Stock item')}</option><option value="service">{t('Service')}</option></Select><Field label={t('Unit')} name="unit_label" value={unit} onChange={e => setUnit(e.target.value)} required /><Field label={t('Selling price')} name="sale_price" inputMode="decimal" value={price} onChange={e => setPrice(e.target.value)} required /></div><OptionalDetails label={t('Item category')}>{category?<div className="mini-row"><strong>{category.name}</strong>{canEdit&&<IonButton fill="clear" onClick={()=>setCategory(undefined)}>{t('Clear')}</IonButton>}</div>:canEdit&&<Picker kind="item_categories" onPick={row=>setCategory(row as ItemCategory)}/>}<Errors error={categoryForm.error}/>{canEdit&&<><Field label={t('New category name')} value={newCategory} maxLength={150} onChange={event=>setNewCategory(event.target.value)}/><IonButton fill="outline" disabled={!newCategory.trim()||categoryForm.busy||categoryForm.uncertain} onClick={()=>void categoryForm.save<ItemCategory>(base+'/item-categories',{name:newCategory},row=>{setCategory(row);setNewCategory('');changed();})}>{t('Create category')}</IonButton>{categoryForm.uncertain&&<IonButton disabled={categoryForm.busy} onClick={()=>void categoryForm.retry()}>{t('Retry original action')}</IonButton>}<Link to={path+'/item-categories'}>{t('Manage categories')}</Link></>}</OptionalDetails><OptionalDetails label={t('Stock details (optional)')}><Field label={t('SKU (optional)')} name="sku" value={sku} onChange={e => setSku(e.target.value)} />{kind === 'stock' && <Field label={t('Low stock alert quantity')} name="low_stock_qty" inputMode="decimal" value={low} onChange={e => setLow(e.target.value)} />}</OptionalDetails>{canEdit&&kind==='stock'&&<OptionalDetails label={t('Reorder settings')}><Field label={t('Target stock quantity')} name="reorder_target_qty" inputMode="decimal" value={target} onChange={event=>setTarget(event.target.value)}/><p>{t('Zero disables target reordering. Target must cover low-stock quantity.')}</p>{supplierParty?<div className="mini-row"><strong>{supplierParty.name}</strong><IonButton fill="clear" onClick={()=>setSupplierParty(undefined)}>{t('Clear')}</IonButton></div>:<Picker kind="contacts" customer={false} onPick={row=>setSupplierParty(row as Party)}/>}<small>{t('Preferred supplier')}</small>{id&&<Link to={path+'/reorders'}>{t('Review reorders')}</Link>}</OptionalDetails>}<OptionalDetails label={t('POS measurements / scheduling')}><Select label={t('Billed base unit')} value={posUnit} onChange={value=>{setPosUnit(value);if(!id)setUnit(value);}}><MeasurementUnits/></Select><p>{t('One stock quantity uses this base unit. Custom conversions refer to this unit.')}</p><fieldset className="party-roles"><legend>{t('Enabled entry methods')}</legend><div className="role-grid">{['quantity','amount','pack','length','area','volume'].map(method=><Check key={method} checked={posMethods.includes(method)} onChange={on=>setPosMethods(previous=>on?[...previous,method]:previous.filter(value=>value!==method))}>{t(({quantity:'Quantity',amount:'Amount',pack:'Pack / custom unit',length:'Length',area:'Area',volume:'Cubic volume'} as Record<string,string>)[method])}</Check>)}</div></fieldset>{customUnits.map((custom,index)=><div className="line-editor" key={index}><div className="form-grid"><Field label={t('Custom unit name')} value={custom.label} maxLength={50} required onChange={e=>setCustomUnits(rows=>rows.map((r,i)=>i===index?{...r,label:e.target.value}:r))}/><Field label={t('Quantity in base units')} value={custom.qty} inputMode="decimal" required onChange={e=>setCustomUnits(rows=>rows.map((r,i)=>i===index?{...r,qty:e.target.value}:r))}/></div><button type="button" onClick={()=>setCustomUnits(rows=>rows.filter((_,i)=>i!==index))}>{t('Remove')}</button></div>)}<IonButton fill="outline" disabled={customUnits.length>=50} onClick={()=>setCustomUnits(rows=>[...rows,{label:'',qty:'1'}])}>{t('Add custom unit')}</IonButton>{kind==='service'&&<Field label={t('Service duration (minutes)')} type="number" min={1} max={720} value={serviceMinutes} onChange={e=>setServiceMinutes(e.target.value)} required/>}</OptionalDetails><p className="subtle">{t('Stock changes through purchases, returns, and stock counts.')}</p></>}{canEdit && <div className="entry-actions"><Link to={path + '/' + resource}>{t('Cancel')}</Link><Submit busy={form.busy} disabled={form.uncertain||categoryForm.busy||categoryForm.uncertain}>{t('Save')}</Submit></div>}{id && ['owner','manager'].includes(business.role) && <IonButton fill="clear" color="danger" onClick={async () => { const action = row?.archived_at ? 'restore' : 'archive'; if (!window.confirm(`${action === 'archive' ? 'Archive' : 'Restore'} ${name}? Outstanding balances remain in reports.`)) return; try { await send(`${base}/${resource}/${id}/${action}`, { dues_confirmed: true }); changed(); navigate(`${path}/${resource}`); } catch (e) { setArchiveError(e as Error); } }}>{t(row?.archived_at ? 'Restore' : 'Archive')}</IonButton>}</form></>;
+  const { id } = useParams();
+  const { base, path, changed, t, business } = useWorkspace();
+  const contacts = resource === 'contacts';
+  const current = useData<{ data: Item & Party }>(id ? `${base}/${resource}/${id}` : null);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [customer, setCustomer] = useState(true);
+  const [supplier, setSupplier] = useState(false);
+  const [employee, setEmployee] = useState(false);
+  const [rent, setRent] = useState(false);
+  const defaultUnit =
+    ({ meat: 'kg', milk: 'l', glass: 'sq_ft', wood: 'cu_ft' } as Record<string, string>)[
+      business.pos_profile || 'general'
+    ] || 'unit';
+  const [kind, setKind] = useState(
+    ['barber', 'salon'].includes(business.pos_profile || '') ? 'service' : 'stock',
+  );
+  const [unit, setUnit] = useState(defaultUnit);
+  const [posUnit, setPosUnit] = useState(defaultUnit);
+  const [posMethods, setPosMethods] = useState([
+    'quantity',
+    'amount',
+    'pack',
+    'length',
+    'area',
+    'volume',
+  ]);
+  const [customUnits, setCustomUnits] = useState<{ label: string; qty: string }[]>([]);
+  const [serviceMinutes, setServiceMinutes] = useState('30');
+  const [price, setPrice] = useState('0');
+  const [sku, setSku] = useState('');
+  const [low, setLow] = useState('0');
+  const [email, setEmail] = useState('');
+  const [address, setAddress] = useState('');
+  const [pan, setPan] = useState('');
+  const form = useSave();
+  const [archiveError, setArchiveError] = useState<Error>();
+  const [category, setCategory] = useState<{ id: string; name: string }>();
+  const [supplierParty, setSupplierParty] = useState<{ id: string; name: string }>();
+  const [target, setTarget] = useState('0');
+  const [newCategory, setNewCategory] = useState('');
+  const categoryForm = useSave();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const row = current.data?.data;
+    if (!row) return;
+    setName(row.name);
+    setPhone(row.phone || '');
+    setCustomer(!!row.is_customer);
+    setSupplier(!!row.is_supplier);
+    setEmployee(!!row.is_employee);
+    setRent(!!row.is_rent);
+    setKind(row.kind || 'stock');
+    setUnit(row.unit_label || 'unit');
+    setPrice(format(row.sale_price_paisa || '0'));
+    setSku(row.sku || '');
+    setLow(format(row.low_stock_qty_milli || '0', 3));
+    setEmail(row.email || '');
+    setAddress(row.address || '');
+    setPan(row.pan || '');
+    setPosUnit(row.pos_unit || 'unit');
+    setPosMethods(row.pos_methods || ['quantity', 'amount', 'pack', 'length', 'area', 'volume']);
+    setCustomUnits(row.pos_custom_units || []);
+    setServiceMinutes(String(row.service_minutes || 30));
+    setCategory(
+      row.category_id ? { id: row.category_id, name: row.category_name || 'Category' } : undefined,
+    );
+    setSupplierParty(
+      row.preferred_supplier_id
+        ? { id: row.preferred_supplier_id, name: row.preferred_supplier_name || 'Supplier' }
+        : undefined,
+    );
+    setTarget(format(row.reorder_target_qty_milli || '0', 3));
+  }, [current.data]);
+  if (id && (current.loading || current.error))
+    return <Loading error={current.error} retry={current.reload} />;
+  const row = current.data?.data;
+  const canEdit = contacts || business.role !== 'cashier';
+  const blocked = form.busy || form.uncertain || categoryForm.busy || categoryForm.uncertain;
+  return (
+    <div className="master-tools">
+      <Heading
+        eyebrow={contacts ? 'PARTY DETAILS' : 'PRODUCT DETAILS'}
+        title={id ? name : t(contacts ? 'Add party' : 'Add product')}
+      >
+        <Link
+          aria-disabled={blocked}
+          onClick={(event) => {
+            if (blocked) event.preventDefault();
+          }}
+          to={path + '/' + resource}
+        >
+          {t('Back')}
+        </Link>
+      </Heading>
+      <EntrySteps
+        labels={
+          contacts
+            ? [t('Party'), t('Roles'), t('Review')]
+            : [t('Product'), t('Price / unit'), t('Review')]
+        }
+        t={t}
+        busy={blocked}
+        dirty={!!name && !id}
+        error={form.error}
+        canContinue={[!!name.trim()]}
+        onSubmit={(e) => {
+          e.preventDefault();
+          const input = contacts
+            ? {
+                name,
+                phone: phone || null,
+                email: email || null,
+                address: address || null,
+                pan: pan || null,
+                is_customer: customer,
+                is_supplier: supplier,
+                is_employee: employee,
+                is_rent: rent,
+              }
+            : {
+                name,
+                kind,
+                unit_label: unit,
+                pos_unit: posUnit,
+                pos_methods: posMethods,
+                pos_custom_units: customUnits,
+                service_minutes: Number(serviceMinutes),
+                sale_price: price,
+                sku: sku || null,
+                low_stock_qty: low,
+                category_id: category?.id || null,
+                preferred_supplier_id: supplierParty?.id || null,
+                reorder_target_qty: kind === 'stock' ? target : '0',
+              };
+          void form.save(
+            `${base}/${resource}${id ? '/' + id : ''}`,
+            input,
+            () => {
+              changed();
+              navigate(`${path}/${resource}`);
+            },
+            id ? 'PATCH' : 'POST',
+          );
+        }}
+      >
+        <Errors error={form.error || archiveError} />
+        <fieldset className="entry-lock" disabled={blocked || !canEdit}>
+          <section className="panel entry-master" data-entry-step="0">
+            <h2>{t(contacts ? 'Party' : 'Product')}</h2>
+            <Field
+              label={t('Name')}
+              name="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              maxLength={150}
+              disabled={!canEdit}
+            />
+            {contacts && (
+              <>
+                <Field
+                  label={t('Phone (optional)')}
+                  name="phone"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  maxLength={30}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </>
+            )}
+          </section>
+          <section className="panel entry-master" data-entry-step="1">
+            <h2>{t(contacts ? 'Roles' : 'Price / unit')}</h2>
+            {contacts ? (
+              <>
+                <fieldset className="party-roles">
+                  <legend>{t('Party roles')}</legend>
+                  <p>{t('Choose one or more roles.')}</p>
+                  <div className="role-grid">
+                    <Check checked={customer} onChange={setCustomer}>
+                      {t('Customer')}
+                    </Check>
+                    <Check checked={supplier} onChange={setSupplier}>
+                      {t('Supplier')}
+                    </Check>
+                    <Check checked={employee} onChange={setEmployee}>
+                      {t('Employee')}
+                    </Check>
+                    <Check checked={rent} onChange={setRent}>
+                      {t('Rent')}
+                    </Check>
+                  </div>
+                </fieldset>
+              </>
+            ) : (
+              <>
+                <div className="form-grid">
+                  <Select label={t('Item type')} name="kind" value={kind} onChange={setKind}>
+                    <option value="stock">{t('Stock item')}</option>
+                    <option value="service">{t('Service')}</option>
+                  </Select>
+                  <Field
+                    label={t('Unit')}
+                    name="unit_label"
+                    value={unit}
+                    onChange={(e) => setUnit(e.target.value)}
+                    required
+                  />
+                  <Field
+                    label={t('Selling price')}
+                    name="sale_price"
+                    inputMode="decimal"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    required
+                  />
+                </div>
+              </>
+            )}
+          </section>
+          <section className="panel entry-master" data-entry-step="2">
+            <h2>{t('Review')}</h2>
+            <div className="master-review">
+              <strong>{name}</strong>
+              {contacts ? (
+                <>
+                  <span>{phone}</span>
+                  <span>
+                    {[
+                      [customer, 'Customer'],
+                      [supplier, 'Supplier'],
+                      [employee, 'Employee'],
+                      [rent, 'Rent'],
+                    ]
+                      .filter(([selected]) => selected)
+                      .map(([, label]) => t(String(label)))
+                      .join(' · ')}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span>
+                    {t(kind === 'stock' ? 'Stock item' : 'Service')} · {unit}
+                  </span>
+                  <span>
+                    {t('Selling price')}: NPR {price}
+                  </span>
+                </>
+              )}
+            </div>
+            {contacts ? (
+              <>
+                <OptionalDetails label={t('Contact details (optional)')}>
+                  <Field
+                    label={t('Email (optional)')}
+                    name="email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <Field
+                    label={t('Address (optional)')}
+                    name="address"
+                    autoComplete="street-address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+                  <Field
+                    label={t('PAN (optional)')}
+                    name="pan"
+                    inputMode="numeric"
+                    value={pan}
+                    onChange={(e) => setPan(e.target.value)}
+                  />
+                </OptionalDetails>
+              </>
+            ) : (
+              <OptionalDetails label={t('Product options')}>
+                <OptionalDetails label={t('Item category')}>
+                  {category ? (
+                    <div className="mini-row">
+                      <strong>{category.name}</strong>
+                      {canEdit && (
+                        <IonButton fill="clear" onClick={() => setCategory(undefined)}>
+                          {t('Clear')}
+                        </IonButton>
+                      )}
+                    </div>
+                  ) : (
+                    canEdit && (
+                      <Picker
+                        kind="item_categories"
+                        onPick={(row) => setCategory(row as ItemCategory)}
+                      />
+                    )
+                  )}
+                  <Errors error={categoryForm.error} />
+                  {canEdit && (
+                    <>
+                      <Field
+                        label={t('New category name')}
+                        value={newCategory}
+                        maxLength={150}
+                        onChange={(event) => setNewCategory(event.target.value)}
+                      />
+                      <IonButton
+                        fill="outline"
+                        disabled={
+                          !newCategory.trim() || categoryForm.busy || categoryForm.uncertain
+                        }
+                        onClick={() =>
+                          void categoryForm.save<ItemCategory>(
+                            base + '/item-categories',
+                            { name: newCategory },
+                            (row) => {
+                              setCategory(row);
+                              setNewCategory('');
+                              changed();
+                            },
+                          )
+                        }
+                      >
+                        {t('Create category')}
+                      </IonButton>
+                      <Link to={path + '/item-categories'}>{t('Manage categories')}</Link>
+                    </>
+                  )}
+                </OptionalDetails>
+                <OptionalDetails label={t('Stock details (optional)')}>
+                  <Field
+                    label={t('SKU (optional)')}
+                    name="sku"
+                    value={sku}
+                    onChange={(e) => setSku(e.target.value)}
+                  />
+                  {kind === 'stock' && (
+                    <Field
+                      label={t('Low stock alert quantity')}
+                      name="low_stock_qty"
+                      inputMode="decimal"
+                      value={low}
+                      onChange={(e) => setLow(e.target.value)}
+                    />
+                  )}
+                </OptionalDetails>
+                {canEdit && kind === 'stock' && (
+                  <OptionalDetails label={t('Reorder settings')}>
+                    <Field
+                      label={t('Target stock quantity')}
+                      name="reorder_target_qty"
+                      inputMode="decimal"
+                      value={target}
+                      onChange={(event) => setTarget(event.target.value)}
+                    />
+                    <p>
+                      {t('Zero disables target reordering. Target must cover low-stock quantity.')}
+                    </p>
+                    {supplierParty ? (
+                      <div className="mini-row">
+                        <strong>{supplierParty.name}</strong>
+                        <IonButton fill="clear" onClick={() => setSupplierParty(undefined)}>
+                          {t('Clear')}
+                        </IonButton>
+                      </div>
+                    ) : (
+                      <Picker
+                        kind="contacts"
+                        customer={false}
+                        onPick={(row) => setSupplierParty(row as Party)}
+                      />
+                    )}
+                    <small>{t('Preferred supplier')}</small>
+                    {id && <Link to={path + '/reorders'}>{t('Review reorders')}</Link>}
+                  </OptionalDetails>
+                )}
+                <OptionalDetails label={t('POS measurements / scheduling')}>
+                  <Select
+                    label={t('Billed base unit')}
+                    name="pos_unit"
+                    value={posUnit}
+                    onChange={(value) => {
+                      setPosUnit(value);
+                      if (!id) setUnit(value);
+                    }}
+                  >
+                    <MeasurementUnits />
+                  </Select>
+                  <p>
+                    {t(
+                      'One stock quantity uses this base unit. Custom conversions refer to this unit.',
+                    )}
+                  </p>
+                  <fieldset className="party-roles">
+                    <legend>{t('Enabled entry methods')}</legend>
+                    <div className="role-grid">
+                      {['quantity', 'amount', 'pack', 'length', 'area', 'volume'].map((method) => (
+                        <Check
+                          key={method}
+                          checked={posMethods.includes(method)}
+                          onChange={(on) =>
+                            setPosMethods((previous) =>
+                              on
+                                ? [...previous, method]
+                                : previous.filter((value) => value !== method),
+                            )
+                          }
+                        >
+                          {t(
+                            (
+                              {
+                                quantity: 'Quantity',
+                                amount: 'Amount',
+                                pack: 'Pack / custom unit',
+                                length: 'Length',
+                                area: 'Area',
+                                volume: 'Cubic volume',
+                              } as Record<string, string>
+                            )[method],
+                          )}
+                        </Check>
+                      ))}
+                    </div>
+                  </fieldset>
+                  {customUnits.map((custom, index) => (
+                    <div className="line-editor" key={index}>
+                      <div className="form-grid">
+                        <Field
+                          label={t('Custom unit name')}
+                          name={`pos_custom_units.${index}.label`}
+                          value={custom.label}
+                          maxLength={50}
+                          required
+                          onChange={(e) =>
+                            setCustomUnits((rows) =>
+                              rows.map((r, i) =>
+                                i === index ? { ...r, label: e.target.value } : r,
+                              ),
+                            )
+                          }
+                        />
+                        <Field
+                          label={t('Quantity in base units')}
+                          name={`pos_custom_units.${index}.qty`}
+                          value={custom.qty}
+                          inputMode="decimal"
+                          required
+                          onChange={(e) =>
+                            setCustomUnits((rows) =>
+                              rows.map((r, i) => (i === index ? { ...r, qty: e.target.value } : r)),
+                            )
+                          }
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setCustomUnits((rows) => rows.filter((_, i) => i !== index))}
+                      >
+                        {t('Remove')}
+                      </button>
+                    </div>
+                  ))}
+                  <IonButton
+                    fill="outline"
+                    disabled={customUnits.length >= 50}
+                    onClick={() => setCustomUnits((rows) => [...rows, { label: '', qty: '1' }])}
+                  >
+                    {t('Add custom unit')}
+                  </IonButton>
+                  {kind === 'service' && (
+                    <Field
+                      label={t('Service duration (minutes)')}
+                      name="service_minutes"
+                      type="number"
+                      min={1}
+                      max={720}
+                      value={serviceMinutes}
+                      onChange={(e) => setServiceMinutes(e.target.value)}
+                      required
+                    />
+                  )}
+                </OptionalDetails>
+                <p className="subtle">
+                  {t('Stock changes through purchases, returns, and stock counts.')}
+                </p>
+              </OptionalDetails>
+            )}
+            {row && (
+              <OptionalDetails label={t('Balances / actions')}>
+                {row && !contacts && (
+                  <div className="metrics compact">
+                    <div className="panel metric">
+                      <span>{t('Available')}</span>
+                      <strong>
+                        {format(row.qty_milli, 3)} {row.unit_label}
+                      </strong>
+                    </div>
+                    {row.value_paisa && (
+                      <div className="panel metric">
+                        <span>{t('Stock value')}</span>
+                        <strong>{currency(row.value_paisa)}</strong>
+                      </div>
+                    )}
+                    {['owner', 'manager'].includes(business.role) && (
+                      <Link className="panel quick-action" to={`${path}/stock/count?item=${id}`}>
+                        {t('Count stock')}
+                      </Link>
+                    )}
+                  </div>
+                )}
+                {row && contacts && business.role !== 'cashier' && (
+                  <div className="metrics compact">
+                    <div className="panel metric">
+                      <span>Customer owes / credit</span>
+                      <strong>{currency(row.receivable_paisa)}</strong>
+                    </div>
+                    <div className="panel metric">
+                      <span>Payable due / advance</span>
+                      <strong>{currency(row.payable_paisa)}</strong>
+                    </div>
+                    <Link
+                      className="panel quick-action"
+                      to={`${path}/reports?report=statement&contact=${id}`}
+                    >
+                      View statement
+                    </Link>
+                    <Link className="panel quick-action" to={`${path}/contacts/${id}/trading`}>
+                      {t('Payment terms / prices')}
+                    </Link>
+                    <Link
+                      className="panel quick-action"
+                      to={`${path}/followups?contact=${id}&new=1`}
+                    >
+                      {t('Add follow-up')}
+                    </Link>
+                  </div>
+                )}
+                {id && ['owner', 'manager'].includes(business.role) && (
+                  <IonButton
+                    fill="clear"
+                    color="danger"
+                    onClick={async () => {
+                      const action = row?.archived_at ? 'restore' : 'archive';
+                      if (
+                        !window.confirm(
+                          `${action === 'archive' ? 'Archive' : 'Restore'} ${name}? Outstanding balances remain in reports.`,
+                        )
+                      )
+                        return;
+                      try {
+                        await send(`${base}/${resource}/${id}/${action}`, { dues_confirmed: true });
+                        changed();
+                        navigate(`${path}/${resource}`);
+                      } catch (e) {
+                        setArchiveError(e as Error);
+                      }
+                    }}
+                  >
+                    {t(row?.archived_at ? 'Restore' : 'Archive')}
+                  </IonButton>
+                )}
+              </OptionalDetails>
+            )}
+            {canEdit && (
+              <div className="master-submit">
+                <Submit busy={form.busy} disabled={blocked}>
+                  {t('Save')}
+                </Submit>
+              </div>
+            )}
+          </section>
+        </fieldset>
+        {categoryForm.uncertain && !form.uncertain && (
+          <IonButton disabled={categoryForm.busy} onClick={() => void categoryForm.retry()}>
+            {t('Retry original action')}
+          </IonButton>
+        )}
+        {form.uncertain && (
+          <IonButton disabled={form.busy} onClick={() => void form.retry()}>
+            {t('Retry original action')}
+          </IonButton>
+        )}
+      </EntrySteps>
+    </div>
+  );
 }

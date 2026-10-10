@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 E:/laravel pojects/dairy main/newapp/frontend
+
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  16:58:52
+   Duration  6.05s (transform 479ms, setup 803ms, import 815ms, tests 1.65s, environment 2.34s)
+

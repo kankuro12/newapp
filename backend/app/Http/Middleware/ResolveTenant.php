@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Tenant;
+use App\Service\BillingService;
 use App\Support\CurrentTenant;
 use Closure;
 use Illuminate\Http\Request;
@@ -23,6 +24,15 @@ class ResolveTenant
         abort_unless($user && ! $user->disabled_at, 401);
         $membership = DB::table('tenant_user')->where('tenant_id', $tenant->id)->where('user_id', $user->id)->where('active', true)->first();
         abort_unless($membership, 404);
+        $billing = app(BillingService::class);
+        $billing->businessAccess($tenant, ! $request->isMethod('GET'), $membership->role);
+        $feature = explode('/', trim(substr($request->path(), strlen('api/app/'.$tenant->slug)), '/'))[0];
+        $product = match ($feature) {
+            'restaurant' => 'restaurant', 'appointments' => in_array($tenant->pos_profile, ['barber', 'salon'], true) ? $tenant->pos_profile : 'salon', 'gym' => 'gym', default => null
+        };
+        if ($product && $tenant->billing_account_id) {
+            $billing->requireProduct((int) $tenant->billing_account_id, $product);
+        }
         abort_if($tenant->access_status === 'suspended', 403, 'Business suspended.');
         $expiry = $tenant->access_status === 'trial' ? $tenant->trial_ends_at : $tenant->access_until;
         $expired = ! in_array($tenant->access_status, ['active', 'trial']) || ! $expiry || ! $expiry->isFuture();

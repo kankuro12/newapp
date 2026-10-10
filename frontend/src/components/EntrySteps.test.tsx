@@ -6,15 +6,34 @@ import { Field } from './ui';
 
 afterEach(() => vi.restoreAllMocks());
 function fixture(mobile = true) {
-  vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: mobile, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList);
+  vi.spyOn(window, 'matchMedia').mockReturnValue({
+    matches: mobile,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  } as unknown as MediaQueryList);
   const post = vi.fn();
   function Form() {
     const [name, setName] = useState('');
-    return <EntrySteps labels={['Party', 'Items', 'Review']} onSubmit={post}>
-      <section data-entry-step="0"><h2>Party details</h2><Field label="Name" required value={name} onChange={e => setName(e.target.value)} /></section>
-      <section data-entry-step="1"><h2>Item details</h2><Field label="Quantity" defaultValue="1" required /></section>
-      <section data-entry-step="2"><h2>Review entry</h2><details><summary>Optional details</summary><Field label="Email" type="email" defaultValue="bad-email" /></details><button type="submit">Post sale</button></section>
-    </EntrySteps>;
+    return (
+      <EntrySteps labels={['Party', 'Items', 'Review']} onSubmit={post}>
+        <section data-entry-step="0">
+          <h2>Party details</h2>
+          <Field label="Name" required value={name} onChange={(e) => setName(e.target.value)} />
+        </section>
+        <section data-entry-step="1">
+          <h2>Item details</h2>
+          <Field label="Quantity" defaultValue="1" required />
+        </section>
+        <section data-entry-step="2">
+          <h2>Review entry</h2>
+          <details>
+            <summary>Optional details</summary>
+            <Field label="Email" type="email" defaultValue="bad-email" />
+          </details>
+          <button type="submit">Post sale</button>
+        </section>
+      </EntrySteps>
+    );
   }
   render(<Form />);
   return post;
