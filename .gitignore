@@ -23,6 +23,7 @@ coverage/
 *.tsbuildinfo
 .vite/
 .nx/
+.playwright-mcp/
 
 # Test recordings
 /frontend/cypress/screenshots/
