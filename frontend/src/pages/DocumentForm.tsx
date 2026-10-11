@@ -14,6 +14,7 @@ import { BasketOfferSelect } from './BasketOffers';
 import { OfferReview } from './DocumentOffers';
 import { useReviewedOffer } from '../lib/useReviewedOffer';
 import { Check, Errors, Field, Heading, Loading, Select, Submit } from '../components/ui';
+import { jobTypes } from '../lib/businessTypes';
 
 interface Line {
   item_id?: string;
@@ -82,8 +83,11 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
     workflowSource ? `${base}/workflow/${workflowSource}` : null,
   );
   const [niche, setNiche] = useState(
-    ['glass', 'wood'].includes(business.pos_profile || '') ? business.pos_profile! : 'general',
+    ['glass', 'wood', ...jobTypes].includes(business.pos_profile || '')
+      ? business.pos_profile!
+      : 'general',
   );
+  const [details, setDetails] = useState<Record<string, string>>({});
   const [jobTitle, setJobTitle] = useState('');
   const [reference, setReference] = useState('');
   const [specifications, setSpecifications] = useState('');
@@ -148,6 +152,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
     setJobTitle(row.title || '');
     setReference(row.reference || '');
     setSpecifications(row.specifications || '');
+    setDetails(row.details || {});
     setValidUntil(workflowId && row.valid_until_bs ? bsDisplay(row.valid_until_bs) : '');
     setDue(row.due_date_bs ? bsDisplay(row.due_date_bs) : '');
     const raw = row.bill_input?.offer_input;
@@ -317,6 +322,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
           title: jobTitle || null,
           reference: reference || null,
           specifications: specifications || null,
+          details: Object.fromEntries(Object.entries(details).filter(([, value]) => value.trim())),
           notes,
           lines: lines.map(priced),
           ...(discountMode === 'percent'
@@ -480,6 +486,8 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                 setReference={setReference}
                 specifications={specifications}
                 setSpecifications={setSpecifications}
+                details={details}
+                setDetails={setDetails}
                 due={due}
                 setDue={setDue}
                 validUntil={validUntil}
@@ -903,6 +911,8 @@ function WorkflowFields({
   setReference,
   specifications,
   setSpecifications,
+  details,
+  setDetails,
   due,
   setDue,
   validUntil,
@@ -919,17 +929,25 @@ function WorkflowFields({
   setReference: (v: string) => void;
   specifications: string;
   setSpecifications: (v: string) => void;
+  details: Record<string, string>;
+  setDetails: (v: Record<string, string>) => void;
   due: string;
   setDue: (v: string) => void;
   validUntil: string;
   setValidUntil: (v: string) => void;
   t: (v: string) => string;
 }) {
+  const { base } = useWorkspace();
+  const fields = useData<{ data: Record<string, { key: string; label: string; max: number }[]> }>(
+    enabled ? `${base}/workflows/niches` : null,
+  );
   if (!enabled) return null;
   const niches: Record<string, string> = {
     general: 'General',
     glass: 'Glass',
     wood: 'Wood',
+    fabrication: 'Iron works / grill',
+    garage: 'Auto garage',
     laundry: 'Laundry',
     repair: 'Repair',
     tailor: 'Tailoring',
@@ -941,6 +959,8 @@ function WorkflowFields({
     glass: 'Glass type, dimensions, edges and installation',
     wood: 'Timber type, dimensions, finish and cutting',
     laundry: 'Garment/count/weight, stain, colour and damage',
+    fabrication: 'Rod/pipe sizes, hinges/locks, wall fixing, painting notes',
+    garage: 'Work requested, parts supplied by customer, other notes',
     repair: 'Device model/reference, reported issue and condition. No passwords.',
     tailor: 'Measurements with units, fabric, style and fitting',
     printing: 'Size, material, colours, artwork version and finish',
@@ -951,13 +971,29 @@ function WorkflowFields({
     <details className="optional-details" open>
       <summary>{t('Job details / dates')}</summary>
       <div>
-        <Select label={t('Business / job type')} value={niche} onChange={setNiche}>
+        <Select
+          label={t('Business / job type')}
+          value={niche}
+          onChange={(value) => {
+            setNiche(value);
+            setDetails({});
+          }}
+        >
           {Object.entries(niches).map(([key, label]) => (
             <option key={key} value={key}>
               {t(label)}
             </option>
           ))}
         </Select>
+        {(fields.data?.data[niche] || []).map((field) => (
+          <Field
+            key={field.key}
+            label={t(field.label)}
+            maxLength={field.max}
+            value={details[field.key] || ''}
+            onChange={(e) => setDetails({ ...details, [field.key]: e.target.value })}
+          />
+        ))}
         <Field
           label={t('Job title')}
           maxLength={150}

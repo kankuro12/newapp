@@ -60,9 +60,46 @@ class BusinessFlowTest extends TestCase
             $this->assertSame('0', $row['difference_paisa']);
         }
         $this->getJson($url.'/reports/customer-aging')->assertOk()->assertJsonPath('data.0.due_paisa', '25000');
-        $before = DB::table('journal_entries')->count();
-        $this->postAction($url.'/documents/sale', [...$saleInput, 'mutation_uuid' => (string) Str::uuid(), 'lines' => [['item_id' => $item, 'qty' => '100', 'unit_price' => '150']], 'expected_total_paisa' => '1500000'])->assertUnprocessable();
-        $this->assertSame($before, DB::table('journal_entries')->count());
+        // Selling more than is in stock is allowed; the books stay reconciled with negative stock.
+        $this->postAction($url.'/documents/sale', [...$saleInput, 'mutation_uuid' => (string) Str::uuid(), 'lines' => [['item_id' => $item, 'qty' => '100', 'unit_price' => '150']], 'expected_total_paisa' => '1500000'])->assertCreated();
+        $this->assertSame(-93000, (int) DB::table('inventory_balances')->where('item_id', $item)->value('qty_milli'));
+        foreach ($this->getJson($url.'/reports/reconciliation')->assertOk()->json('data') as $row) {
+            $this->assertSame('0', $row['difference_paisa']);
+        }
+    }
+
+    public function test_negative_stock_is_settled_at_purchase_cost_and_reverses_cleanly(): void
+    {
+        $url = $this->business();
+        $lookup = $this->getJson($url.'/lookup')->assertOk()->json('data');
+        $cash = $lookup['accounts'][0]['id'];
+        $date = NepaliDate::today();
+        $this->postAction($url.'/settings/opening-balances/finalize', ['business_date_bs' => $date, 'money' => [['account_id' => $cash, 'amount' => '50000']], 'stock' => [], 'parties' => []])->assertCreated();
+        $supplier = $this->postJson($url.'/contacts', ['name' => 'Supplier', 'is_customer' => false, 'is_supplier' => true])->assertCreated()->json('data.id');
+        $item = $this->postJson($url.'/items', ['name' => 'Rice', 'kind' => 'stock', 'unit_label' => 'kg', 'sale_price' => '150'])->assertCreated()->json('data.id');
+        $buy = fn (string $qty, string $price, string $total) => $this->postAction($url.'/documents/purchase', ['contact_id' => $supplier, 'business_date_bs' => $date, 'lines' => [['item_id' => $item, 'qty' => $qty, 'unit_price' => $price]], 'paid_now' => '0', 'expected_total_paisa' => $total])->assertCreated()->json('data');
+        $balanced = function () use ($url) {
+            foreach ($this->getJson($url.'/reports/reconciliation')->assertOk()->json('data') as $row) {
+                $this->assertSame('0', $row['difference_paisa']);
+            }
+        };
+        $buy('10', '100', '100000');
+        $this->postAction($url.'/documents/sale', ['business_date_bs' => $date, 'lines' => [['item_id' => $item, 'qty' => '13', 'unit_price' => '150']], 'paid_now' => '1950', 'money_account_id' => $cash, 'expected_total_paisa' => '195000'])->assertCreated();
+        $pool = DB::table('inventory_balances')->where('item_id', $item)->first();
+        $this->assertSame([-3000, -30000], [(int) $pool->qty_milli, (int) $pool->value_paisa]);
+        $balanced();
+        $this->getJson($url)->assertOk()->assertJsonPath('data.negative_stock.count', '1')->assertJsonPath('data.negative_stock.items.0.qty_milli', '-3000');
+        $restock = $buy('10', '120', '120000');
+        $pool = DB::table('inventory_balances')->where('item_id', $item)->first();
+        // 3 kg sold at 100 now cost 120: 60 rupees moves to cost of goods sold; 7 kg remain at 120.
+        $this->assertSame([7000, 84000], [(int) $pool->qty_milli, (int) $pool->value_paisa]);
+        $this->assertDatabaseHas('journal_entries', ['source_type' => 'stock_cost']);
+        $balanced();
+        $this->postAction($url.'/document/'.$restock['id'].'/cancel', ['business_date_bs' => $date, 'reason' => 'Supplier bill entered twice'])->assertCreated();
+        $pool = DB::table('inventory_balances')->where('item_id', $item)->first();
+        $this->assertSame([-3000, -30000], [(int) $pool->qty_milli, (int) $pool->value_paisa]);
+        $this->assertDatabaseHas('journal_entries', ['source_type' => 'stock_cost', 'source_event' => 'reverse']);
+        $balanced();
     }
 
     public function test_tenants_and_super_admin_guards_are_isolated(): void

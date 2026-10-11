@@ -18,9 +18,9 @@ vi.mock('../lib/context', () => ({
 vi.mock('../lib/api', () => ({
   ApiError: class extends Error {},
   useOnline: () => true,
-  useData: (path: string) => ({
+  useData: (path: string | null) => ({
     loading: false,
-    data: { data: path.endsWith('/lookup') ? { accounts: [] } : fixture.row },
+    data: { data: path?.endsWith('/lookup') ? { accounts: [] } : fixture.row },
   }),
   useSave: () => ({ save: vi.fn(), clear: vi.fn() }),
 }));

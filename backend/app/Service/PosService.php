@@ -10,7 +10,10 @@ use Illuminate\Support\Str;
 
 class PosService
 {
-    public const PROFILES = ['general', 'meat', 'restaurant', 'barber', 'salon', 'milk', 'glass', 'wood', 'gym'];
+    public const PROFILES = ['general', 'meat', 'restaurant', 'barber', 'salon', 'milk', 'glass', 'wood', 'gym', 'garage', 'repair', 'laundry', 'tailor', 'printing', 'fabrication'];
+
+    /** Job-card business types: their daily tool is the workflow job board with niche details. */
+    public const JOB_PROFILES = ['garage', 'repair', 'laundry', 'tailor', 'printing', 'fabrication'];
 
     public const METHODS = ['quantity', 'amount', 'pack', 'length', 'area', 'volume'];
 

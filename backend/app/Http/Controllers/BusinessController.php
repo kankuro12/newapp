@@ -9,6 +9,7 @@ use App\Service\DocumentService;
 use App\Service\FulfilmentService;
 use App\Service\InventoryService;
 use App\Service\PaymentService;
+use App\Service\PosService;
 use App\Service\TenantService;
 use App\Support\Money;
 use Illuminate\Contracts\Support\Arrayable;
@@ -18,6 +19,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class BusinessController extends Controller
 {
@@ -78,7 +80,7 @@ class BusinessController extends Controller
 
     public function createBusiness(Request $r, TenantService $service): JsonResponse
     {
-        $input = $r->validate(['billing_account_id' => 'sometimes|integer|min:1', 'name' => 'required|string|max:150', 'business_type' => 'sometimes|in:general,meat,restaurant,barber,salon,milk,glass,wood,gym', 'address' => 'nullable|string|max:500', 'phone' => 'nullable|string|max:30', 'pan' => 'nullable|string|max:30', 'default_locale' => 'sometimes|in:en,ne']);
+        $input = $r->validate(['billing_account_id' => 'sometimes|integer|min:1', 'name' => 'required|string|max:150', 'business_type' => ['sometimes', Rule::in(PosService::PROFILES)], 'address' => 'nullable|string|max:500', 'phone' => 'nullable|string|max:30', 'pan' => 'nullable|string|max:30', 'default_locale' => 'sometimes|in:en,ne']);
 
         return response()->json(['data' => self::json($service->create(auth('tenant')->id(), $input))], 201);
     }

@@ -1,6 +1,7 @@
 /** Manual section for each workspace screen; the first matching prefix wins. */
 const sections: [prefix: string, section: string][] = [
   ['/gym', 'gym'],
+  ['/pos/full', 'full-pos'],
   ['/pos/setup', 'pos'],
   ['/pos', 'pos'],
   ['/workflows', 'workflows'],

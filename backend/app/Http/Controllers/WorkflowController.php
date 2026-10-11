@@ -24,7 +24,7 @@ class WorkflowController extends Controller
 
     public function listing(Request $r): JsonResponse
     {
-        $input = $r->validate(['kind' => ['nullable', Rule::in(WorkflowService::KINDS)], 'status' => 'nullable|in:draft,sent,accepted,rejected,open,in_progress,ready,fulfilled,cancelled,converted', 'q' => 'nullable|string|max:150', 'overdue' => 'nullable|boolean', 'page' => 'nullable|integer|min:1']);
+        $input = $r->validate(['kind' => ['nullable', Rule::in(WorkflowService::KINDS)], 'status' => 'nullable|in:draft,sent,accepted,rejected,open,in_progress,ready,fulfilled,cancelled,converted', 'q' => 'nullable|string|max:150', 'overdue' => 'nullable|boolean', 'page' => 'nullable|integer|min:1', 'lookup' => 'nullable|string|max:64']);
         $q = $this->a->rows('business_workflows');
         $actor = auth('tenant')->id();
         if ($this->a->role($actor) === 'cashier') {
@@ -36,20 +36,31 @@ class WorkflowController extends Controller
             }
         }
         if (! empty($input['q'])) {
-            $q->where(fn ($q) => $q->where('title', 'like', '%'.$input['q'].'%')->orWhere('reference', 'like', '%'.$input['q'].'%'));
+            $key = WorkflowService::lookupKey($input['q']);
+            $q->where(fn ($q) => $q->where('title', 'like', '%'.$input['q'].'%')->orWhere('reference', 'like', '%'.$input['q'].'%')->when($key !== '', fn ($q) => $q->orWhere('lookup_key', $key)));
+        }
+        if (! empty($input['lookup'])) {
+            // Service history: every job for the same vehicle or device.
+            $q->where('lookup_key', WorkflowService::lookupKey($input['lookup']));
         }
         if (! empty($input['overdue'])) {
             $q->where('due_date_bs', '<', NepaliDate::today())->whereNotIn('status', ['fulfilled', 'cancelled', 'converted', 'rejected']);
         }
-        $page = $q->select(['id', 'kind', 'status', 'version', 'sequence', 'title', 'reference', 'niche', 'business_date_bs', 'due_date_bs', 'valid_until_bs', 'total_paisa', 'contact_id', 'party_snapshot', 'source_id', 'document_id'])->orderByDesc('id')->paginate(25);
+        $page = $q->select(['id', 'kind', 'status', 'version', 'sequence', 'title', 'reference', 'niche', 'details', 'lookup_key', 'business_date_bs', 'due_date_bs', 'valid_until_bs', 'total_paisa', 'contact_id', 'party_snapshot', 'source_id', 'document_id'])->orderByDesc('id')->paginate(25);
         $page->getCollection()->transform(function ($row) {
             $row->party_snapshot = json_decode($row->party_snapshot, true);
+            $row->details = $row->details ? json_decode($row->details, true) : null;
             $row->number = ['quote' => 'QUO', 'sales_order' => 'SO', 'purchase_order' => 'PO'][$row->kind].'-'.str_pad((string) $row->sequence, 6, '0', STR_PAD_LEFT);
 
             return BusinessController::json($row);
         });
 
         return response()->json($page);
+    }
+
+    public function niches(): JsonResponse
+    {
+        return response()->json(['data' => collect(WorkflowService::NICHE_FIELDS)->map(fn ($fields) => collect($fields)->map(fn ($field, $key) => ['key' => $key, 'label' => $field[0], 'max' => $field[1]])->values())]);
     }
 
     public function show(string $tenant, int $id): JsonResponse
@@ -67,7 +78,7 @@ class WorkflowController extends Controller
     public function save(Request $r, string $tenant, ?int $id = null): JsonResponse
     {
         $rules = $this->business->documentRules();
-        $input = $r->validate([...$rules, 'kind' => ['required', Rule::in(WorkflowService::KINDS)], 'lines.*.item_id' => 'required|integer|min:1', 'expected_total_paisa' => 'required|regex:/^\d{1,11}$/', 'version' => $id ? 'required|integer|min:1' : 'sometimes|integer|min:1', 'niche' => ['sometimes', Rule::in(WorkflowService::NICHES)], 'title' => 'nullable|string|max:150', 'reference' => 'nullable|string|max:150', 'specifications' => 'nullable|string|max:4000', 'reorder' => 'sometimes|array|min:1|max:100', 'reorder.*' => 'required|string|size:64', 'valid_until_bs' => ['nullable', ...array_slice($this->business->dateRule(), 1)]]);
+        $input = $r->validate([...$rules, 'kind' => ['required', Rule::in(WorkflowService::KINDS)], 'lines.*.item_id' => 'required|integer|min:1', 'expected_total_paisa' => 'required|regex:/^\d{1,11}$/', 'version' => $id ? 'required|integer|min:1' : 'sometimes|integer|min:1', 'niche' => ['sometimes', Rule::in(WorkflowService::NICHES)], 'title' => 'nullable|string|max:150', 'reference' => 'nullable|string|max:150', 'specifications' => 'nullable|string|max:4000', 'details' => 'sometimes|nullable|array|max:10', 'reorder' => 'sometimes|array|min:1|max:100', 'reorder.*' => 'required|string|size:64', 'valid_until_bs' => ['nullable', ...array_slice($this->business->dateRule(), 1)]]);
 
         return $this->result($this->service->save(auth('tenant')->id(), $input, $input['mutation_uuid'], $id));
     }

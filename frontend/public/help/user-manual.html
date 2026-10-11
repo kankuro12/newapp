@@ -278,6 +278,12 @@
           <li><a href="#gym">21. Gym desk</a></li>
           <li><a href="#platform">22. Platform administration</a></li>
           <li><a href="#agents">23. AI agents (MCP)</a></li>
+          <li>
+            <a href="#job-cards"
+              >24. Job cards: garage, repair, laundry, tailoring, printing, iron works</a
+            >
+          </li>
+          <li><a href="#full-pos">25. Full POS (tablet and desktop)</a></li>
         </ul>
       </nav>
 
@@ -865,6 +871,14 @@
       <section id="stock">
         <h2>14. Stock and reordering</h2>
         <p>
+          <strong>Selling more than you have in stock is allowed.</strong> The item then shows a
+          negative quantity, and Home shows a <strong>Negative stock</strong> notice listing those
+          items until you record the purchase or count the stock. The shortfall is costed at the
+          current average (or the last purchase price when stock was zero); when the purchase
+          arrives, any price difference for the units already sold goes to cost of goods sold
+          automatically.
+        </p>
+        <p>
           Ordinary posted purchases increase stock; ordinary posted sales decrease it. For staged
           orders, the delivery/receipt action moves stock first and its later bill does not move
           stock again. Services do not consume stock. Use <strong>Count stock</strong> for actual
@@ -1288,6 +1302,104 @@
           Agents follow business access rules: a cashier's token can record sales but not see
           reports. Every agent sale is marked “Recorded by AI agent” in its notes.
         </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+      <section id="job-cards">
+        <h2>24. Job cards: garage, repair, laundry, tailoring, printing, iron works</h2>
+        <p>
+          Choose <strong>Auto garage</strong>, <strong>Mobile / device repair</strong>,
+          <strong>Laundry / dry cleaning</strong>, <strong>Tailoring</strong> or
+          <strong>Printing / signage</strong> or <strong>Iron works / grill fabrication</strong> as
+          the business type. <strong>Job cards</strong> then leads the menu. A job card is a sales
+          order with the details your trade needs.
+        </p>
+        <ol>
+          <li>
+            <strong>Take in the job:</strong> Job cards → new sales order (or a quote first if the
+            customer must approve the price). Choose the customer and fill the job details:
+          </li>
+        </ol>
+        <ul>
+          <li>Garage: vehicle number, make/model, odometer, fuel level, customer complaint.</li>
+          <li>
+            Device repair: IMEI or serial number, device, reported issue, condition at intake,
+            accessories received. Never write down passwords or PINs.
+          </li>
+          <li>Laundry: number of pieces, garments, service, stains or damage, rack or bag tag.</li>
+          <li>Tailoring: garment and style, measurements with units, fabric, fitting date.</li>
+          <li>Printing: size, material, colours/sides, quantity, artwork version, finish.</li>
+          <li>
+            Iron works / grill: gate, grill, shutter, railing or truss; size W × H in feet; area in
+            sq ft; estimated weight in kg; material, section and gauge; design; finish (paint,
+            powder coat, galvanise); installation site and date. Price per sq ft or per kg using
+            items set up with area or weight measurement, and add installation, hardware and
+            transport as separate lines. Sell rods, pipes and sheets at the counter by length, area
+            or weight.
+          </li>
+        </ul>
+        <ol start="2">
+          <li>
+            <strong>Price it:</strong> add labour as service items and parts as stock items. For a
+            quote, send it and mark it accepted when the customer approves, then create the order.
+          </li>
+          <li>
+            <strong>Track it:</strong> move the job through In progress → Ready. Overdue jobs show
+            with the “Overdue work only” filter.
+          </li>
+          <li>
+            <strong>Deliver and bill:</strong> on handover, bill the job. Parts leave stock and the
+            bill posts like any sale; collect payment now or later.
+          </li>
+        </ol>
+        <p>
+          <strong>Service history:</strong> search a vehicle number or IMEI in Job cards (spacing
+          and dashes do not matter), or open a job and choose <strong>Service history</strong> to
+          see every earlier job for the same vehicle or device.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+      <section id="full-pos">
+        <h2>25. Full POS (tablet and desktop)</h2>
+        <p>
+          The original counter is now called <strong>Quick POS</strong>; it works on phones.
+          <strong>Full POS</strong>
+          is a full-screen counter for tablets and computers: no menu, no scrolling, one tap per
+          item. Open it from the menu or from Quick POS. Phones show a link back to Quick POS.
+        </p>
+        <ol>
+          <li>
+            <strong>Sell:</strong> search or pick a category, tap product tiles (tap again for one
+            more) or scan a barcode. Weighed or measured items open a small entry box. Use
+            <strong>‹ Previous</strong> and <strong>Next ›</strong> to page through products.
+          </li>
+          <li>
+            <strong>Ticket:</strong> + and − change quantity; tap a line to change its measurement.
+            Choose a customer for agreed prices or to leave a balance due. The total is checked by
+            the server before payment.
+          </li>
+          <li>
+            <strong>Pay:</strong> choose Cash or a bank account, enter the amount received with the
+            keypad or a quick note (500, 1000…), and the change is shown. Less than the total saves
+            a balance due for the chosen customer. After saving, open the bill to print it.
+          </li>
+          <li>
+            <strong>Park / Recall:</strong> park a ticket to serve the next customer and recall it
+            later. Parked tickets stay on this device only.
+          </li>
+        </ol>
+        <p>Extra modes appear by business type:</p>
+        <ul>
+          <li>Restaurant: <strong>Open tables</strong> with running totals and checkout.</li>
+          <li>
+            Barber / salon: today’s <strong>Appointments</strong>; arrived clients can be checked
+            out.
+          </li>
+          <li>Gym: <strong>Member check-in</strong> by name, phone or member code.</li>
+          <li>
+            Garage, repair, laundry, tailoring, printing, iron works: <strong>Ready jobs</strong> to
+            deliver and bill with the job’s agreed total.
+          </li>
+        </ul>
         <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
     </main>

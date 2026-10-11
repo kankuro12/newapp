@@ -1,6 +1,6 @@
 import { IonButton } from '@ionic/react';
 import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useWorkspace } from '../lib/context';
 import { useData, useSave } from '../lib/api';
 import { bsDisplay, currency, format } from '../lib/money';
@@ -20,6 +20,7 @@ import {
 import DocumentForm from './DocumentForm';
 import { Pagination } from './Records';
 import { FulfilmentPanel } from '../components/FulfilmentPanel';
+import { jobTypes } from '../lib/businessTypes';
 
 const kinds: Record<string, string> = {
   quote: 'Quote',
@@ -61,15 +62,26 @@ export function WorkflowList() {
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
   const [overdue, setOverdue] = useState(false);
+  const [search] = useSearchParams();
+  // Service history for one vehicle or device, opened from a job card.
+  const lookup = search.get('lookup') || '';
   const cashier = business.role === 'cashier';
   const result = useData<Page<Workflow>>(
-    `${base}/workflows?kind=${kind}&status=${status}&q=${encodeURIComponent(q)}&page=${page}&overdue=${overdue ? 1 : 0}`,
+    `${base}/workflows?kind=${kind}&status=${status}&q=${encodeURIComponent(q)}&page=${page}&overdue=${overdue ? 1 : 0}&lookup=${encodeURIComponent(lookup)}`,
     revision,
   );
   return (
     <>
       <Heading
-        title={t('Quotes / orders / jobs')}
+        title={
+          lookup
+            ? `${t('Service history')} · ${lookup}`
+            : t(
+                jobTypes.includes(business.pos_profile || '')
+                  ? 'Job cards'
+                  : 'Quotes / orders / jobs',
+              )
+        }
         description={t('Track work before billing. No stock or money movement until bill posts.')}
       >
         <Link to={path + '/workflows/new/quote'}>{t('New quote')}</Link>
@@ -141,7 +153,13 @@ export function WorkflowList() {
                     {row.number} · {t(kinds[row.kind])}
                   </strong>
                   <small>
-                    {row.title || row.reference} · {row.party_snapshot.name}
+                    {[
+                      row.title || row.reference,
+                      ...detailSummary(row.details),
+                      row.party_snapshot.name,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
                   </small>
                 </div>
                 <span>
@@ -335,6 +353,7 @@ export function WorkflowDetail() {
             {t('Reference')}: {row.reference}
           </p>
         )}
+        <JobDetails row={row} />
         <p>
           {row.valid_until_bs && (
             <span>
@@ -550,5 +569,42 @@ export function WorkflowDetail() {
         </form>
       )}
     </>
+  );
+}
+
+/** Short identifiers for list rows: vehicle number, device serial or piece count. */
+function detailSummary(details?: Record<string, string> | null): string[] {
+  if (!details) return [];
+  return ['vehicle_no', 'imei_serial', 'device', 'product', 'pieces', 'garment', 'size']
+    .filter((key) => details[key])
+    .slice(0, 2)
+    .map((key) => (key === 'pieces' ? `${details[key]} pcs` : details[key]));
+}
+
+function JobDetails({ row }: { row: Workflow }) {
+  const { base, path, t } = useWorkspace();
+  const fields = useData<{ data: Record<string, { key: string; label: string }[]> }>(
+    row.details ? `${base}/workflows/niches` : null,
+  );
+  if (!row.details) return null;
+  const labels = Object.fromEntries(
+    (fields.data?.data[row.niche] || []).map((field) => [field.key, field.label]),
+  );
+  return (
+    <div className="job-details">
+      <dl>
+        {Object.entries(row.details).map(([key, value]) => (
+          <div key={key}>
+            <dt>{t(labels[key] || key)}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+      {row.lookup_key && (
+        <Link to={`${path}/workflows?lookup=${encodeURIComponent(row.lookup_key)}`}>
+          {t('Service history')} ({(row.history_count || 0) + 1})
+        </Link>
+      )}
+    </div>
   );
 }

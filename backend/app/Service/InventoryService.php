@@ -12,13 +12,23 @@ class InventoryService
 {
     public function __construct(private AccountingService $a) {}
 
-    public function outflowCost(int $poolQty, int $poolValue, int $qty): int
+    /**
+     * Cost of an outflow at the moving average. Selling below zero is allowed: the shortfall is costed at
+     * the current average, or at the fallback unit cost (paisa per base unit) when stock is exactly zero.
+     */
+    public function outflowCost(int $poolQty, int $poolValue, int $qty, int $fallbackUnitPaisa = 0): int
     {
-        if ($qty <= 0 || $qty > $poolQty) {
-            $this->a->fail('Not enough stock.', 'lines');
+        if ($qty <= 0) {
+            $this->a->fail('Enter a quantity above zero.', 'lines');
+        }
+        if ($poolQty > 0) {
+            return $qty === $poolQty ? $poolValue : Money::multiplyDivide($poolValue, $qty, $poolQty);
+        }
+        if ($poolQty < 0) {
+            return Money::multiplyDivide(-$poolValue, $qty, -$poolQty);
         }
 
-        return $qty === $poolQty ? $poolValue : Money::multiplyDivide($poolValue, $qty, $poolQty);
+        return Money::multiplyDivide(max(0, $fallbackUnitPaisa), $qty, 1000);
     }
 
     public function pool(int $item): object
@@ -44,7 +54,8 @@ class InventoryService
         $pool = $this->pool($item);
         $newQty = Money::checked(bcadd((string) $pool->qty_milli, (string) $qty, 0));
         $newValue = Money::checked(bcadd((string) $pool->value_paisa, (string) $value, 0));
-        if ($newQty < 0 || $newValue < 0 || (! $newQty && $newValue)) {
+        // Positive stock has non-negative value; sold-ahead (negative) stock has zero or negative value.
+        if (! (($newQty > 0 && $newValue >= 0) || ($newQty === 0 && $newValue === 0) || ($newQty < 0 && $newValue <= 0))) {
             $this->a->fail('Stock reversal would invalidate valuation.');
         }
         $this->a->rows('inventory_balances')->where('item_id', $item)->update(['qty_milli' => $newQty, 'value_paisa' => $newValue]);
@@ -59,14 +70,31 @@ class InventoryService
         if ($qty <= 0 || $value < 0) {
             $this->a->fail('Invalid inbound stock.');
         }
+        $pool = $this->pool($item);
+        $variance = 0;
+        if ($pool->qty_milli < 0) {
+            // Units covering stock already sold below zero: their purchase cost replaces the cost charged at sale.
+            $covered = min(-$pool->qty_milli, $qty);
+            $charged = Money::multiplyDivide(-$pool->value_paisa, $covered, -$pool->qty_milli);
+            $variance = Money::multiplyDivide($value, $covered, $qty) - $charged;
+        }
+        $id = $this->movement($actor, $item, $date, $qty, $value - $variance, $source);
+        if ($variance) {
+            $journal = $this->a->post($actor, $date, ['type' => 'stock_cost', 'id' => $id], [
+                $this->a->line('cogs', $variance),
+                $this->a->line('inventory', -$variance),
+            ], 'Cost difference for stock sold before it arrived');
+            $this->a->rows('stock_movements')->where('id', $id)->update(['variance_journal_id' => $journal]);
+        }
 
-        return $this->movement($actor, $item, $date, $qty, $value, $source);
+        return $id;
     }
 
     public function issue(int $actor, int $item, int $date, int $qty, array $source): array
     {
         $pool = $this->pool($item);
-        $cost = $this->outflowCost((int) $pool->qty_milli, (int) $pool->value_paisa, $qty);
+        $fallback = (int) ($this->a->requireRow('items', $item)->last_purchase_price_paisa ?? 0);
+        $cost = $this->outflowCost((int) $pool->qty_milli, (int) $pool->value_paisa, $qty, $fallback);
 
         return ['id' => $this->movement($actor, $item, $date, -$qty, -$cost, $source), 'cost' => $cost];
     }
@@ -82,7 +110,12 @@ class InventoryService
         $pool = $this->pool((int) $old->item_id);
         abort_unless($pool->qty_milli == $old->qty_after_milli && $pool->value_paisa == $old->value_after_paisa, 409, 'Stock changed; reverse later activity first.');
 
-        return $this->movement($actor, (int) $old->item_id, $date, -(int) $old->qty_delta_milli, -(int) $old->value_delta_paisa, ['document_line_id' => $old->document_line_id, 'stock_adjustment_id' => $old->stock_adjustment_id, 'opening_balance_id' => $old->opening_balance_id, 'fulfilment_line_id' => $old->fulfilment_line_id, 'source_event' => 'reverse', 'reversal_of_id' => $movement]);
+        $id = $this->movement($actor, (int) $old->item_id, $date, -(int) $old->qty_delta_milli, -(int) $old->value_delta_paisa, ['document_line_id' => $old->document_line_id, 'stock_adjustment_id' => $old->stock_adjustment_id, 'opening_balance_id' => $old->opening_balance_id, 'fulfilment_line_id' => $old->fulfilment_line_id, 'source_event' => 'reverse', 'reversal_of_id' => $movement]);
+        if ($old->variance_journal_id) {
+            $this->a->reverse($actor, (int) $old->variance_journal_id, $date, 'Stock movement reversed');
+        }
+
+        return $id;
     }
 
     public function adjust(int $actor, array $input, string $uuid): array
@@ -101,12 +134,16 @@ class InventoryService
             if (! $delta) {
                 $this->a->fail('Count matches current stock.');
             }
-            $value = $delta > 0 ? Money::multiplyDivide($delta, Money::parse($input['unit_cost'] ?? '0'), 1000) : $this->outflowCost((int) $pool->qty_milli, (int) $pool->value_paisa, -$delta);
+            $value = $delta > 0 ? Money::multiplyDivide($delta, Money::parse($input['unit_cost'] ?? '0'), 1000) : $this->outflowCost((int) $pool->qty_milli, (int) $pool->value_paisa, -$delta, (int) ($item->last_purchase_price_paisa ?? 0));
             if ($delta > 0 && ! $value && empty($input['zero_cost_confirmed'])) {
                 $this->a->fail('Confirm zero cost or enter inbound cost.');
             }
             $id = DB::table('stock_adjustments')->insertGetId(['tenant_id' => $tenant->id, 'item_id' => $item->id, 'qty_delta_milli' => $delta, 'business_date_bs' => $date, 'reason' => $input['reason'], 'created_by' => $actor, 'created_at' => now(), 'updated_at' => now()]);
-            $this->movement($actor, (int) $item->id, $date, $delta, $delta > 0 ? $value : -$value, ['stock_adjustment_id' => $id]);
+            if ($delta > 0) {
+                $this->receive($actor, (int) $item->id, $date, $delta, $value, ['stock_adjustment_id' => $id]);
+            } else {
+                $this->movement($actor, (int) $item->id, $date, $delta, -$value, ['stock_adjustment_id' => $id]);
+            }
             $journal = $value ? $this->a->post($actor, $date, ['type' => 'stock_adjustment', 'id' => $id], [$this->a->line('inventory', $delta > 0 ? $value : -$value), $this->a->line($delta > 0 ? 'inventory_gain' : 'inventory_loss', $delta > 0 ? -$value : $value)], $input['reason']) : null;
             $this->a->rows('stock_adjustments')->where('id', $id)->update(['journal_id' => $journal]);
 

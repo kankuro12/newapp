@@ -103,6 +103,12 @@ class BillingService
             ->where('billing_accounts.id', '!=', $exceptAccount)->whereNotNull('billing_accounts.trial_used_at')->exists();
     }
 
+    /** Package product keys: one per business type, with general books sold as bookkeeping. */
+    public static function products(): array
+    {
+        return ['bookkeeping', ...array_values(array_diff(PosService::PROFILES, ['general']))];
+    }
+
     public function productFor(?string $businessType): string
     {
         return ! $businessType || $businessType === 'general' ? 'bookkeeping' : $businessType;
@@ -119,7 +125,7 @@ class BillingService
             ?? (clone $subscriptions)->where('start_at', '<=', now())->orderByDesc('id')->first()
             ?? (clone $subscriptions)->orderByDesc('id')->first();
         if (! $subscription) {
-            return ['status' => $row->status === 'suspended' ? 'suspended' : ($row->legacy_access ? 'legacy' : 'expired'), 'end_at' => null, 'products' => ['bookkeeping', 'meat', 'restaurant', 'barber', 'salon', 'milk', 'glass', 'wood', 'gym'], 'max_businesses' => null];
+            return ['status' => $row->status === 'suspended' ? 'suspended' : ($row->legacy_access ? 'legacy' : 'expired'), 'end_at' => null, 'products' => self::products(), 'max_businesses' => null];
         }
         $snapshot = json_decode($subscription->package_snapshot, true, 512, JSON_THROW_ON_ERROR);
         $current = in_array($subscription->status, ['trial', 'active'], true) && ! $subscription->revoked_at && now()->lt($subscription->end_at);

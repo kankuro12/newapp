@@ -112,13 +112,16 @@ class WorkflowTest extends TestCase
         $order = $this->postJson($s['base'].'/workflows', $this->entry($s, 'sales_order'))->assertCreated()->json('data');
         $input = [...$this->entry($s, 'sales_order'), 'version' => $order['version'], 'lines' => [['item_id' => $s['item'], 'qty' => '3', 'unit_price' => '100']], 'invoice_discount' => '0', 'expected_total_paisa' => '30000'];
         $order = $this->patchJson($s['base'].'/workflow/'.$order['id'], $input)->assertCreated()->json('data');
-        $this->postJson($s['base'].'/workflow/'.$order['id'].'/bill', [...$this->checkout($s, $order), 'expected_total_paisa' => '30000', 'paid_now' => '300'])->assertUnprocessable();
-        $this->assertSame(1, DB::table('documents')->count());
-        $this->getJson($s['base'].'/workflow/'.$order['id'])->assertOk()->assertJsonPath('data.status', 'open')->assertJsonPath('data.document_id', null);
+        // A failed bill (closed period) leaves no document, no stock change and the order still open.
         DB::table('tenants')->where('id', $s['business']['id'])->update(['closed_through_bs' => 20830103]);
         $this->postJson($s['base'].'/workflow/'.$order['id'].'/bill', [...$this->checkout($s, $order), 'expected_total_paisa' => '30000', 'paid_now' => '0'])->assertUnprocessable()->assertJsonValidationErrors('business_date_bs');
         $this->assertSame(1, DB::table('documents')->count());
+        $this->getJson($s['base'].'/workflow/'.$order['id'])->assertOk()->assertJsonPath('data.status', 'open')->assertJsonPath('data.document_id', null);
         $this->assertSame(2000, (int) DB::table('inventory_balances')->where('item_id', $s['item'])->value('qty_milli'));
+        // Billing more than is in stock is allowed and leaves negative stock to correct later.
+        DB::table('tenants')->where('id', $s['business']['id'])->update(['closed_through_bs' => null]);
+        $this->postJson($s['base'].'/workflow/'.$order['id'].'/bill', [...$this->checkout($s, $order), 'expected_total_paisa' => '30000', 'paid_now' => '300'])->assertCreated();
+        $this->assertSame(-1000, (int) DB::table('inventory_balances')->where('item_id', $s['item'])->value('qty_milli'));
     }
 
     public function test_tenant_and_cashier_ownership_apply_to_reads_mutations_and_replay(): void

@@ -24,6 +24,8 @@ import { ScanItem } from './BarcodeTools';
 import { PriceListSelect } from './PriceLists';
 import { BasketOfferSelect } from './BasketOffers';
 import { measurementUnitLabel } from '../lib/measurement';
+import { businessTypeLabel } from '../lib/businessTypes';
+import { enabled, initialMeasurement, wireMeasurement } from '../lib/posMeasurement';
 
 type Resource = {
   id: string;
@@ -34,13 +36,13 @@ type Resource = {
   active: boolean;
   version: number;
 };
-type Config = {
+export type Config = {
   profiles: string[];
   methods: string[];
   units: Record<string, [string, string, string]>;
   resources: Resource[];
 };
-type Measurement = {
+export type Measurement = {
   barcode?: string;
   barcode_fingerprint?: string;
   mode: string;
@@ -56,7 +58,7 @@ type Measurement = {
   custom_index?: number;
 };
 type Cart = { item: Item; measurement: Measurement; note: string };
-type Preview = {
+export type Preview = {
   basket_offer?: { name: string; discount_paisa: string } | null;
   invoice_discount_paisa?: string;
   tax_paisa?: string;
@@ -84,7 +86,7 @@ type MenuLine = {
   note: string;
 };
 type Ticket = { id: string; status: string; lines: MenuLine[]; created_at: string };
-type Order = {
+export type Order = {
   id: string;
   resource_id?: string;
   kind: string;
@@ -94,7 +96,7 @@ type Order = {
   total_paisa: string;
   tickets: Ticket[];
 };
-type Booking = {
+export type Booking = {
   id: string;
   resource_id: string;
   resource_name: string;
@@ -126,6 +128,7 @@ const titles: Record<string, string> = {
   milk: 'Milk sales',
   glass: 'Glass sales',
   wood: 'Wood sales',
+  fabrication: 'Steel and iron sales',
 };
 const methodLabels: Record<string, string> = {
   quantity: 'Quantity',
@@ -141,64 +144,6 @@ const minute = (value: string) => {
   const [h, m] = value.split(':').map(Number);
   return h * 60 + m;
 };
-function enabled(item: Item, config: Config): string[] {
-  const family = config.units[item.pos_unit || 'unit']?.[0] || 'count';
-  return (item.pos_methods || config.methods).filter(
-    (mode) =>
-      ['quantity', 'amount'].includes(mode) ||
-      (mode === 'pack' && !!item.pos_custom_units?.length) ||
-      mode === family,
-  );
-}
-function initialMeasurement(item: Item, config: Config): Measurement {
-  const available = enabled(item, config);
-  const family = config.units[item.pos_unit || 'unit']?.[0];
-  const mode =
-    family && ['length', 'area', 'volume'].includes(family) && available.includes(family)
-      ? family
-      : available[0] || 'quantity';
-  return {
-    mode,
-    value: '1',
-    unit: item.pos_unit || 'unit',
-    length: '1',
-    width: '1',
-    thickness: '1',
-    length_unit: 'ft',
-    width_unit: 'ft',
-    thickness_unit: 'in',
-    pieces: '1',
-    custom_index: 0,
-  };
-}
-function wireMeasurement(m: Measurement): Measurement {
-  if (m.barcode)
-    return {
-      mode: m.mode,
-      value: m.value,
-      unit: m.unit,
-      barcode: m.barcode,
-      barcode_fingerprint: m.barcode_fingerprint,
-    };
-  if (['quantity', 'amount', 'pack'].includes(m.mode))
-    return {
-      mode: m.mode,
-      value: m.value,
-      ...(m.mode === 'quantity'
-        ? { unit: m.unit }
-        : m.mode === 'pack'
-          ? { custom_index: m.custom_index }
-          : {}),
-    };
-  return {
-    mode: m.mode,
-    length: m.length,
-    length_unit: m.length_unit,
-    pieces: m.pieces,
-    ...(['area', 'volume'].includes(m.mode) ? { width: m.width, width_unit: m.width_unit } : {}),
-    ...(m.mode === 'volume' ? { thickness: m.thickness, thickness_unit: m.thickness_unit } : {}),
-  };
-}
 function describe(m: Measurement): string {
   if (['quantity', 'amount', 'pack'].includes(m.mode))
     return `${m.value} ${m.mode === 'amount' ? 'NPR' : m.mode === 'pack' ? 'packs' : m.unit || ''}`;
@@ -242,9 +187,12 @@ export default function Pos() {
     <>
       <Heading
         eyebrow={t('COUNTER')}
-        title={t(titles[profile] || 'POS')}
+        title={`${t('Quick POS')} · ${t(titles[profile] || businessTypeLabel(profile))}`}
         description={t('Select → enter → review → save')}
       >
+        <Link className="nav-desktop-only" to={path + '/pos/full'}>
+          {t('Full POS')}
+        </Link>
         <Link to={path + '/pos/setup'}>{t('POS setup')}</Link>
         <Link to={path + '/sales'}>{t('Sales')}</Link>
       </Heading>
@@ -342,7 +290,7 @@ function Catalog({
     </section>
   );
 }
-function MeasurementEditor({
+export function MeasurementEditor({
   item,
   config,
   value,
@@ -611,7 +559,7 @@ function Counter({ config, profile }: { config: Config; profile: string }) {
                 label={t(
                   profile === 'meat'
                     ? 'Cut / preparation notes'
-                    : profile === 'glass' || profile === 'wood'
+                    : ['glass', 'wood', 'fabrication'].includes(profile)
                       ? 'Cutting / job notes'
                       : 'Notes',
                 )}

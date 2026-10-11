@@ -8,6 +8,7 @@ import type { Business, User } from '../lib/types';
 import { Errors, Field, Heading, Loading, Select, Status, Submit } from '../components/ui';
 import { translator } from '../lib/i18n';
 import { HelpLink } from '../components/Help';
+import { businessTypes } from '../lib/businessTypes';
 
 export default function Businesses({ user, logout }: { user: User; logout: () => void }) {
   const { data, loading, error, reload } = useData<{ data: Business[] }>('/api/businesses');
@@ -123,19 +124,9 @@ export default function Businesses({ user, logout }: { user: User; logout: () =>
                     value={businessType}
                     onChange={setBusinessType}
                   >
-                    {[
-                      'general',
-                      'meat',
-                      'restaurant',
-                      'barber',
-                      'salon',
-                      'milk',
-                      'glass',
-                      'wood',
-                      'gym',
-                    ].map((type) => (
+                    {Object.entries(businessTypes).map(([type, label]) => (
                       <option value={type} key={type}>
-                        {t(type)}
+                        {t(label)}
                       </option>
                     ))}
                   </Select>

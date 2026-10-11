@@ -102,6 +102,18 @@ class ReportController extends Controller
         return ['cash_paisa' => $cash, 'inventory_paisa' => $key['inventory'] ?? 0, 'receivables_paisa' => $ar, 'payables_paisa' => $ap, 'customer_credits_paisa' => $customerCredits, 'supplier_advances_paisa' => $advances, 'bank_overdrafts_paisa' => $bankOverdraft, 'sales_paisa' => -($periodKey['sales'] ?? 0) - ($periodKey['sales_returns'] ?? 0), 'cogs_paisa' => $periodKey['cogs'] ?? 0, 'profit_paisa' => $profit, 'debit_paisa' => $debit, 'credit_paisa' => $credit, 'assets_paisa' => $asset + $customerCredits + $advances + $bankOverdraft, 'liabilities_paisa' => $liability + $customerCredits + $advances + $bankOverdraft, 'equity_paisa' => $equity];
     }
 
+    /**
+     * Items sold below zero: allowed, but shown on the dashboard until a purchase or count corrects them.
+     *
+     * @return array{count: string, items: list<array<string, string>>}
+     */
+    private function negativeStock(int $today, bool $withValue): array
+    {
+        $rows = array_values(array_filter($this->stockRows($today), fn ($row) => $row['qty_milli'] < 0));
+
+        return ['count' => (string) count($rows), 'items' => array_map(fn ($row) => ['id' => (string) $row['id'], 'name' => $row['name'], 'unit_label' => $row['unit_label'], 'qty_milli' => (string) $row['qty_milli'], ...($withValue ? ['value_paisa' => (string) $row['value_paisa']] : [])], array_slice($rows, 0, 8))];
+    }
+
     public function stockRows(int $to): array
     {
         $latest = $this->a->rows('stock_movements')->where('business_date_bs', '<=', $to)->select('item_id')->selectRaw('MAX(id) AS movement_id')->groupBy('item_id');
@@ -136,13 +148,13 @@ class ReportController extends Controller
         if ($role === 'cashier') {
             $documents = $this->a->rows('documents')->where('type', 'sale')->where('created_by', $actor)->orderByDesc('id')->limit(10)->get()->map(fn ($d) => ['id' => $d->id, 'number' => $d->number, 'status' => $d->status, 'total_paisa' => $d->total_paisa, 'business_date_bs' => $d->business_date_bs]);
 
-            return response()->json(['data' => ['recent' => BusinessController::json($documents), 'today_bs' => $today, 'role' => $role, 'tenant' => BusinessController::json($tenant)]]);
+            return response()->json(['data' => ['recent' => BusinessController::json($documents), 'negative_stock' => $this->negativeStock($today, false), 'today_bs' => $today, 'role' => $role, 'tenant' => BusinessController::json($tenant)]]);
         }
         $data = Cache::remember('business-book:home:'.$tenant->id.':'.$tenant->data_version.':'.$role.':'.$actor.':'.$today, 45, function () use ($today, $role, $tenant) {
             $recent = $this->a->rows('documents')->orderByDesc('id')->limit(6)->select('id', 'number', 'type', 'status', 'business_date_bs', 'total_paisa', 'party_snapshot')->get();
             $low = array_values(array_filter($this->stockRows($today), fn ($s) => $s['qty_milli'] <= $s['low_stock_qty_milli']));
 
-            return BusinessController::json([...$this->overview($today, $today), 'recent' => $recent, 'low_stock' => array_slice($low, 0, 5), 'today_bs' => $today, 'role' => $role, 'tenant' => $tenant]);
+            return BusinessController::json([...$this->overview($today, $today), 'recent' => $recent, 'low_stock' => array_slice($low, 0, 5), 'negative_stock' => $this->negativeStock($today, true), 'today_bs' => $today, 'role' => $role, 'tenant' => $tenant]);
         });
 
         return response()->json(['data' => $data]);

@@ -38,6 +38,7 @@ import UserManual from './UserManual';
 import { HelpLink } from '../components/Help';
 import { manualSection } from '../lib/manual';
 import Gym from './Gym';
+import FullPos from './FullPos';
 import More from './More';
 import { DocumentList, DocumentDetail, MoneyList } from './Records';
 import DocumentForm from './DocumentForm';
@@ -53,18 +54,8 @@ import Imports from './ImportTools';
 import BarcodeTools from './BarcodeTools';
 import LabelTools from './LabelTools';
 import { Opening, Settings, Audit } from './Settings';
+import { businessTypeLabel, jobTypes } from '../lib/businessTypes';
 
-const typeLabels: Record<string, string> = {
-  general: 'General business',
-  meat: 'Meat shop',
-  restaurant: 'Restaurant',
-  barber: 'Barber',
-  salon: 'Salon',
-  milk: 'Dairy',
-  glass: 'Glass',
-  wood: 'Wood',
-  gym: 'Gym',
-};
 export default function Workspace({
   user,
   today,
@@ -152,17 +143,17 @@ function Shell({
   }
   const profile = business.pos_profile || 'general';
   // Each business has one type; its daily tool leads the menu.
-  const posLabel =
-    profile === 'restaurant'
-      ? 'Tables & orders'
-      : ['barber', 'salon'].includes(profile)
-        ? 'Appointments & POS'
-        : 'POS';
+  // The original counter is the Quick POS; Full POS is the full-screen tablet/desktop counter.
+  const posLabel = 'Quick POS';
   const links = [
     ['', 'Home', homeOutline],
     ...(profile === 'gym' ? [['/gym', 'Gym desk', barbellOutline]] : []),
+    ...(jobTypes.includes(profile) ? [['/workflows', 'Job cards', receiptOutline]] : []),
+    ['/pos/full', 'Full POS', storefrontOutline],
     ['/pos', posLabel, storefrontOutline],
-    ['/workflows', 'Quotes / orders / jobs', receiptOutline],
+    ...(jobTypes.includes(profile)
+      ? []
+      : [['/workflows', 'Quotes / orders / jobs', receiptOutline]]),
     ['/sales', 'Sales', receiptOutline],
     ['/contacts', 'Parties', peopleOutline],
     ['/items', 'Items', cubeOutline],
@@ -181,6 +172,16 @@ function Shell({
       : []),
     ['/more', 'More', gridOutline],
   ];
+  if (location.pathname === path + '/pos/full')
+    return (
+      <Context.Provider value={{ business, base, path, today, revision, changed, t, locale }}>
+        <IonPage>
+          <IonContent>
+            <FullPos />
+          </IonContent>
+        </IonPage>
+      </Context.Provider>
+    );
   return (
     <Context.Provider value={{ business, base, path, today, revision, changed, t, locale }}>
       <IonPage>
@@ -225,8 +226,16 @@ function Shell({
                     <NavLink
                       key={suffix}
                       to={path + suffix}
-                      end={suffix === ''}
-                      className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+                      end={suffix === '' || suffix === '/pos'}
+                      className={({ isActive }) =>
+                        [
+                          'nav-link',
+                          isActive && 'active',
+                          suffix === '/pos/full' && 'nav-desktop-only',
+                        ]
+                          .filter(Boolean)
+                          .join(' ')
+                      }
                     >
                       <IonIcon icon={icon} />
                       <span>{t(label)}</span>
@@ -255,7 +264,7 @@ function Shell({
                   <span className="mobile-logo brand-mark">b</span>
                   <strong>{business.name}</strong>
                   <span className="badge active business-type">
-                    {t(typeLabels[profile] || profile)}
+                    {t(businessTypeLabel(profile))}
                   </span>
                   <span className="topbar-date">{bsDisplay(today)} BS</span>
                 </div>
@@ -269,7 +278,10 @@ function Shell({
                           ? profile === 'gym'
                             ? 'gym'
                             : 'start'
-                          : manualSection(location.pathname.slice(path.length))
+                          : jobTypes.includes(profile) &&
+                              manualSection(location.pathname.slice(path.length)) === 'workflows'
+                            ? 'job-cards'
+                            : manualSection(location.pathname.slice(path.length))
                       }
                     />
                   )}

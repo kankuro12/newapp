@@ -28,7 +28,7 @@ class PackageController extends Controller
     {
         $input = $request->validate(['name' => 'required|string|max:150', 'duration_days' => 'required|integer|min:1|max:3650',
             'trial_days' => 'required|integer|min:0|max:365', 'max_businesses' => 'required|integer|min:1|max:10000',
-            'products' => 'required|array|min:1|max:9', 'products.*' => ['required', 'distinct', Rule::in(['bookkeeping', 'meat', 'restaurant', 'barber', 'salon', 'milk', 'glass', 'wood', 'gym'])],
+            'products' => 'required|array|min:1|max:'.count(BillingService::products()), 'products.*' => ['required', 'distinct', Rule::in(BillingService::products())],
             'prices' => 'required|array|min:1|max:3', 'prices.*.currency' => 'required|in:NPR,USD,EUR|distinct',
             'prices.*.amount_minor' => ['required', 'regex:/^[1-9][0-9]{0,11}$/'], 'active' => 'required|boolean',
             'version' => 'required|integer|min:1', 'password' => 'required|string', 'reason' => 'required|string|min:5|max:500']);

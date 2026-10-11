@@ -4,17 +4,8 @@ import { useData, useSave } from '../lib/api';
 import { Check, Errors, Field, Loading, Submit } from '../components/ui';
 import { digits, format } from '../lib/money';
 import type { PackageTerms } from './Billing';
-const products = [
-  'bookkeeping',
-  'meat',
-  'restaurant',
-  'barber',
-  'salon',
-  'milk',
-  'glass',
-  'wood',
-  'gym',
-];
+import { packageProducts } from '../lib/businessTypes';
+const products = packageProducts;
 function minorUnits(value: string): string {
   const normalized = digits(value);
   if (!/^\d+(?:\.\d{1,2})?$/.test(normalized))

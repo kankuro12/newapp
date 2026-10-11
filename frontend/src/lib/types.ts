@@ -274,6 +274,10 @@ export interface FulfilmentProgress {
   }[];
 }
 export interface Workflow {
+  /** Structured job-card fields for the niche, such as vehicle_no or imei_serial. */
+  details?: Record<string, string> | null;
+  lookup_key?: string | null;
+  history_count?: number;
   fulfilment?: FulfilmentProgress;
   fulfilment_vat_recoverable?: boolean | number | null;
   bill_input?: {
@@ -334,4 +338,15 @@ export interface Dashboard extends Overview {
   tenant: Business;
   recent: Doc[];
   low_stock: Item[];
+  /** Items sold below zero; selling is allowed but the shortfall is flagged until restocked or counted. */
+  negative_stock?: {
+    count: string;
+    items: {
+      id: string;
+      name: string;
+      unit_label: string;
+      qty_milli: string;
+      value_paisa?: string;
+    }[];
+  };
 }

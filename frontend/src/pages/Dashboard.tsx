@@ -76,6 +76,35 @@ export default function Dashboard() {
           {t('New sale')}
         </IonButton>
       </Heading>
+      {Number(home.negative_stock?.count || 0) > 0 && (
+        <section className="negative-stock-notice" role="status">
+          <strong>
+            {t('Negative stock')}: {home.negative_stock!.count}{' '}
+            {t(Number(home.negative_stock!.count) === 1 ? 'item' : 'items')}
+          </strong>
+          <p>
+            {t(
+              'More was sold than recorded in stock. Sales still work; record the purchase or count the stock to correct it.',
+            )}
+          </p>
+          <ul>
+            {home.negative_stock!.items.map((item) => (
+              <li key={item.id}>
+                <span>{item.name}</span>
+                <strong>
+                  {format(item.qty_milli, 3)} {item.unit_label}
+                </strong>
+              </li>
+            ))}
+          </ul>
+          {!cashier && (
+            <div className="negative-stock-actions">
+              <Link to={path + '/documents/purchase/new'}>{t('Record purchase')}</Link>
+              <Link to={path + '/stock/count'}>{t('Count stock')}</Link>
+            </div>
+          )}
+        </section>
+      )}
       {selected[0] === 'actions' && !business.opening_finalized_at && (
         <Link className="home-opening" to={path + '/opening'}>
           {t('Starting balances')}

@@ -73,6 +73,7 @@ Route::prefix('api')->middleware(['auth:sanctum', 'auth:tenant'])->group(functio
             Route::match(['get', 'post'], 'price-lists', [Party::class, 'priceLists']);
             Route::match(['get', 'patch'], 'price-lists/{id}', [Party::class, 'priceLists'])->whereNumber('id');
             Route::patch('contacts/{id}/price-lists', [Party::class, 'assignLists'])->whereNumber('id');
+            Route::get('workflows/niches', [Workflow::class, 'niches']);
             Route::get('workflows', [Workflow::class, 'listing']);
             Route::post('workflows', [Workflow::class, 'save']);
             Route::post('workflows/preview', [Workflow::class, 'preview']);

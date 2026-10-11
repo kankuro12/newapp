@@ -57,7 +57,7 @@ class SubscriptionTest extends TestCase
         $admin = SuperAdmin::create(['name' => 'Platform', 'email' => 'admin@example.com', 'password' => bcrypt('secret-password')]);
         $this->actingAs($admin, 'superadmin');
         $this->getJson('/api/platform/packages')->assertOk();
-        $package = ['name' => 'Edited', 'duration_days' => 30, 'trial_days' => 3, 'max_businesses' => 1, 'products' => ['bookkeeping'], 'prices' => [['currency' => 'NPR', 'amount_minor' => '10000']], 'active' => true, 'version' => 1, 'password' => 'secret-password', 'reason' => 'Package test update'];
+        $package = ['name' => 'Edited', 'duration_days' => 30, 'trial_days' => 3, 'max_businesses' => 1, 'products' => ['bookkeeping'], 'prices' => [['currency' => 'NPR', 'amount_minor' => '10000']], 'active' => true, 'version' => (int) DB::table('billing_packages')->where('id', 1)->value('version'), 'password' => 'secret-password', 'reason' => 'Package test update'];
         $this->patchJson('/api/platform/packages/1', $package)->assertOk();
         $this->patchJson('/api/platform/packages/1', $package)->assertConflict();
         $this->actingAs($owner, 'tenant');

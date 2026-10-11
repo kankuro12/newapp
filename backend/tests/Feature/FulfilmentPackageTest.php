@@ -407,7 +407,8 @@ class FulfilmentPackageTest extends TestCase
         $package = $this->pack($s, '5');
         $this->postJson($s['base'].'/documents/sale', ['mutation_uuid' => (string) Str::uuid(), 'business_date_bs' => 20830102, 'money_account_id' => $s['cash'], 'paid_now' => '800', 'lines' => [['item_id' => $s['item'], 'qty' => '8', 'unit_price' => '100']], 'expected_total_paisa' => '80000'])->assertCreated();
         $input = ['version' => $package['version'], 'workflow_version' => $this->current($s)['version'], 'business_date_bs' => 20830102];
-        $this->postJson($s['base'].'/package/'.$package['id'].'/ship/preview', $input)->assertUnprocessable();
+        // Shipping more than remains is allowed (negative stock); the preview writes nothing.
+        $this->postJson($s['base'].'/package/'.$package['id'].'/ship/preview', $input)->assertOk();
         $this->assertSame(0, DB::table('workflow_fulfilments')->count());
         $this->assertSame(0, DB::table('workflow_dispatch_allocations')->count());
         $this->assertSame(0, $this->balance($s, 'goods_in_transit'));

@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Service\BillingService;
 use App\Service\GatewayService;
+use App\Service\PosService;
 use App\Service\TenantService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class BillingController extends Controller
 {
@@ -32,7 +34,7 @@ class BillingController extends Controller
     public function business(Request $request, int $id, TenantService $tenants): JsonResponse
     {
         $this->service->account(auth('tenant')->id(), $id);
-        $input = $request->validate(['name' => 'required|string|max:150', 'business_type' => 'sometimes|in:general,meat,restaurant,barber,salon,milk,glass,wood,gym', 'address' => 'nullable|string|max:500', 'phone' => 'nullable|string|max:30', 'pan' => 'nullable|string|max:30', 'default_locale' => 'sometimes|in:en,ne']);
+        $input = $request->validate(['name' => 'required|string|max:150', 'business_type' => ['sometimes', Rule::in(PosService::PROFILES)], 'address' => 'nullable|string|max:500', 'phone' => 'nullable|string|max:30', 'pan' => 'nullable|string|max:30', 'default_locale' => 'sometimes|in:en,ne']);
 
         return response()->json(['data' => BusinessController::json($tenants->create(auth('tenant')->id(), [...$input, 'billing_account_id' => $id]))], 201);
     }

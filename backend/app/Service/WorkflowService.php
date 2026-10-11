@@ -13,7 +13,57 @@ class WorkflowService
 {
     public const KINDS = ['quote', 'sales_order', 'purchase_order'];
 
-    public const NICHES = ['general', 'glass', 'wood', 'laundry', 'repair', 'tailor', 'printing', 'bakery', 'field_service'];
+    public const NICHES = ['general', 'glass', 'wood', 'fabrication', 'garage', 'laundry', 'repair', 'tailor', 'printing', 'bakery', 'field_service'];
+
+    /**
+     * Structured job-card fields per niche: key => [label, max length]. The first "lookup" field feeds
+     * service history (same vehicle or device). Passwords and PINs are deliberately never collected.
+     */
+    public const NICHE_FIELDS = [
+        'fabrication' => ['product' => ['Gate / grill / shutter / railing / truss', 120], 'size' => ['Size W × H (ft)', 60], 'area_sqft' => ['Area (sq ft)', 12], 'weight_kg' => ['Estimated weight (kg)', 12], 'material' => ['Material, section and gauge', 200], 'design' => ['Design / pattern', 300], 'finish' => ['Finish (paint, powder coat, galvanise)', 120], 'site' => ['Installation site', 300], 'install_bs' => ['Installation date (BS)', 10]],
+        'garage' => ['vehicle_no' => ['Vehicle number', 30], 'make_model' => ['Make / model', 80], 'odometer_km' => ['Odometer (km)', 12], 'fuel_level' => ['Fuel level', 20], 'complaint' => ['Customer complaint', 500]],
+        'repair' => ['imei_serial' => ['IMEI / serial number', 40], 'device' => ['Device / model', 80], 'issue' => ['Reported issue', 500], 'condition' => ['Condition at intake', 300], 'accessories' => ['Accessories received', 200]],
+        'laundry' => ['pieces' => ['Number of pieces', 10], 'items' => ['Garments', 500], 'service' => ['Wash / dry clean / press', 80], 'stains_damage' => ['Stains / damage noted', 300], 'rack' => ['Rack / bag tag', 30]],
+        'tailor' => ['garment' => ['Garment / style', 120], 'measurements' => ['Measurements (with units)', 1000], 'fabric' => ['Fabric', 200], 'fitting_bs' => ['Fitting date (BS)', 10]],
+        'printing' => ['size' => ['Size', 60], 'material' => ['Material / paper', 120], 'colours' => ['Colours / sides', 60], 'quantity' => ['Print quantity', 20], 'artwork' => ['Artwork / proof version', 200], 'finish' => ['Finish / binding', 120]],
+        'bakery' => ['size_weight' => ['Size / weight', 60], 'flavour' => ['Flavour / filling', 120], 'decoration' => ['Decoration / message', 300], 'pickup_time' => ['Pickup time', 20]],
+        'field_service' => ['site' => ['Site / address', 300], 'work' => ['Work requested', 500], 'visit_time' => ['Visit time', 40], 'technician' => ['Technician', 80]],
+    ];
+
+    private const LOOKUP_FIELDS = ['garage' => 'vehicle_no', 'repair' => 'imei_serial'];
+
+    /**
+     * @return array{0: ?string, 1: ?string} details JSON and normalised lookup key
+     */
+    private function niche(string $niche, mixed $details): array
+    {
+        $fields = self::NICHE_FIELDS[$niche] ?? [];
+        if ($details === null || $details === []) {
+            return [null, null];
+        }
+        if (! is_array($details) || array_diff(array_keys($details), array_keys($fields))) {
+            $this->a->fail('Job details do not match this job type.', 'details');
+        }
+        $clean = [];
+        foreach ($details as $key => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+            if (! is_scalar($value) || mb_strlen((string) $value) > $fields[$key][1]) {
+                $this->a->fail($fields[$key][0].' is too long.', 'details.'.$key);
+            }
+            $clean[$key] = trim((string) $value);
+        }
+        $lookup = isset(self::LOOKUP_FIELDS[$niche], $clean[self::LOOKUP_FIELDS[$niche]]) ? self::lookupKey($clean[self::LOOKUP_FIELDS[$niche]]) : null;
+
+        return [$clean ? json_encode($clean, JSON_UNESCAPED_UNICODE) : null, $lookup ?: null];
+    }
+
+    /** "Ba 2 Pa 1234" and "BA2PA1234" find the same vehicle. */
+    public static function lookupKey(string $value): string
+    {
+        return mb_substr(preg_replace('/[^A-Z0-9]/', '', mb_strtoupper($value)), 0, 64);
+    }
 
     public function __construct(private AccountingService $a, private DocumentService $documents) {}
 
@@ -33,6 +83,8 @@ class WorkflowService
         foreach (['lines', 'bill_input', 'party_snapshot', 'business_snapshot'] as $key) {
             $row[$key] = json_decode($row[$key], true);
         }
+        $row['details'] = $row['details'] ? json_decode($row['details'], true) : null;
+        $row['history_count'] = $row['lookup_key'] ? $this->a->rows('business_workflows')->where('lookup_key', $row['lookup_key'])->where('id', '!=', $id)->where('kind', '!=', 'purchase_order')->count() : 0;
         $row['number'] = ['quote' => 'QUO', 'sales_order' => 'SO', 'purchase_order' => 'PO'][$row['kind']].'-'.str_pad((string) $row['sequence'], 6, '0', STR_PAD_LEFT);
         $row['expired'] = $row['kind'] === 'quote' && $row['valid_until_bs'] && $row['valid_until_bs'] < NepaliDate::today();
         $row['overdue'] = $row['due_date_bs'] && $row['due_date_bs'] < NepaliDate::today() && ! in_array($row['status'], ['fulfilled', 'cancelled', 'converted', 'rejected']);
@@ -100,7 +152,8 @@ class WorkflowService
                 $billInput['basket_offer_snapshot'] = $offer;
                 $billInput['offer_input'] = array_intersect_key($input, array_flip(['contact_id', 'business_date_bs', 'lines', 'invoice_discount', 'invoice_discount_bps', 'basket_offer_id', 'promotional_confirmed']));
             }
-            $data = ['kind' => $input['kind'], 'status' => $input['kind'] === 'quote' ? 'draft' : 'open', 'business_date_bs' => $date, 'valid_until_bs' => $valid, 'due_date_bs' => $due, 'contact_id' => $party->id, 'niche' => $input['niche'] ?? 'general', 'title' => $input['title'] ?? null, 'reference' => $input['reference'] ?? null, 'specifications' => $input['specifications'] ?? null, 'notes' => $input['notes'] ?? null, 'bill_input' => json_encode($billInput), 'party_snapshot' => json_encode($party), 'business_snapshot' => json_encode($tenant->only(['name', 'address', 'phone', 'pan'])), 'lines' => json_encode($totals['lines']), ...array_diff_key($totals, ['lines' => true])];
+            [$details, $lookup] = $this->niche($input['niche'] ?? 'general', $input['details'] ?? null);
+            $data = ['details' => $details, 'lookup_key' => $lookup, 'kind' => $input['kind'], 'status' => $input['kind'] === 'quote' ? 'draft' : 'open', 'business_date_bs' => $date, 'valid_until_bs' => $valid, 'due_date_bs' => $due, 'contact_id' => $party->id, 'niche' => $input['niche'] ?? 'general', 'title' => $input['title'] ?? null, 'reference' => $input['reference'] ?? null, 'specifications' => $input['specifications'] ?? null, 'notes' => $input['notes'] ?? null, 'bill_input' => json_encode($billInput), 'party_snapshot' => json_encode($party), 'business_snapshot' => json_encode($tenant->only(['name', 'address', 'phone', 'pan'])), 'lines' => json_encode($totals['lines']), ...array_diff_key($totals, ['lines' => true])];
             if ($old) {
                 $this->a->rows('business_workflows')->where('id', $id)->update([...$data, 'version' => $old->version + 1, 'updated_at' => now()]);
             } else {
