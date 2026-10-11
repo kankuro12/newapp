@@ -180,14 +180,54 @@ before claiming real delivery. Array/log transports are development substitutes,
 Welcome registration, successful password updates/resets and verified package receipts enqueue after
 their database transaction. Verification/reset-token emails retain Laravel's security flow. Replay
 deduplicates event/recipient/channel. Jobs recheck disabled users, account membership, promotion
-consent and subscription identity before sending. Marketing consent defaults off. FCM supports
-configured registered devices; WhatsApp integration remains pending.
+consent and subscription identity before sending. Marketing consent defaults off. FCM fan-out queues
+one SendPushToDevice job per registered device. Reset and verification mail run as encrypted,
+after-commit queued notifications.
 
 SMTP transport exceptions and interrupted sending workers are recorded unknown, never automatically
 resent as though delivery certainly failed. Queue dispatch failures remain pending and retry through
 the scheduled outbox. Investigate unknown outcomes with provider support before authorizing a
 resend; automated operator resolution/history UI remains pending. No live SMTP or worker run
 verified yet.
+
+## Queue worker, reminders, campaigns and WhatsApp
+
+Run the scheduler (schedule:run every minute) and at least one worker:
+`php84 artisan queue:work --tries=3 --timeout=85` from backend. `npm run dev` starts both locally.
+Keep DB_QUEUE_RETRY_AFTER (default 90 seconds) above the worker timeout; every job is bounded below
+90 seconds and campaigns re-queue themselves in 500-recipient chunks.
+
+Scheduled commands: app:reconcile-subscription-payments (5 min), app:dispatch-account-messages (1
+min), app:apply-subscription-terms (5 min, starts stacked renewals), app:send-package-reminders
+(daily 09:00 Asia/Kathmandu; 7/3/1-day and expiry reminders keyed per subscription and threshold)
+and app:dispatch-campaigns (1 min, starts scheduled campaigns).
+
+eSewa was checked live against its public UAT on 2026-10-10 with the published EPAYTEST merchant:
+the signed v2 form is accepted, and the v2 status API (sandbox host rc.esewa.com.np, fields
+transaction_uuid/product_code/total_amount/status/ref_id) is parsed. A completed sandbox payment
+still needs a person to pay with an eSewa test wallet.
+
+Unfinished checkouts: owners can abandon an open attempt; attempts still pending at the provider
+after a day expire. Both stay under reconciliation for seven days and settle if the provider later
+completes. Platform refunds/disputes revoke the purchased term with an audit record.
+
+WhatsApp uses the Meta Cloud API with approved templates: set WHATSAPP_ACCESS_TOKEN,
+WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_API_VERSION, WHATSAPP_TEMPLATE_LANGUAGE and one
+`WHATSAPP_TEMPLATE_*` name per event. Body placeholders: {{1}} recipient name, {{2}} detail line.
+Delivery needs the owner's WhatsApp opt-in and a stored phone with country; otherwise only the
+WhatsApp channel is skipped. Not verified against a live Meta account.
+
+## AI agents (MCP)
+
+`POST /mcp` is a stateless Model Context Protocol endpoint (JSON-RPC over HTTP; protocol versions
+2025-06-18, 2025-03-26 and 2024-11-05). It sits outside the web middleware group: no session, no
+CSRF, bearer token only, 60 requests per minute. Users create per-business Sanctum tokens on the AI
+agents page (abilities `mcp`, `tenant:<id>`, optional `write`; 7–365 day expiry). Every call
+rechecks the owner's membership, role, verification, package and business access. Tools: overview,
+item/customer search, money accounts, low stock, recent sales, preview_sale and record_sale
+(DocumentService posting with expected total and request UUID idempotency). Serve it over HTTPS and
+make APP_URL the public origin so the page shows the right MCP URL. In local dev the Vite proxy
+forwards `/mcp` to Laravel.
 
 ## Firebase web push
 

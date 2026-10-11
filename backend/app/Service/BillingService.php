@@ -11,6 +11,14 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class BillingService
 {
+    /** Attempts that may still turn into a charge and therefore block another checkout. */
+    public const OPEN = ['created', 'initiating', 'pending', 'unknown'];
+
+    /** Closed by the owner or by age, but still verified for late provider completion. */
+    public const WATCHED = ['abandoned', 'expired'];
+
+    private const WATCH_DAYS = 7;
+
     public function account(int $actor, int $account, array $roles = ['owner']): object
     {
         abort_if(DB::table('users')->where('id', $actor)->whereNotNull('disabled_at')->exists(), 403);
@@ -29,7 +37,7 @@ class BillingService
             DB::table('billing_account_user')->insert(['billing_account_id' => $id, 'user_id' => $actor, 'role' => 'owner', 'active' => true]);
 
             $trialPackage = DB::table('billing_packages')->where('active', true)->where('trial_days', '>', 0)->orderBy('id')->value('id');
-            if ($trialPackage) {
+            if ($trialPackage && ! $this->ownerTrialUsed($actor, $id)) {
                 $this->startTrial($actor, $id, (int) $trialPackage);
             }
 
@@ -70,14 +78,14 @@ class BillingService
             DB::table('billing_accounts')->where('id', $account)->lockForUpdate()->first() ?? abort(404);
             $row = $this->account($actor, $account);
             abort_if($row->status === 'suspended', 403);
-            abort_if($row->trial_used_at, 409, 'Trial already used.');
+            abort_if($row->trial_used_at || $this->ownerTrialUsed($actor, $account), 409, 'Trial already used.');
             DB::table('billing_packages')->where('id', $package)->lockForUpdate()->first() ?? abort(404);
             $snapshot = $this->snapshot($package);
             abort_unless($snapshot['trial_days'] > 0, 422, 'Package has no trial.');
             $start = now();
             $end = $start->copy()->addDays($snapshot['trial_days']);
             $id = DB::table('billing_subscriptions')->insertGetId(['billing_account_id' => $account, 'package_id' => $package,
-                'package_snapshot' => json_encode($snapshot, JSON_THROW_ON_ERROR), 'status' => 'trial', 'start_at' => $start, 'end_at' => $end, 'created_at' => $start, 'updated_at' => $start]);
+                'package_snapshot' => json_encode($snapshot, JSON_THROW_ON_ERROR), 'status' => 'trial', 'start_at' => $start, 'end_at' => $end, 'applied_at' => $start, 'created_at' => $start, 'updated_at' => $start]);
             DB::table('billing_accounts')->where('id', $account)->update(['trial_used_at' => $start, 'version' => DB::raw('version + 1'), 'updated_at' => $start]);
             DB::table('billing_audit_logs')->insert(['actor_id' => $actor, 'actor_guard' => 'tenant', 'action' => 'trial.started', 'subject_id' => $account, 'metadata' => json_encode(['subscription_id' => (string) $id]), 'created_at' => $start]);
 
@@ -85,23 +93,48 @@ class BillingService
         }, 3);
     }
 
+    /**
+     * One automatic or requested trial per owner, so opening extra billing accounts cannot chain trials.
+     */
+    private function ownerTrialUsed(int $actor, int $exceptAccount): bool
+    {
+        return DB::table('billing_account_user')->join('billing_accounts', 'billing_accounts.id', '=', 'billing_account_user.billing_account_id')
+            ->where('billing_account_user.user_id', $actor)->where('billing_account_user.role', 'owner')
+            ->where('billing_accounts.id', '!=', $exceptAccount)->whereNotNull('billing_accounts.trial_used_at')->exists();
+    }
+
+    public function productFor(?string $businessType): string
+    {
+        return ! $businessType || $businessType === 'general' ? 'bookkeeping' : $businessType;
+    }
+
     public function entitlements(int $account): array
     {
         $row = DB::table('billing_accounts')->where('id', $account)->first() ?? abort(404);
-        $subscription = DB::table('billing_subscriptions')->where('billing_account_id', $account)->orderByDesc('id')->first();
+        $subscriptions = DB::table('billing_subscriptions')->where('billing_account_id', $account);
+        // Terms run back to back, so the current one is the earliest-starting term not yet ended;
+        // a renewal bought early is stacked after it and its terms apply only once it starts.
+        $live = (clone $subscriptions)->whereIn('status', ['trial', 'active'])->whereNull('revoked_at')->where('end_at', '>', now());
+        $subscription = (clone $live)->orderBy('start_at')->orderBy('id')->first()
+            ?? (clone $subscriptions)->where('start_at', '<=', now())->orderByDesc('id')->first()
+            ?? (clone $subscriptions)->orderByDesc('id')->first();
         if (! $subscription) {
             return ['status' => $row->status === 'suspended' ? 'suspended' : ($row->legacy_access ? 'legacy' : 'expired'), 'end_at' => null, 'products' => ['bookkeeping', 'meat', 'restaurant', 'barber', 'salon', 'milk', 'glass', 'wood', 'gym'], 'max_businesses' => null];
         }
         $snapshot = json_decode($subscription->package_snapshot, true, 512, JSON_THROW_ON_ERROR);
-        $status = $row->status === 'suspended' ? 'suspended' : (in_array($subscription->status, ['trial', 'active'], true) && now()->lt($subscription->end_at) ? $subscription->status : 'expired');
+        $current = in_array($subscription->status, ['trial', 'active'], true) && ! $subscription->revoked_at && now()->lt($subscription->end_at);
+        $status = $row->status === 'suspended' ? 'suspended' : ($current ? $subscription->status : 'expired');
+        $next = $current ? (clone $live)->where('id', '!=', $subscription->id)->where('start_at', '>=', $subscription->start_at)->orderBy('start_at')->orderBy('id')->first() : null;
 
-        return ['status' => $status, 'end_at' => $subscription->end_at, 'products' => $snapshot['products'], 'max_businesses' => $snapshot['max_businesses'], 'subscription_id' => (string) $subscription->id, 'package' => $snapshot];
+        return ['status' => $status, 'end_at' => $subscription->end_at, 'products' => $snapshot['products'], 'max_businesses' => $snapshot['max_businesses'], 'subscription_id' => (string) $subscription->id, 'package' => $snapshot,
+            'next' => $next ? ['subscription_id' => (string) $next->id, 'start_at' => $next->start_at, 'end_at' => $next->end_at, 'package' => json_decode($next->package_snapshot, true, 512, JSON_THROW_ON_ERROR)] : null];
     }
 
     public function businessAccess(Tenant $tenant, bool $write, string $role): void
     {
+        $readOnly = fn (string $message) => abort_unless(! $write && in_array($role, ['owner', 'accountant'], true), 403, $message);
         if (! $tenant->package_enabled) {
-            abort_unless(! $write && in_array($role, ['owner', 'accountant'], true), 403, 'Business outside package allowance.');
+            $readOnly('Business outside package allowance.');
         }
         if (! $tenant->billing_account_id) {
             return;
@@ -109,7 +142,11 @@ class BillingService
         $entitlements = $this->entitlements((int) $tenant->billing_account_id);
         abort_if($entitlements['status'] === 'suspended', 403, 'Account suspended.');
         if ($entitlements['status'] === 'expired') {
-            abort_unless(! $write && in_array($role, ['owner', 'accountant'], true), 403, 'Package expired. Renew from account billing.');
+            $readOnly('Package expired. Renew from account billing.');
+        }
+        if (! in_array($this->productFor($tenant->pos_profile), $entitlements['products'], true)) {
+            // Existing records stay readable when a package no longer includes this business type.
+            $readOnly('This business type is not included in the current package.');
         }
     }
 
@@ -129,7 +166,7 @@ class BillingService
         }
 
         $count = DB::table('tenants')->where('billing_account_id', $account)->count();
-        foreach (DB::table('subscription_payments')->where('billing_account_id', $account)->whereIn('status', ['created', 'initiating', 'pending', 'unknown'])->get(['package_snapshot']) as $pending) {
+        foreach (DB::table('subscription_payments')->where('billing_account_id', $account)->whereIn('status', self::OPEN)->get(['package_snapshot']) as $pending) {
             $terms = json_decode($pending->package_snapshot, true, 512, JSON_THROW_ON_ERROR);
             abort_if($count >= $terms['max_businesses'], 409, 'Resolve pending package checkout before adding businesses.');
         }
@@ -177,7 +214,7 @@ class BillingService
 
                 return ['attempt' => $old, 'replayed' => true];
             }
-            abort_if(DB::table('subscription_payments')->where('billing_account_id', $account)->whereIn('status', ['created', 'initiating', 'pending', 'unknown'])->exists(), 409, 'Resolve previous payment before creating another checkout.');
+            abort_if(DB::table('subscription_payments')->where('billing_account_id', $account)->whereIn('status', self::OPEN)->exists(), 409, 'Resolve previous payment before creating another checkout.');
             abort_unless(app(GatewayService::class)->ready($input['gateway']), 503, 'Payment gateway is not configured.');
             abort_unless(app(GatewayService::class)->supported($input['gateway'], $input['currency']), 422, 'Gateway unavailable for this currency.');
             DB::table('billing_packages')->where('id', $input['package_id'])->lockForUpdate()->first() ?? abort(404);
@@ -213,7 +250,9 @@ class BillingService
 
     private function duePayments(): Builder
     {
-        return DB::table('subscription_payments')->where(fn ($query) => $query->whereIn('status', ['pending', 'unknown'])->orWhere(fn ($stale) => $stale->whereIn('status', ['created', 'initiating'])->where('updated_at', '<=', now()->subMinutes(2))))
+        return DB::table('subscription_payments')->where(fn ($query) => $query->whereIn('status', ['pending', 'unknown'])
+            ->orWhere(fn ($stale) => $stale->whereIn('status', ['created', 'initiating'])->where('updated_at', '<=', now()->subMinutes(2)))
+            ->orWhere(fn ($closed) => $closed->whereIn('status', self::WATCHED)->whereNotNull('provider_id')->where('created_at', '>=', now()->subDays(self::WATCH_DAYS))))
             ->where(fn ($query) => $query->whereNull('next_check_at')->orWhere('next_check_at', '<=', now()))
             ->where(fn ($query) => $query->whereNull('reconcile_until')->orWhere('reconcile_until', '<=', now()));
     }
@@ -221,6 +260,23 @@ class BillingService
     public function reconciliationCandidates(int $limit): array
     {
         return $this->duePayments()->orderBy('last_checked_at')->orderBy('id')->limit(max(1, min(100, $limit)))->pluck('id')->all();
+    }
+
+    /**
+     * Saves a provider outcome without reopening a closed attempt: a closed attempt stays closed while pending.
+     */
+    private function recordOutcome(object $attempt, string $status): void
+    {
+        $closed = in_array($attempt->status, self::WATCHED, true);
+        if ($status === 'pending' && ! $closed && $attempt->created_at && Carbon::parse($attempt->created_at)->lte(now()->subDay())) {
+            // Abandoned provider pages (eSewa NOT_FOUND, unapproved PayPal orders) never resolve themselves.
+            $status = 'expired';
+        }
+        if ($status === 'pending' && $closed) {
+            return;
+        }
+        DB::table('subscription_payments')->where('id', $attempt->id)->whereNull('subscription_id')->whereIn('status', [...self::OPEN, ...self::WATCHED])
+            ->update(['status' => $status, 'updated_at' => now()]);
     }
 
     public function reconcile(int $id): string
@@ -234,13 +290,19 @@ class BillingService
         $delay = 5;
         try {
             $attempt = DB::table('subscription_payments')->where('id', $id)->first();
-            if (! in_array($attempt->status, ['created', 'initiating', 'pending', 'unknown'], true)) {
+            if (! in_array($attempt->status, [...self::OPEN, ...self::WATCHED], true)) {
                 return 'skipped';
             }
+            $closed = in_array($attempt->status, self::WATCHED, true);
+            $delay = $closed ? 60 : 5;
             if (! $attempt->provider_id) {
                 // A missing Khalti pidx cannot be recovered by safely initiating another charge.
                 $code = 'provider_identifier_missing';
                 $delay = 1440;
+                if (Carbon::parse($attempt->created_at)->lte(now()->subDay())) {
+                    // Release the account after a day; support can still match a provider receipt by reference.
+                    DB::table('subscription_payments')->where('id', $id)->whereIn('status', self::OPEN)->update(['status' => 'expired', 'updated_at' => now()]);
+                }
             } elseif (! app(GatewayService::class)->ready($attempt->gateway)) {
                 $code = 'provider_not_configured';
                 $delay = 15;
@@ -249,7 +311,7 @@ class BillingService
                 if (($verified['status'] ?? '') === 'verified') {
                     $this->settle($id, $verified);
                 } elseif (in_array($verified['status'] ?? '', ['pending', 'failed', 'refunded'], true)) {
-                    DB::table('subscription_payments')->where('id', $id)->whereNull('subscription_id')->where('status', '!=', 'verified')->update(['status' => $verified['status'], 'updated_at' => now()]);
+                    $this->recordOutcome($attempt, $verified['status']);
                 } else {
                     throw new \RuntimeException('Provider status unavailable.');
                 }
@@ -272,19 +334,50 @@ class BillingService
     public function confirm(int $actor, int $account, string $reference, array $callback): object
     {
         $attempt = $this->payment($actor, $account, $reference);
-        if ($attempt->status === 'verified') {
+        if (! in_array($attempt->status, [...self::OPEN, ...self::WATCHED], true)) {
             return $attempt;
         }
         $verified = app(GatewayService::class)->verify($attempt, $callback);
         if (($verified['status'] ?? '') !== 'verified') {
             if (in_array($verified['status'] ?? '', ['pending', 'failed', 'refunded'], true)) {
-                DB::table('subscription_payments')->where('id', $attempt->id)->where('status', '!=', 'verified')->update(['status' => $verified['status'], 'updated_at' => now()]);
+                $this->recordOutcome($attempt, $verified['status']);
             }
 
             return $this->payment($actor, $account, $reference);
         }
 
         return $this->settle((int) $attempt->id, $verified);
+    }
+
+    /**
+     * Owner closes an unfinished checkout so a new one can start. A late provider completion still settles.
+     */
+    public function abandon(int $actor, int $account, string $reference): object
+    {
+        $attempt = $this->payment($actor, $account, $reference);
+        abort_unless(in_array($attempt->status, self::OPEN, true), 409, 'Payment already resolved.');
+        abort_if(in_array($attempt->status, ['created', 'initiating'], true) && Carbon::parse($attempt->updated_at)->gt(now()->subMinutes(2)), 409, 'Payment is still starting. Try again in two minutes.');
+        if ($attempt->provider_id && app(GatewayService::class)->ready($attempt->gateway)) {
+            try {
+                $verified = app(GatewayService::class)->verify($attempt, []);
+                if (($verified['status'] ?? '') === 'verified') {
+                    return $this->settle((int) $attempt->id, $verified);
+                }
+                if (in_array($verified['status'] ?? '', ['failed', 'refunded'], true)) {
+                    $this->recordOutcome($attempt, $verified['status']);
+                }
+            } catch (\Throwable $error) {
+                // Provider unavailable: close anyway; reconciliation keeps checking for a late completion.
+                report($error);
+            }
+        }
+        DB::transaction(function () use ($actor, $attempt) {
+            if (DB::table('subscription_payments')->where('id', $attempt->id)->whereIn('status', self::OPEN)->update(['status' => 'abandoned', 'next_check_at' => now()->addMinutes(15), 'updated_at' => now()])) {
+                DB::table('billing_audit_logs')->insert(['actor_id' => $actor, 'actor_guard' => 'tenant', 'action' => 'payment.abandoned', 'subject_id' => $attempt->id, 'metadata' => json_encode(['gateway' => $attempt->gateway]), 'created_at' => now()]);
+            }
+        }, 3);
+
+        return $this->payment($actor, $account, $reference);
     }
 
     public function settle(int $attemptId, array $verified): object
@@ -303,27 +396,92 @@ class BillingService
             }
             abort_if(DB::table('subscription_payments')->where('gateway', $attempt->gateway)->where('provider_transaction_id', $verified['provider_transaction_id'])->where('id', '!=', $attemptId)->exists(), 409, 'Provider transaction already used.');
             $snapshot = json_decode($attempt->package_snapshot, true, 512, JSON_THROW_ON_ERROR);
-            $retained = json_decode($attempt->retained_business_ids, true, 512, JSON_THROW_ON_ERROR);
-            if (! $attempt->retained_selection) {
-                $retained = DB::table('tenants')->where('billing_account_id', $attempt->billing_account_id)->pluck('id')->all();
-            }
-            abort_unless(count($retained) <= $snapshot['max_businesses'], 409, 'Review retained businesses before settlement.');
-            $existing = DB::table('billing_subscriptions')->where('billing_account_id', $attempt->billing_account_id)->orderByDesc('id')->first();
+            $businesses = DB::table('tenants')->where('billing_account_id', $attempt->billing_account_id)->orderByDesc('package_enabled')->orderBy('id')->pluck('id')->map(fn ($id) => (int) $id)->all();
+            $retained = $attempt->retained_selection ? array_values(array_intersect($businesses, json_decode($attempt->retained_business_ids, true, 512, JSON_THROW_ON_ERROR))) : $businesses;
+            $trimmed = count($retained) > $snapshot['max_businesses'];
+            // Money is already captured, so never refuse settlement: keep enabled businesses first, oldest first.
+            $retained = array_slice($retained, 0, $snapshot['max_businesses']);
+            $existing = DB::table('billing_subscriptions')->where('billing_account_id', $attempt->billing_account_id)->whereIn('status', ['trial', 'active'])->whereNull('revoked_at')->orderByDesc('end_at')->first();
             $start = now();
-            if ($existing && in_array($existing->status, ['trial', 'active'], true) && $start->lt($existing->end_at)) {
+            if ($existing && $start->lt($existing->end_at)) {
                 $start = Carbon::parse($existing->end_at);
             }
             $end = $start->copy()->addDays($snapshot['duration_days']);
-            $subscription = DB::table('billing_subscriptions')->insertGetId(['billing_account_id' => $attempt->billing_account_id, 'package_id' => $snapshot['id'], 'package_snapshot' => $attempt->package_snapshot, 'status' => 'active', 'start_at' => $start, 'end_at' => $end, 'created_at' => now(), 'updated_at' => now()]);
+            $subscription = DB::table('billing_subscriptions')->insertGetId(['billing_account_id' => $attempt->billing_account_id, 'package_id' => $snapshot['id'], 'package_snapshot' => $attempt->package_snapshot,
+                'retained_business_ids' => $attempt->retained_selection ? json_encode($retained) : null, 'status' => 'active', 'start_at' => $start, 'end_at' => $end, 'created_at' => now(), 'updated_at' => now()]);
             DB::table('subscription_payments')->where('id', $attemptId)->update(['status' => 'verified', 'provider_transaction_id' => $verified['provider_transaction_id'], 'subscription_id' => $subscription, 'updated_at' => now()]);
             DB::table('billing_accounts')->where('id', $attempt->billing_account_id)->update(['legacy_access' => false, 'version' => DB::raw('version + 1'), 'updated_at' => now()]);
-            DB::table('tenants')->where('billing_account_id', $attempt->billing_account_id)->update(['package_enabled' => false, 'data_version' => DB::raw('data_version + 1')]);
-            DB::table('tenants')->where('billing_account_id', $attempt->billing_account_id)->whereIn('id', $retained)->update(['package_enabled' => true]);
+            // Retained businesses keep working through the whole paid span; the allowance switches when the term starts.
             DB::table('tenants')->where('billing_account_id', $attempt->billing_account_id)->whereIn('id', $retained)->where('access_status', '!=', 'suspended')->update(['access_status' => 'active', 'access_until' => $end]);
+            if ($start->lte(now())) {
+                $this->applyTerms($subscription);
+            }
             app(NotificationService::class)->enqueue('payment_receipt', (int) $attempt->actor_id, ['currency' => $attempt->currency, 'amount_minor' => (string) $attempt->amount_minor, 'reference' => $attempt->reference], ['email'], 'payment:'.$attempt->reference, (int) $attempt->billing_account_id);
-            DB::table('billing_audit_logs')->insert(['actor_id' => $attempt->actor_id, 'actor_guard' => 'tenant', 'action' => 'payment.verified', 'subject_id' => $attempt->id, 'metadata' => json_encode(['subscription_id' => (string) $subscription, 'gateway' => $attempt->gateway]), 'created_at' => now()]);
+            DB::table('billing_audit_logs')->insert(['actor_id' => $attempt->actor_id, 'actor_guard' => 'tenant', 'action' => 'payment.verified', 'subject_id' => $attempt->id, 'metadata' => json_encode(['subscription_id' => (string) $subscription, 'gateway' => $attempt->gateway, 'retained_trimmed' => $trimmed]), 'created_at' => now()]);
 
             return DB::table('subscription_payments')->where('id', $attemptId)->first();
+        }, 3);
+    }
+
+    /**
+     * Applies a subscription's business allowance once its term has started. Safe to repeat.
+     */
+    public function applyTerms(int $subscriptionId): bool
+    {
+        return DB::transaction(function () use ($subscriptionId) {
+            $candidate = DB::table('billing_subscriptions')->where('id', $subscriptionId)->first();
+            if (! $candidate) {
+                return false;
+            }
+            DB::table('billing_accounts')->where('id', $candidate->billing_account_id)->lockForUpdate()->first();
+            $subscription = DB::table('billing_subscriptions')->where('id', $subscriptionId)->lockForUpdate()->first();
+            if ($subscription->applied_at || $subscription->revoked_at || now()->lt($subscription->start_at)) {
+                return false;
+            }
+            $tenants = DB::table('tenants')->where('billing_account_id', $subscription->billing_account_id);
+            $snapshot = json_decode($subscription->package_snapshot, true, 512, JSON_THROW_ON_ERROR);
+            // No explicit selection keeps every business, including ones added after payment, up to the package limit.
+            $retained = $subscription->retained_business_ids !== null ? json_decode($subscription->retained_business_ids, true, 512, JSON_THROW_ON_ERROR)
+                : (clone $tenants)->orderByDesc('package_enabled')->orderBy('id')->limit($snapshot['max_businesses'])->pluck('id')->all();
+            (clone $tenants)->update(['package_enabled' => false, 'data_version' => DB::raw('data_version + 1')]);
+            (clone $tenants)->whereIn('id', $retained)->update(['package_enabled' => true]);
+            DB::table('billing_subscriptions')->where('id', $subscriptionId)->update(['applied_at' => now(), 'updated_at' => now()]);
+
+            return true;
+        }, 3);
+    }
+
+    /**
+     * Scheduler entry: start stacked renewals whose term began.
+     */
+    public function applyDueTerms(int $limit = 100): int
+    {
+        $applied = 0;
+        foreach (DB::table('billing_subscriptions')->whereNull('applied_at')->whereNull('revoked_at')->where('start_at', '<=', now())->orderBy('start_at')->limit($limit)->pluck('id') as $id) {
+            $applied += $this->applyTerms((int) $id) ? 1 : 0;
+        }
+
+        return $applied;
+    }
+
+    /**
+     * Platform refund or dispute: revoke the purchased term with an audit record. Business journals are untouched.
+     */
+    public function revokePayment(int $admin, int $paymentId, string $status, string $reason): object
+    {
+        abort_unless(in_array($status, ['refunded', 'disputed'], true), 422, 'Choose refunded or disputed.');
+
+        return DB::transaction(function () use ($admin, $paymentId, $status, $reason) {
+            $candidate = DB::table('subscription_payments')->where('id', $paymentId)->first() ?? abort(404);
+            DB::table('billing_accounts')->where('id', $candidate->billing_account_id)->lockForUpdate()->first();
+            $attempt = DB::table('subscription_payments')->where('id', $paymentId)->lockForUpdate()->first();
+            abort_unless($attempt->status === 'verified' && $attempt->subscription_id, 409, 'Only a settled payment can be refunded or disputed.');
+            DB::table('subscription_payments')->where('id', $paymentId)->update(['status' => $status, 'updated_at' => now()]);
+            DB::table('billing_subscriptions')->where('id', $attempt->subscription_id)->update(['status' => $status, 'revoked_at' => now(), 'updated_at' => now()]);
+            DB::table('billing_accounts')->where('id', $attempt->billing_account_id)->update(['version' => DB::raw('version + 1'), 'updated_at' => now()]);
+            DB::table('billing_audit_logs')->insert(['actor_id' => $admin, 'actor_guard' => 'superadmin', 'action' => 'payment.'.$status, 'subject_id' => $paymentId, 'metadata' => json_encode(['reason' => $reason, 'subscription_id' => (string) $attempt->subscription_id]), 'created_at' => now()]);
+
+            return DB::table('subscription_payments')->where('id', $paymentId)->first();
         }, 3);
     }
 
@@ -331,6 +489,7 @@ class BillingService
     {
         return ['id' => (string) $attempt->id, 'reference' => $attempt->reference, 'gateway' => $attempt->gateway, 'currency' => $attempt->currency,
             'amount_minor' => (string) $attempt->amount_minor, 'status' => $attempt->status, 'checkout' => $attempt->checkout_data ? json_decode($attempt->checkout_data, true) : null,
-            'subscription_id' => $attempt->subscription_id ? (string) $attempt->subscription_id : null];
+            'subscription_id' => $attempt->subscription_id ? (string) $attempt->subscription_id : null, 'created_at' => $attempt->created_at,
+            'can_abandon' => in_array($attempt->status, self::OPEN, true), 'issue' => $attempt->last_error_code ?? null];
     }
 }

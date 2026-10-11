@@ -51,6 +51,28 @@ class PaymentReconciliationTest extends TestCase
         $this->assertDatabaseCount('billing_subscriptions', 1);
     }
 
+    public function test_unrecoverable_attempt_expires_after_a_day_so_the_account_can_pay_again(): void
+    {
+        [$gateway, $attempt] = $this->pending();
+        $gateway->shouldNotReceive('verify');
+        DB::table('subscription_payments')->where('reference', $attempt['reference'])->update(['status' => 'unknown', 'provider_id' => null, 'created_at' => now()->subDays(2)]);
+        $this->artisan('app:reconcile-subscription-payments')->assertSuccessful();
+        $this->assertDatabaseHas('subscription_payments', ['reference' => $attempt['reference'], 'status' => 'expired', 'last_error_code' => 'provider_identifier_missing']);
+    }
+
+    public function test_provider_pending_for_a_day_expires_but_is_still_watched(): void
+    {
+        [$gateway, $attempt] = $this->pending();
+        $gateway->shouldReceive('verify')->once()->andReturn(['status' => 'pending']);
+        DB::table('subscription_payments')->where('reference', $attempt['reference'])->update(['created_at' => now()->subDays(2)]);
+        $this->artisan('app:reconcile-subscription-payments')->assertSuccessful();
+        $this->assertDatabaseHas('subscription_payments', ['reference' => $attempt['reference'], 'status' => 'expired']);
+        $gateway->shouldReceive('verify')->once()->andReturn(['status' => 'verified', 'reference' => $attempt['reference'], 'provider_transaction_id' => 'late-txn', 'amount_minor' => '10000', 'currency' => 'NPR']);
+        $this->travel(61)->minutes();
+        $this->artisan('app:reconcile-subscription-payments')->assertSuccessful();
+        $this->assertDatabaseHas('subscription_payments', ['reference' => $attempt['reference'], 'status' => 'verified']);
+    }
+
     public function test_provider_failure_preserves_attempt_and_defers_retry(): void
     {
         [$gateway, $attempt] = $this->pending();

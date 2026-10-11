@@ -24,7 +24,9 @@ class FcmService
         if (isset($notification['url'])) {
             $url = parse_url($notification['url']);
             $base = parse_url(config('app.frontend_url'));
-            if (! is_array($url) || ! is_array($base) || ($url['scheme'] ?? '') !== 'https' || isset($url['user']) || isset($url['pass']) || ($url['host'] ?? '') !== ($base['host'] ?? '') || ($url['port'] ?? 443) !== ($base['port'] ?? 443)) {
+            // Browsers treat loopback hosts as secure contexts, so plain http is allowed only for local development.
+            $scheme = in_array($url['host'] ?? '', ['localhost', '127.0.0.1'], true) ? ['https', 'http'] : ['https'];
+            if (! is_array($url) || ! is_array($base) || ! in_array($url['scheme'] ?? '', $scheme, true) || isset($url['user']) || isset($url['pass']) || ($url['host'] ?? '') !== ($base['host'] ?? '') || ($url['port'] ?? 443) !== ($base['port'] ?? 443)) {
                 throw new \InvalidArgumentException('FCM link unavailable.');
             }
             $payload['webpush']['fcm_options']['link'] = $notification['url'];

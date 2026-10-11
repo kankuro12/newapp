@@ -3918,3 +3918,28 @@ th {
     margin-bottom: 12px;
   }
 }
+
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 12px;
+}
+
+.help-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.agent-token {
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: var(--ion-color-light, #f4f5f8);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  user-select: all;
+}

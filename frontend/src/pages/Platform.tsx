@@ -4,8 +4,10 @@ import { ApiError, request, resetSession, send, useData } from '../lib/api';
 import type { Business, Page } from '../lib/types';
 import { Errors, Field, Heading, Loading, Select, Status, Submit } from '../components/ui';
 import Auth from './Auth';
+import PlatformBilling from './PlatformBilling';
 import PlatformPackages from './PlatformPackages';
 import { Pagination } from './Records';
+import { HelpLink } from '../components/Help';
 
 interface TenantRow extends Business {
   owner_email: string;
@@ -65,8 +67,10 @@ export default function Platform() {
             >
               Sign out
             </IonButton>
+            <HelpLink section="platform" />
           </header>
           <PlatformPackages />
+          <PlatformBilling />
           <Heading
             eyebrow="PLATFORM ADMINISTRATION"
             title="Business access"

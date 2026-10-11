@@ -1,0 +1,5 @@
+# Minimal OpenSSL configuration so tests can generate throwaway keys on hosts without openssl.cnf.
+[ req ]
+distinguished_name = req_distinguished_name
+
+[ req_distinguished_name ]

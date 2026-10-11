@@ -1,6 +1,7 @@
 import { tenantSignOut } from '../lib/push';
 import { IonContent, IonIcon, IonPage } from '@ionic/react';
 import {
+  barbellOutline,
   barChartOutline,
   cashOutline,
   cubeOutline,
@@ -34,6 +35,9 @@ import Pos, { PosSetup } from './Pos';
 import { WorkflowList, WorkflowDetail, WorkflowEditor } from './Workflows';
 import FulfilmentDetail from './FulfilmentDetail';
 import UserManual from './UserManual';
+import { HelpLink } from '../components/Help';
+import { manualSection } from '../lib/manual';
+import Gym from './Gym';
 import More from './More';
 import { DocumentList, DocumentDetail, MoneyList } from './Records';
 import DocumentForm from './DocumentForm';
@@ -50,6 +54,17 @@ import BarcodeTools from './BarcodeTools';
 import LabelTools from './LabelTools';
 import { Opening, Settings, Audit } from './Settings';
 
+const typeLabels: Record<string, string> = {
+  general: 'General business',
+  meat: 'Meat shop',
+  restaurant: 'Restaurant',
+  barber: 'Barber',
+  salon: 'Salon',
+  milk: 'Dairy',
+  glass: 'Glass',
+  wood: 'Wood',
+  gym: 'Gym',
+};
 export default function Workspace({
   user,
   today,
@@ -135,9 +150,18 @@ function Shell({
       })
       .catch(() => undefined);
   }
+  const profile = business.pos_profile || 'general';
+  // Each business has one type; its daily tool leads the menu.
+  const posLabel =
+    profile === 'restaurant'
+      ? 'Tables & orders'
+      : ['barber', 'salon'].includes(profile)
+        ? 'Appointments & POS'
+        : 'POS';
   const links = [
     ['', 'Home', homeOutline],
-    ['/pos', 'POS', storefrontOutline],
+    ...(profile === 'gym' ? [['/gym', 'Gym desk', barbellOutline]] : []),
+    ['/pos', posLabel, storefrontOutline],
     ['/workflows', 'Quotes / orders / jobs', receiptOutline],
     ['/sales', 'Sales', receiptOutline],
     ['/contacts', 'Parties', peopleOutline],
@@ -230,9 +254,25 @@ function Shell({
                   <span className="mobile-back-slot" />
                   <span className="mobile-logo brand-mark">b</span>
                   <strong>{business.name}</strong>
+                  <span className="badge active business-type">
+                    {t(typeLabels[profile] || profile)}
+                  </span>
                   <span className="topbar-date">{bsDisplay(today)} BS</span>
                 </div>
                 <div className="topbar-actions">
+                  {!location.pathname.endsWith('/help') && (
+                    <HelpLink
+                      path={path}
+                      label={t('Help')}
+                      section={
+                        location.pathname.slice(path.length) === ''
+                          ? profile === 'gym'
+                            ? 'gym'
+                            : 'start'
+                          : manualSection(location.pathname.slice(path.length))
+                      }
+                    />
+                  )}
                   <span className={`connection ${online ? '' : 'offline'}`}>
                     <i />
                     {online ? 'Online' : 'Offline'}
@@ -339,6 +379,7 @@ function Shell({
                   <Route path="audit" element={<Audit />} />
                   <Route path="more" element={<More />} />
                   <Route path="help" element={<UserManual />} />
+                  {profile === 'gym' && <Route path="gym" element={<Gym />} />}
                   <Route
                     path="*"
                     element={

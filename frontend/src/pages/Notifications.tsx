@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { request, send, useData } from '../lib/api';
 import { enablePush, revokeCurrentPush } from '../lib/push';
 import { Errors, Heading, Loading } from '../components/ui';
+import { HelpLink } from '../components/Help';
 type Preferences = Record<
   | 'operational_email'
   | 'promotional_email'
@@ -55,6 +56,7 @@ export default function Notifications({ userId }: { userId: string }) {
           <header className="businesses-header">
             <Link to="/account">My account</Link>
             <Link to="/businesses">Businesses</Link>
+            <HelpLink section="account-messages" />
           </header>
           <Heading
             title="Notifications"

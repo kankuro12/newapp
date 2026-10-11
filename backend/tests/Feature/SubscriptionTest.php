@@ -40,6 +40,14 @@ class SubscriptionTest extends TestCase
         $this->getJson('/api/billing/accounts/'.$first['billing_account_id'].'/subscription')->assertOk();
     }
 
+    public function test_platform_business_list_serialises_dates_as_strings(): void
+    {
+        $this->actingAs(User::factory()->create(), 'tenant');
+        $this->postJson('/api/businesses', ['name' => 'Dated'])->assertCreated();
+        $this->actingAs(SuperAdmin::create(['name' => 'Platform', 'email' => 'admin@example.com', 'password' => bcrypt('secret-password')]), 'superadmin');
+        $this->assertIsString($this->getJson('/api/platform/tenants')->assertOk()->json('data.0.trial_ends_at'));
+    }
+
     public function test_platform_packages_require_separate_guard_and_snapshot_existing_terms(): void
     {
         $owner = User::factory()->create();

@@ -42,16 +42,25 @@ class EsewaGatewayTest extends TestCase
     public function test_signed_callback_still_requires_independent_complete_status(): void
     {
         $attempt = $this->attempt();
-        Http::fake(['*/transaction/status/*' => Http::response('{"status":"PENDING","totalAmount":100.01,"scd":"TEST","pid":"payment-reference","refId":null}')]);
+        Http::fake(['*/transaction/status/*' => Http::response('{"status":"PENDING","total_amount":100.01,"product_code":"TEST","transaction_uuid":"payment-reference","ref_id":null}')]);
         $this->assertSame('pending', app(GatewayService::class)->verify($attempt, $this->signedCallback($attempt))['status']);
         Http::assertSent(fn ($request) => $request['transaction_uuid'] === $attempt->reference && $request['total_amount'] === '100.01' && $request['product_code'] === 'TEST');
+    }
+
+    public function test_sandbox_uses_live_verified_v2_status_host_and_fields(): void
+    {
+        // Shape captured from eSewa's public UAT status API on 2026-10-10 (unpaid transaction).
+        $attempt = $this->attempt();
+        Http::fake(['rc.esewa.com.np/api/epay/transaction/status/*' => Http::response('{"product_code":"TEST","transaction_uuid":"payment-reference","total_amount":100.01,"status":"NOT_FOUND","ref_id":null}')]);
+        $this->assertSame('pending', app(GatewayService::class)->verify($attempt, [])['status']);
+        Http::assertSent(fn ($request) => str_starts_with($request->url(), 'https://rc.esewa.com.np/api/epay/transaction/status/'));
     }
 
     public function test_canonical_status_preserves_numeric_decimal_without_float(): void
     {
         $attempt = $this->attempt();
         $attempt->amount_minor = '999999999999';
-        Http::fake(['*/transaction/status/*' => Http::response('{"status":"COMPLETE","totalAmount":9999999999.99,"scd":"TEST","pid":"payment-reference","refId":"esewa-transaction"}')]);
+        Http::fake(['*/transaction/status/*' => Http::response('{"status":"COMPLETE","total_amount":9999999999.99,"product_code":"TEST","transaction_uuid":"payment-reference","ref_id":"esewa-transaction"}')]);
         $result = app(GatewayService::class)->verify($attempt, []);
         $this->assertSame('verified', $result['status']);
         $this->assertSame('999999999999', $result['amount_minor']);
@@ -77,8 +86,8 @@ class EsewaGatewayTest extends TestCase
     {
         $attempt = $this->attempt();
         foreach ([
-            '{"status":"COMPLETE","totalAmount":100.01,"scd":"OTHER","pid":"payment-reference","refId":"txn"}',
-            '{"status":"COMPLETE","totalAmount":100.001,"scd":"TEST","pid":"payment-reference","refId":"txn"}',
+            '{"status":"COMPLETE","total_amount":100.01,"product_code":"OTHER","transaction_uuid":"payment-reference","ref_id":"txn"}',
+            '{"status":"COMPLETE","total_amount":100.001,"product_code":"TEST","transaction_uuid":"payment-reference","ref_id":"txn"}',
         ] as $response) {
             Http::fake(['*/transaction/status/*' => Http::response($response)]);
             try {

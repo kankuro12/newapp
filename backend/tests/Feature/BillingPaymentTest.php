@@ -90,7 +90,50 @@ class BillingPaymentTest extends TestCase
         $attempt = $this->postJson('/api/billing/accounts/'.$account.'/checkout', [...$s['input'], 'retained_business_ids' => []])->assertCreated()->json('data');
         $s['gateway']->shouldReceive('verify')->andReturn(['status' => 'verified', 'reference' => $attempt['reference'], 'provider_transaction_id' => 'empty-selection', 'amount_minor' => '10000', 'currency' => 'NPR']);
         $this->postJson('/api/billing/accounts/'.$account.'/payments/'.$attempt['reference'].'/confirm')->assertOk();
+        // The paid term is stacked after the running trial, so the trial allowance holds until it ends.
+        $this->assertTrue((bool) DB::table('tenants')->where('id', $s['business']['id'])->value('package_enabled'));
+        $this->travelTo(DB::table('billing_subscriptions')->orderByDesc('id')->value('start_at'));
+        $this->travel(1)->minutes();
+        $this->artisan('app:apply-subscription-terms')->assertSuccessful();
         $this->assertFalse((bool) DB::table('tenants')->where('id', $s['business']['id'])->value('package_enabled'));
+    }
+
+    public function test_early_renewal_keeps_current_terms_until_the_stacked_term_starts(): void
+    {
+        $s = $this->checkout();
+        $account = $s['business']['billing_account_id'];
+        $trial = DB::table('billing_subscriptions')->where('billing_account_id', $account)->first();
+        $attempt = $this->postJson('/api/billing/accounts/'.$account.'/checkout', $s['input'])->assertCreated()->json('data');
+        $s['gateway']->shouldReceive('verify')->andReturn(['status' => 'verified', 'reference' => $attempt['reference'], 'provider_transaction_id' => 'early', 'amount_minor' => '10000', 'currency' => 'NPR']);
+        $this->postJson('/api/billing/accounts/'.$account.'/payments/'.$attempt['reference'].'/confirm')->assertOk();
+        $this->getJson('/api/billing/accounts/'.$account.'/subscription')->assertOk()->assertJsonPath('data.status', 'trial')
+            ->assertJsonPath('data.subscription_id', (string) $trial->id)->assertJsonPath('data.next.start_at', $trial->end_at);
+        $this->travelTo($trial->end_at);
+        $this->travel(1)->minutes();
+        $this->getJson('/api/billing/accounts/'.$account.'/subscription')->assertOk()->assertJsonPath('data.status', 'active')->assertJsonPath('data.next', null);
+    }
+
+    public function test_owner_can_abandon_stuck_checkout_and_late_completion_still_settles(): void
+    {
+        $s = $this->checkout();
+        $account = $s['business']['billing_account_id'];
+        $attempt = $this->postJson('/api/billing/accounts/'.$account.'/checkout', $s['input'])->assertCreated()->json('data');
+        $s['gateway']->shouldReceive('verify')->once()->andReturn(['status' => 'pending']);
+        $this->postJson('/api/billing/accounts/'.$account.'/payments/'.$attempt['reference'].'/abandon')->assertOk()->assertJsonPath('data.status', 'abandoned');
+        $this->postJson('/api/billing/accounts/'.$account.'/payments/'.$attempt['reference'].'/abandon')->assertConflict();
+        $this->postJson('/api/billing/accounts/'.$account.'/checkout', [...$s['input'], 'mutation_uuid' => (string) Str::uuid()])->assertCreated();
+        $s['gateway']->shouldReceive('verify')->andReturn(['status' => 'verified', 'reference' => $attempt['reference'], 'provider_transaction_id' => 'late', 'amount_minor' => '10000', 'currency' => 'NPR']);
+        $this->travel(16)->minutes();
+        $this->artisan('app:reconcile-subscription-payments')->assertSuccessful();
+        $this->assertDatabaseHas('subscription_payments', ['reference' => $attempt['reference'], 'status' => 'verified']);
+    }
+
+    public function test_second_billing_account_does_not_receive_another_trial(): void
+    {
+        $s = $this->checkout();
+        $second = $this->postJson('/api/billing/accounts', ['name' => 'Second account'])->assertCreated()->json('data');
+        $this->assertDatabaseMissing('billing_subscriptions', ['billing_account_id' => $second['id']]);
+        $this->postJson('/api/billing/accounts/'.$second['id'].'/trial', ['package_id' => 1])->assertConflict();
     }
 
     public function test_foreign_owner_and_provider_amount_mismatch_cannot_activate_access(): void

@@ -1,5 +1,6 @@
 import { IonIcon } from '@ionic/react';
 import {
+  barbellOutline,
   barChartOutline,
   cashOutline,
   cubeOutline,
@@ -25,6 +26,9 @@ export default function More() {
       id: 'sales',
       label: 'Sales tools',
       tools: [
+        ...(business.pos_profile === 'gym'
+          ? ([['Gym desk', '/gym', barbellOutline]] as Tool[])
+          : []),
         ['POS', '/pos', storefrontOutline],
         ['Basket offers', '/basket-offers', receiptOutline],
         ['Price lists', '/price-lists', receiptOutline],
@@ -72,6 +76,7 @@ export default function More() {
       tools: [
         ['My account', '/account', peopleOutline],
         ['Notifications', '/notifications', settingsOutline],
+        ['AI agents', '/agents', settingsOutline],
         ...(['owner'].includes(business.role)
           ? [['Packages', '/billing', walletOutline] as Tool]
           : []),
@@ -109,7 +114,8 @@ export default function More() {
               suffix === '/account' ||
               suffix === '/businesses' ||
               suffix === '/billing' ||
-              suffix === '/notifications'
+              suffix === '/notifications' ||
+              suffix === '/agents'
                 ? suffix
                 : path + suffix
             }

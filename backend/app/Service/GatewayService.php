@@ -284,11 +284,11 @@ class GatewayService
             abort_unless(is_string($fields['signature'] ?? null) && hash_equals($signature, $fields['signature']), 422, 'Payment callback signature invalid.');
             abort_unless($fields['transaction_uuid'] === $attempt->reference && $fields['product_code'] === $product && $this->minorAmount($fields['total_amount']) === (string) $attempt->amount_minor, 422, 'Payment callback mismatch.');
         }
-        $url = $environment === 'production' ? 'https://epay.esewa.com.np/api/epay/transaction/status/' : 'https://uat.esewa.com.np/api/epay/transaction/status/';
+        $url = $environment === 'production' ? 'https://epay.esewa.com.np/api/epay/transaction/status/' : 'https://rc.esewa.com.np/api/epay/transaction/status/';
         $response = Http::acceptJson()->timeout(20)->connectTimeout(5)->withOptions(['allow_redirects' => false])->get($url, ['product_code' => $product, 'total_amount' => $this->decimalAmount((string) $attempt->amount_minor), 'transaction_uuid' => $attempt->reference]);
         abort_unless($response->successful(), 503, 'eSewa verification unavailable.');
         $data = $this->exactJson($response->body());
-        abort_unless(($data['pid'] ?? null) === $attempt->reference && ($data['scd'] ?? null) === $product, 422, 'Payment identifier mismatch.');
+        abort_unless(($data['transaction_uuid'] ?? null) === $attempt->reference && ($data['product_code'] ?? null) === $product, 422, 'Payment identifier mismatch.');
         if (($data['status'] ?? '') !== 'COMPLETE') {
             return ['status' => match ($data['status'] ?? '') {
                 'FULL_REFUND', 'PARTIAL_REFUND' => 'refunded',
@@ -296,13 +296,13 @@ class GatewayService
                 default => 'pending',
             }];
         }
-        $transaction = $data['refId'] ?? null;
-        abort_unless(is_string($data['totalAmount'] ?? null) && is_string($transaction) && $transaction !== '' && strlen($transaction) <= 255, 422, 'Payment verification incomplete.');
+        $transaction = $data['ref_id'] ?? null;
+        abort_unless(is_string($data['total_amount'] ?? null) && is_string($transaction) && $transaction !== '' && strlen($transaction) <= 255, 422, 'Payment verification incomplete.');
         if (isset($fields)) {
             abort_unless($fields['transaction_code'] === $transaction, 422, 'Payment transaction mismatch.');
         }
 
-        return ['status' => 'verified', 'reference' => $attempt->reference, 'provider_transaction_id' => $transaction, 'amount_minor' => $this->minorAmount($data['totalAmount']), 'currency' => 'NPR'];
+        return ['status' => 'verified', 'reference' => $attempt->reference, 'provider_transaction_id' => $transaction, 'amount_minor' => $this->minorAmount($data['total_amount']), 'currency' => 'NPR'];
     }
 
     private function khaltiRequest(string $operation, array $payload): array

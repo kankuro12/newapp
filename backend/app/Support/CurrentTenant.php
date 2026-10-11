@@ -18,6 +18,11 @@ final class CurrentTenant
         return $this->tenant?->id ?? throw new \LogicException('Tenant context required.');
     }
 
+    public function tenant(): Tenant
+    {
+        return $this->tenant ?? throw new \LogicException('Tenant context required.');
+    }
+
     public function clear(): void
     {
         $this->tenant = null;

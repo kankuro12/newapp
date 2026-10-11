@@ -10,6 +10,28 @@ export default defineConfig({
   plugins: [
     react(),
     {
+      // Dev server: compile the push worker on request so web push can be tested without a build.
+      name: 'dev-push-worker',
+      apply: 'serve',
+      configureServer(server) {
+        server.middlewares.use('/sw.js', async (_request, response, next) => {
+          try {
+            const result = await server.transformRequest('/src/sw.ts');
+            if (!result) throw new Error('Push worker source missing');
+            response.setHeader('Content-Type', 'text/javascript');
+            response.setHeader('Cache-Control', 'no-store');
+            response.end(
+              result.code
+                .replace('__BB_PWA_VERSION__', 'business-book-assets-dev')
+                .replace('__BB_PWA_ASSETS__', ''),
+            );
+          } catch (error) {
+            next(error);
+          }
+        });
+      },
+    },
+    {
       name: 'asset-only-pwa',
       generateBundle(_, bundle) {
         this.emitFile({
@@ -66,6 +88,7 @@ export default defineConfig({
         '/email',
         '/user',
         '/platform-auth',
+        '/mcp',
       ].map((path) => [path, { target: 'http://127.0.0.1:8000' }]),
     ),
   },

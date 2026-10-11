@@ -92,4 +92,9 @@ class BillingController extends Controller
 
         return response()->json(['data' => $this->service->paymentData($this->service->confirm(auth('tenant')->id(), $id, $reference, $callback))])->header('Cache-Control', 'no-store');
     }
+
+    public function abandon(int $id, string $reference): JsonResponse
+    {
+        return response()->json(['data' => $this->service->paymentData($this->service->abandon(auth('tenant')->id(), $id, $reference))])->header('Cache-Control', 'no-store');
+    }
 }

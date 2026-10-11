@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\SendPushToDevice;
 use App\Models\User;
 use App\Service\FcmService;
 use App\Service\NotificationService;
@@ -31,6 +32,12 @@ class FcmDeliveryTest extends TestCase
         $id = $service->enqueue('welcome', $user->id, [], ['fcm'], 'first')[0];
         $service->deliver($id);
         $service->deliver($id);
+        // Each device is its own queued job; running them twice still sends once per device.
+        Queue::assertPushed(SendPushToDevice::class, 2);
+        $this->assertDatabaseHas('message_deliveries', ['id' => $id, 'status' => 'sending']);
+        foreach ([1, 2] as $round) {
+            Queue::pushed(SendPushToDevice::class)->each(fn ($job) => $job->handle($service));
+        }
         $this->assertDatabaseHas('message_deliveries', ['id' => $id, 'status' => 'sent']);
         $this->assertSame(1, DB::table('notification_devices')->where('active', true)->count());
         $this->assertDatabaseCount('message_device_deliveries', 2);

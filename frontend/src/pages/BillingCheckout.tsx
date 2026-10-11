@@ -117,7 +117,36 @@ function PaymentCard({
               with reference if unresolved.
             </p>
           )}
+          <IonButton
+            fill="outline"
+            color="medium"
+            disabled={verification.busy}
+            onClick={() => {
+              if (
+                !window.confirm(
+                  'Stop waiting for this payment? If it completes later, your package is still extended.',
+                )
+              )
+                return;
+              void verification.save<CheckoutPayment>(
+                `/api/billing/accounts/${accountId}/payments/${current.reference}/abandon`,
+                {},
+                (data) => {
+                  setLatest(data);
+                  onChecked(data);
+                },
+              );
+            }}
+          >
+            I did not pay — start over
+          </IonButton>
         </>
+      )}
+      {['abandoned', 'expired'].includes(current.status) && (
+        <p>
+          Closed. We keep checking with {names[current.gateway] || current.gateway} for seven days
+          and extend your package if this payment completes.
+        </p>
       )}
     </div>
   );

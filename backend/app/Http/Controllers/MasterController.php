@@ -42,10 +42,11 @@ class MasterController extends Controller
         if ($cashier && ! in_array($resource, ['contacts', 'items'])) {
             abort(403);
         }
-        $filter = $r->validate(['q' => 'nullable|string|max:100', 'page' => 'nullable|integer|min:1', 'archived' => 'nullable|boolean', 'category_id' => 'nullable|integer|min:0']);
+        $filter = $r->validate(['q' => 'nullable|string|max:100', 'page' => 'nullable|integer|min:1', 'archived' => 'nullable|boolean', 'category_id' => 'nullable|integer|min:0', 'kind' => 'nullable|in:stock,service']);
         $q = $this->a->rows($this->table($resource))->select($this->fields($resource, $cashier));
         if ($resource === 'items') {
             app(CatalogService::class)->filterCategory($q, $filter['category_id'] ?? null);
+            $q->when($filter['kind'] ?? null, fn ($q, $kind) => $q->where('kind', $kind));
         }
         if (isset($filter['q']) && $filter['q'] !== '') {
             $q->where(fn ($q) => $q->where('name', 'like', '%'.$filter['q'].'%')->when($resource === 'items', fn ($q) => $q->orWhere('sku', $filter['q'])->orWhereIn('id', $this->a->rows('item_codes')->where('code', $filter['q'])->select('item_id'))));

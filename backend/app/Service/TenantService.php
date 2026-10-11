@@ -43,7 +43,7 @@ class TenantService
             unset($input['business_type']);
             $input['pos_profile'] = $type;
             $input['billing_account_id'] = $account->id;
-            $tenant = Tenant::create([...$input, 'slug' => (Str::slug($input['name']) ?: 'business').'-'.Str::lower(Str::random(6)), 'trial_ends_at' => $entitlements['end_at'] ?? now()->addDays(14), 'access_until' => $entitlements['status'] === 'active' ? $entitlements['end_at'] : null, 'access_status' => $entitlements['status'] === 'active' ? 'active' : 'trial']);
+            $tenant = Tenant::create([...$input, 'slug' => (Str::slug($input['name']) ?: 'business').'-'.Str::lower(Str::random(6)), 'trial_ends_at' => $entitlements['end_at'] ?? now()->addDays(14), 'access_until' => $entitlements['status'] === 'active' ? ($entitlements['next']['end_at'] ?? $entitlements['end_at']) : null, 'access_status' => $entitlements['status'] === 'active' ? 'active' : 'trial']);
             DB::table('tenant_user')->insert(['tenant_id' => $tenant->id, 'user_id' => $actor, 'role' => 'owner', 'active' => true]);
             app(CurrentTenant::class)->set($tenant);
             try {

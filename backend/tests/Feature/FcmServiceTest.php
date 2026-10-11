@@ -10,8 +10,10 @@ class FcmServiceTest extends TestCase
 {
     private function configure(): void
     {
-        $key = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA]);
-        openssl_pkey_export($key, $pem);
+        // Own config: key generation fails on hosts whose OpenSSL has no default openssl.cnf.
+        $options = ['config' => base_path('tests/Support/openssl.cnf'), 'private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA];
+        $key = openssl_pkey_new($options);
+        openssl_pkey_export($key, $pem, null, $options);
         config(['services.fcm.project_id' => 'test-project', 'services.fcm.client_email' => 'sender@test-project.iam.gserviceaccount.com', 'services.fcm.private_key' => $pem]);
     }
 

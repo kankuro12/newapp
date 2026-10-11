@@ -69,6 +69,12 @@ export default function Auth({ reload, admin = false }: { reload: () => void; ad
         setMessage('Password reset. You can sign in now.');
         navigate('/signin');
       } else {
+        const next = new URLSearchParams(location.search).get('next') || '';
+        // Only same-site verification links may resume after sign-in; they are served by the backend.
+        if (!admin && /^\/email\/verify\/[^/?#\\]+\/[^/?#\\]+(\?[^#\\]*)?$/.test(next)) {
+          window.location.assign(next);
+          return;
+        }
         reload();
         navigate(admin ? '/platform' : '/businesses');
       }

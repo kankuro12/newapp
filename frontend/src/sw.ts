@@ -5,7 +5,7 @@ import { firebaseConfig, pushConfigured } from './lib/firebaseConfig';
 import { pwaRequest } from './lib/pwa';
 const worker = globalThis as unknown as ServiceWorkerGlobalScope;
 const cacheName = '__BB_PWA_VERSION__';
-const assets = '__BB_PWA_ASSETS__'.split('|');
+const assets = '__BB_PWA_ASSETS__'.split('|').filter(Boolean);
 worker.addEventListener('install', (event) =>
   event.waitUntil(
     caches

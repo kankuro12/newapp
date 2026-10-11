@@ -5,8 +5,8 @@ namespace Tests\Feature;
 use App\Models\SuperAdmin;
 use App\Models\User;
 use App\NepaliDate;
+use App\Notifications\QueuedResetPassword;
 use App\Support\Money;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -351,7 +351,7 @@ class BusinessFlowTest extends TestCase
         $user = User::factory()->create();
         $this->postJson('/forgot-password', ['email' => $user->email])->assertOk();
         $token = null;
-        Notification::assertSentTo($user, ResetPassword::class, function ($notice) use (&$token) {
+        Notification::assertSentTo($user, QueuedResetPassword::class, function ($notice) use (&$token) {
             $token = $notice->token;
 
             return true;

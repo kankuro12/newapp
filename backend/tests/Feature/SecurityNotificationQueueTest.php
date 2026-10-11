@@ -1,10 +1,13 @@
 <?php
+
 namespace Tests\Feature;
+
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Notifications\SendQueuedNotifications;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
+
 class SecurityNotificationQueueTest extends TestCase
 {
     public function test_reset_and_verification_use_encrypted_after_commit_jobs(): void

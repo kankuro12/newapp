@@ -3,9 +3,11 @@
 namespace App\Service;
 
 use App\Jobs\SendAccountMessage;
+use App\Jobs\SendPushToDevice;
 use App\Mail\AccountMessage;
 use App\Support\Money;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -80,7 +82,7 @@ class NotificationService
         DB::table('notification_devices')->where('user_id', $actor)->where('device_uuid', $uuid)->update(['active' => false, 'token_hash' => null, 'token_encrypted' => null, 'revoked_at' => now(), 'updated_at' => now()]);
     }
 
-    public function enqueue(string $event, int $user, array $context = [], array $channels = ['email'], ?string $key = null, ?int $account = null): array
+    public function enqueue(string $event, int $user, array $context = [], array $channels = ['email'], ?string $key = null, ?int $account = null, ?int $campaign = null): array
     {
         $fields = match ($event) {
             'welcome', 'password_changed' => [],
@@ -95,11 +97,11 @@ class NotificationService
         $this->message($event, '', $context);
         $key ??= (string) Str::uuid();
 
-        return DB::transaction(function () use ($event, $user, $context, $channels, $key, $account) {
+        return DB::transaction(function () use ($event, $user, $context, $channels, $key, $account, $campaign) {
             $ids = [];
             foreach (array_unique($channels) as $channel) {
                 $hash = hash('sha256', json_encode([$event, $user, $account, $channel, $key], JSON_THROW_ON_ERROR));
-                $created = DB::table('message_deliveries')->insertOrIgnore(['event_key' => $hash, 'event' => $event, 'user_id' => $user, 'billing_account_id' => $account, 'channel' => $channel,
+                $created = DB::table('message_deliveries')->insertOrIgnore(['event_key' => $hash, 'event' => $event, 'user_id' => $user, 'billing_account_id' => $account, 'campaign_id' => $campaign, 'channel' => $channel,
                     'context_encrypted' => Crypt::encryptString(json_encode($context, JSON_THROW_ON_ERROR)), 'status' => 'pending', 'created_at' => now(), 'updated_at' => now()]);
                 $id = (int) DB::table('message_deliveries')->where('event_key', $hash)->value('id');
                 if (! $id) {
@@ -153,13 +155,21 @@ class NotificationService
             $code = null;
             if (! $user || $user->disabled_at) {
                 $code = 'recipient_unavailable';
+            } elseif ($row->campaign_id && DB::table('marketing_campaigns')->where('id', $row->campaign_id)->value('status') === 'cancelled') {
+                $code = 'campaign_cancelled';
             } elseif ($row->billing_account_id && ! DB::table('billing_account_user')->where('billing_account_id', $row->billing_account_id)->where('user_id', $row->user_id)->where('active', true)->exists()) {
                 $code = 'membership_revoked';
-            } elseif (! in_array($row->channel, ['email', 'fcm'], true)) {
+            } elseif (! in_array($row->channel, ['email', 'fcm', 'whatsapp'], true)) {
                 $code = 'channel_not_configured';
             } elseif ($row->channel === 'fcm' && ! ($preferences?->{$row->event === 'promotion' ? 'promotional_fcm' : 'operational_fcm'} ?? false)) {
                 $code = 'consent_missing';
             } elseif ($row->channel === 'fcm' && ! app(FcmService::class)->ready()) {
+                $code = 'channel_not_configured';
+            } elseif ($row->channel === 'whatsapp' && ! ($preferences?->{$row->event === 'promotion' ? 'promotional_whatsapp' : 'operational_whatsapp'} ?? false)) {
+                $code = 'consent_missing';
+            } elseif ($row->channel === 'whatsapp' && ! app(WhatsappService::class)->address($user->country_code ?? null, $user->phone ?? null)) {
+                $code = 'phone_missing';
+            } elseif ($row->channel === 'whatsapp' && ! app(WhatsappService::class)->ready($row->event)) {
                 $code = 'channel_not_configured';
             } elseif ($row->channel === 'email' && $row->event === 'promotion' && ! ($preferences?->promotional_email ?? false)) {
                 $code = 'consent_missing';
@@ -169,7 +179,8 @@ class NotificationService
             $context = json_decode(Crypt::decryptString($row->context_encrypted), true, 32, JSON_THROW_ON_ERROR);
             if (! $code && in_array($row->event, ['trial_reminder', 'expiry_reminder'], true)) {
                 $current = $row->billing_account_id ? app(BillingService::class)->entitlements((int) $row->billing_account_id) : [];
-                if (($current['subscription_id'] ?? null) !== (string) ($context['subscription_id'] ?? '')) {
+                // A renewal stacked after the current term also makes the expiry reminder obsolete.
+                if (($current['subscription_id'] ?? null) !== (string) ($context['subscription_id'] ?? '') || ! empty($current['next'])) {
                     $code = 'subscription_changed';
                 }
             }
@@ -190,6 +201,11 @@ class NotificationService
 
             return;
         }
+        if ($delivery['row']->channel === 'whatsapp') {
+            $this->deliverWhatsapp($delivery);
+
+            return;
+        }
         try {
             $sent = Mail::to($delivery['user']->email)->send(new AccountMessage($delivery['row']->event, $delivery['user']->name, $delivery['context']));
             $providerId = $sent && method_exists($sent, 'getMessageId') ? $sent->getMessageId() : null;
@@ -200,36 +216,74 @@ class NotificationService
         }
     }
 
+    private function deliverWhatsapp(array $delivery): void
+    {
+        $row = $delivery['row'];
+        $whatsapp = app(WhatsappService::class);
+        $message = $this->message($row->event, $delivery['user']->name, $delivery['context']);
+        $to = $whatsapp->address($delivery['user']->country_code ?? null, $delivery['user']->phone ?? null);
+        $result = $to ? $whatsapp->send($to, $row->event, [$delivery['user']->name, mb_substr(implode(' ', $message['lines']), 0, 900)]) : ['status' => 'skipped', 'error_code' => 'phone_missing'];
+        DB::table('message_deliveries')->where('id', $row->id)->update(['status' => $result['status'], 'provider_id' => $result['provider_id'] ?? null, 'sent_at' => $result['status'] === 'sent' ? now() : null, 'error_code' => $result['error_code'] ?? null, 'updated_at' => now()]);
+    }
+
+    /**
+     * Fans out one queued job per active device; the delivery stays "sending" until every device reports.
+     */
     private function deliverPush(array $delivery): void
     {
         $row = $delivery['row'];
-        $message = $this->message($row->event, $delivery['user']->name, $delivery['context']);
-        $devices = DB::table('notification_devices')->where('user_id', $row->user_id)->where('active', true)->orderBy('id')->get();
-        $results = [];
+        $devices = DB::table('notification_devices')->where('user_id', $row->user_id)->where('active', true)->orderBy('id')->pluck('id');
+        if ($devices->isEmpty()) {
+            DB::table('message_deliveries')->where('id', $row->id)->update(['status' => 'skipped', 'error_code' => 'no_active_devices', 'updated_at' => now()]);
+
+            return;
+        }
         foreach ($devices as $device) {
-            $claimed = DB::table('message_device_deliveries')->insertOrIgnore(['message_delivery_id' => $row->id, 'notification_device_id' => $device->id, 'status' => 'sending', 'created_at' => now(), 'updated_at' => now()]);
-            if (! $claimed) {
-                continue;
+            if (DB::table('message_device_deliveries')->insertOrIgnore(['message_delivery_id' => $row->id, 'notification_device_id' => $device, 'status' => 'queued', 'created_at' => now(), 'updated_at' => now()])) {
+                SendPushToDevice::dispatch((int) $row->id, (int) $device);
             }
-            try {
-                $fresh = DB::table('notification_devices')->where('id', $device->id)->where('user_id', $row->user_id)->where('active', true)->where('token_hash', $device->token_hash)->first();
-                $preferences = $this->preferences((int) $row->user_id);
-                if (! $fresh || ! $preferences[$row->event === 'promotion' ? 'promotional_fcm' : 'operational_fcm']) {
-                    $result = ['status' => 'skipped', 'error_code' => 'device_or_consent_changed'];
-                } else {
-                    $result = app(FcmService::class)->send(Crypt::decryptString($fresh->token_encrypted), ['title' => 'Business Book', 'body' => $row->event === 'promotion' ? mb_substr(implode(' ', $message['lines']), 0, 1000) : 'You have an account update. Open Business Book to review.', 'url' => rtrim(config('app.frontend_url'), '/').'/notifications'], $fresh->target_kind);
-                }
-            } catch (\Throwable) {
-                $result = ['status' => 'unknown', 'error_code' => 'fcm_outcome_unknown'];
+        }
+        $this->finishPush((int) $row->id);
+    }
+
+    public function pushToDevice(int $deliveryId, int $deviceId): void
+    {
+        if (! DB::table('message_device_deliveries')->where('message_delivery_id', $deliveryId)->where('notification_device_id', $deviceId)->where('status', 'queued')->update(['status' => 'sending', 'updated_at' => now()])) {
+            return;
+        }
+        $row = DB::table('message_deliveries')->where('id', $deliveryId)->first();
+        try {
+            $user = DB::table('users')->where('id', $row->user_id)->first();
+            $fresh = DB::table('notification_devices')->where('id', $deviceId)->where('user_id', $row->user_id)->where('active', true)->first();
+            $preferences = $this->preferences((int) $row->user_id);
+            // Consent, device ownership and campaign state are rechecked at send time.
+            $cancelled = $row->campaign_id && DB::table('marketing_campaigns')->where('id', $row->campaign_id)->value('status') === 'cancelled';
+            if (! $fresh || ! $user || $user->disabled_at || $cancelled || ! $preferences[$row->event === 'promotion' ? 'promotional_fcm' : 'operational_fcm']) {
+                $result = ['status' => 'skipped', 'error_code' => 'device_or_consent_changed'];
+            } else {
+                $context = json_decode(Crypt::decryptString($row->context_encrypted), true, 32, JSON_THROW_ON_ERROR);
+                $message = $this->message($row->event, $user->name, $context);
+                $result = app(FcmService::class)->send(Crypt::decryptString($fresh->token_encrypted), ['title' => 'Business Book', 'body' => $row->event === 'promotion' ? mb_substr(implode(' ', $message['lines']), 0, 1000) : 'You have an account update. Open Business Book to review.', 'url' => rtrim(config('app.frontend_url'), '/').'/notifications'], $fresh->target_kind);
             }
-            DB::table('message_device_deliveries')->where('message_delivery_id', $row->id)->where('notification_device_id', $device->id)->update([...$result, 'updated_at' => now()]);
-            if ($result['status'] === 'invalid') {
-                DB::table('notification_devices')->where('id', $device->id)->where('token_hash', $device->token_hash)->update(['active' => false, 'token_hash' => null, 'token_encrypted' => null, 'revoked_at' => now(), 'updated_at' => now()]);
-            }
-            $results[] = $result['status'];
+        } catch (\Throwable) {
+            $result = ['status' => 'unknown', 'error_code' => 'fcm_outcome_unknown'];
+        }
+        DB::table('message_device_deliveries')->where('message_delivery_id', $deliveryId)->where('notification_device_id', $deviceId)->update([...$result, 'updated_at' => now()]);
+        if ($result['status'] === 'invalid') {
+            DB::table('notification_devices')->where('id', $deviceId)->update(['active' => false, 'token_hash' => null, 'token_encrypted' => null, 'revoked_at' => now(), 'updated_at' => now()]);
+        }
+        $this->finishPush($deliveryId);
+    }
+
+    private function finishPush(int $deliveryId): void
+    {
+        $results = DB::table('message_device_deliveries')->where('message_delivery_id', $deliveryId)->pluck('status')->all();
+        if (array_intersect($results, ['queued', 'sending'])) {
+            return;
         }
         $status = in_array('unknown', $results, true) ? 'unknown' : (in_array('sent', $results, true) ? 'sent' : ($results ? 'failed' : 'skipped'));
-        DB::table('message_deliveries')->where('id', $row->id)->update(['status' => $status, 'sent_at' => $status === 'sent' ? now() : null, 'error_code' => $status === 'sent' ? null : ($results ? 'fcm_delivery_incomplete' : 'no_active_devices'), 'updated_at' => now()]);
+        // The stale-worker sweep may have marked a slow fan-out unknown; the final device outcome replaces it.
+        DB::table('message_deliveries')->where('id', $deliveryId)->whereIn('status', ['sending', 'unknown'])->update(['status' => $status, 'sent_at' => $status === 'sent' ? now() : null, 'error_code' => $status === 'sent' ? null : ($results ? 'fcm_delivery_incomplete' : 'no_active_devices'), 'updated_at' => now()]);
     }
 
     public function resetUrl(string $email, string $token): string
@@ -273,6 +327,9 @@ class NotificationService
             throw new \InvalidArgumentException('Account email event unavailable.');
         }
         [$subject, $lines, $label, $url] = $definitions[$event];
+        if (in_array($event, ['trial_reminder', 'expiry_reminder'], true) && is_string($context['end_at'] ?? null)) {
+            $lines[] = 'Access ends: '.Carbon::parse($context['end_at'])->setTimezone('Asia/Kathmandu')->format('Y-m-d H:i').' (Nepal time).';
+        }
         if ($event === 'payment_receipt') {
             $minor = $context['amount_minor'] ?? null;
             $currency = $context['currency'] ?? null;

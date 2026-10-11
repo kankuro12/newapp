@@ -250,6 +250,10 @@
     <main>
       <nav id="contents" aria-label="Manual contents">
         <h2>Find a task</h2>
+        <p>
+          Tip: the <strong>Help</strong> button at the top of every business screen opens the part
+          of this guide for that screen.
+        </p>
         <ul>
           <li><a href="#start">1. First setup</a></li>
           <li><a href="#phone">2. Phone entry and dates</a></li>
@@ -271,6 +275,9 @@
           <li><a href="#limits">18. Availability and limits</a></li>
           <li><a href="#packages">19. Accounts and packages</a></li>
           <li><a href="#account-messages">20. Account emails and notifications</a></li>
+          <li><a href="#gym">21. Gym desk</a></li>
+          <li><a href="#platform">22. Platform administration</a></li>
+          <li><a href="#agents">23. AI agents (MCP)</a></li>
         </ul>
       </nav>
 
@@ -1030,19 +1037,23 @@
           </li>
           <li>
             When adding a business, choose its billing account and one business type. Restaurant
-            shows waiter/kitchen tools; barber/salon shows appointments; other current types show
-            their configured counter.
+            shows waiter/kitchen tools; barber/salon shows appointments; gym adds the
+            <strong>Gym desk</strong>; other types show their configured counter. The business type
+            appears beside the business name. Switching business clears the open screen.
           </li>
         </ol>
         <p>
           Businesses keep separate books and staff membership. Account ownership does not
           automatically grant access to another business's financial records. Each account has one
-          trial clock; adding a business does not restart it.
+          trial clock; adding a business does not restart it. Each owner receives one trial in
+          total: opening another billing account does not start a second trial.
         </p>
         <p>
           Package changes apply to future subscriptions. Expired owners/accountants can still
           read/export existing records; new entries and additional businesses require active access.
-          Existing migrated books retain their original access dates.
+          Existing migrated books retain their original access dates. If the package no longer
+          includes this business type, its records stay readable but new entries need a package that
+          includes it.
         </p>
         <p>
           Platform administrators use <strong>Manage packages</strong> in the separate platform
@@ -1079,10 +1090,25 @@
           payments and do not create sales, expenses or cash entries in business books. No automatic
           currency conversion is performed.
         </p>
+        <p>
+          <strong>Renewing early.</strong> A package bought before the current term ends starts when
+          the current term ends; you never lose paid or trial days. The new business limit and
+          products apply from that start. The Packages page shows the upcoming renewal dates.
+        </p>
+        <p>
+          <strong>Started a payment but did not pay?</strong> Choose
+          <strong>I did not pay — start over</strong> on the payment card, then create a new
+          checkout. We keep checking the closed payment with the provider for seven days; if it
+          completes, your package is still extended. Unpaid provider pages are closed automatically
+          after one day.
+        </p>
+        <p>
+          Refunds and disputes are recorded by the platform. A refunded or disputed payment stops
+          that package term; your business books are not changed.
+        </p>
         <p class="note">
-          Provider sandbox validation, payment refunds/disputes and webhooks, automated package
-          messages and gym daily operations are still being implemented. Selecting gym identifies
-          the business type; it does not yet provide a verified gym management screen.
+          Live provider settlement needs merchant credentials and was verified with test doubles,
+          not live provider accounts.
         </p>
         <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
@@ -1128,10 +1154,139 @@
           Notifications can arrive while the app is open or in the background; device and browser
           settings affect delivery.
         </p>
+        <p>
+          <strong>Package reminders</strong> are sent 7, 3 and 1 days before your trial or package
+          ends (Nepal calendar), and once on the day it ends. Renewing stops later reminders. Each
+          channel is separate: email by default, push on devices you enabled, and WhatsApp only if
+          you switched it on and your account has a phone number.
+        </p>
+        <p>
+          <strong>Promotions</strong> reach you only on channels where you turned promotions on.
+          Every promotion email links back to these settings so you can switch it off.
+        </p>
         <p class="note">
-          Automatic reminder scheduling, WhatsApp delivery and promotional campaign management are
-          still being implemented. Existing invitations retain their current sending flow. Live
-          provider delivery requires platform configuration.
+          WhatsApp needs approved message templates from the platform. Existing invitations keep
+          their current sending flow.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+      <section id="gym">
+        <h2>21. Gym desk</h2>
+        <p>
+          Gym businesses get <strong>Gym desk</strong> in the menu (and under More → Sales tools on
+          a phone). It has three tabs: Today, Members and Plans.
+        </p>
+        <ol>
+          <li>
+            <strong>Set up a plan</strong> (owner or manager): first create a service item such as
+            “Membership fee”. In <strong>Plans → New plan</strong> enter name, the service item,
+            fee, number of days, an optional visit limit and whether classes are included. Changing
+            a plan's fee only affects new joins and renewals.
+          </li>
+          <li>
+            <strong>Add a member</strong>: Members → Add member. Name and phone create a customer
+            party automatically; the member code is generated if left empty.
+          </li>
+          <li>
+            <strong>Join or renew</strong>: open the member, choose a plan and review the total.
+            Enter the amount paid now and the cash or bank account, then pay. This posts a normal
+            sale bill. A renewal starts the day after the current membership ends. Collect any
+            unpaid balance later from <strong>Collections / payments</strong>.
+          </li>
+          <li>
+            <strong>Check in</strong>: Today → find the member and tap them. Check-in needs a
+            membership valid for today; each membership counts one visit per day and stops at the
+            plan's visit limit.
+          </li>
+          <li>
+            <strong>Classes</strong>: owners and managers add today's classes with start time,
+            length and capacity. Tap <strong>Book member</strong> and choose a member whose plan
+            includes classes. A full class or a second booking is refused.
+          </li>
+          <li>
+            <strong>End a membership</strong> (owner or manager): first cancel the payment and the
+            membership bill, or return it, from the bill screen. Then choose
+            <strong>End membership</strong>. This keeps refunds in the normal returns flow.
+          </li>
+        </ol>
+        <p>
+          Today also lists memberships ending within seven days, so you can remind members to renew.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+      <section id="platform">
+        <h2>22. Platform administration</h2>
+        <p>
+          The platform panel uses a separate administrator sign-in at <strong>/platform</strong>.
+          Tenant passwords never open it, and it never shows business books.
+        </p>
+        <ul>
+          <li>
+            <strong>Manage packages</strong>: duration, trial days, business limit, products and
+            prices.
+          </li>
+          <li>
+            <strong>Accounts</strong>: see each account's package status, owner and business count.
+            Suspend or restore an account.
+          </li>
+          <li>
+            <strong>Payments</strong>: filter by status, see provider issues, and record a refund or
+            dispute for a confirmed payment.
+          </li>
+          <li>
+            <strong>Campaigns</strong>: write a draft, choose the audience (all owners, trial, paid
+            or expired) and channels, then <strong>Preview and send</strong>. The preview shows the
+            message, the audience size and how many owners opted in per channel. Send now or
+            schedule for later; a scheduled campaign can be cancelled until it is sent.
+          </li>
+          <li>
+            <strong>Deliveries</strong>: delivery outcomes by event and channel, with the reason for
+            skipped or failed messages. Message contents are not shown.
+          </li>
+          <li><strong>Business access</strong>: adjust access dates for an individual business.</li>
+        </ul>
+        <p>Every change needs your password and a reason, and is recorded in the audit log.</p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+      <section id="agents">
+        <h2>23. AI agents (MCP)</h2>
+        <p>
+          An AI assistant that supports the Model Context Protocol (MCP), such as Claude, can look
+          up your items and customers and record sales for one business. It works as you, with your
+          role in that business, and follows the same checks as the app.
+        </p>
+        <ol>
+          <li>
+            Open <strong>AI agents</strong> from the business chooser or More → Account. Choose the
+            business, a name and how long the access lasts.
+          </li>
+          <li>
+            Tick <strong>Allow recording sales</strong> only if the assistant should save sales.
+            Without it the assistant can only read.
+          </li>
+          <li>
+            Choose <strong>Create token</strong> and copy it straight away; it is shown once. The
+            page also shows the setup line for Claude Code and a JSON block for other MCP apps.
+          </li>
+          <li>
+            Ask the assistant in plain words, for example “sell 2 haircuts to Ram, paid in cash”. It
+            first previews the bill and confirms the total, then records it. Retrying the same
+            request never saves the sale twice.
+          </li>
+        </ol>
+        <p>
+          The assistant can see the business overview, search items and customers, list cash and
+          bank accounts, check low stock, list recent sales, preview a sale and record a sale. It
+          cannot change settings, prices, staff or past bills, and it never sees other businesses.
+        </p>
+        <p>
+          Revoke a token on the AI agents page at any time. Tokens also stop working when they
+          expire, when you leave the business, or when the business package expires (reading stays
+          available to owners and accountants).
+        </p>
+        <p class="note">
+          Agents follow business access rules: a cashier's token can record sales but not see
+          reports. Every agent sale is marked “Recorded by AI agent” in its notes.
         </p>
         <p class="back"><a href="#contents">Back to contents</a></p>
       </section>

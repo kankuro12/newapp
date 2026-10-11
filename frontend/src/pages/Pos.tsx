@@ -864,7 +864,7 @@ export function ReviewedCheckout({
   onCheckout,
 }: {
   endpoint: string;
-  context: { version: number; business_date_bs: number; contact_id?: string | null };
+  context: { business_date_bs: number; [key: string]: unknown };
   busy: boolean;
   disabled: boolean;
   uncertain: boolean;

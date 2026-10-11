@@ -9,6 +9,7 @@ import Workspace from './pages/Workspace';
 import Platform from './pages/Platform';
 import Billing from './pages/Billing';
 import Notifications from './pages/Notifications';
+import Agents from './pages/Agents';
 import { useEffect, useState } from 'react';
 import { listenForPush } from './lib/push';
 import { Loading } from './components/ui';
@@ -92,6 +93,7 @@ function TenantApp() {
       <Routes>
         <Route path="/notifications" element={<Notifications userId={session.data.data.id} />} />
         <Route path="/billing" element={<Billing />} />
+        <Route path="/agents" element={<Agents />} />
         <Route
           path="/businesses"
           element={<Businesses user={session.data.data} logout={session.reload} />}

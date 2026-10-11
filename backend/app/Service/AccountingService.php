@@ -48,11 +48,15 @@ class AccountingService
             throw new \LogicException('Locked tenant transaction required.');
         }
         // ponytail: tenant row serializes financial writes; use ordered item locks if measured contention requires finer locking.
-        $accountId = Tenant::whereKey($tenantId)->value('billing_account_id');
+        // No plain SELECT may run before these locks: under REPEATABLE READ the first plain read fixes the
+        // transaction snapshot, and later balance/sequence reads would miss the previous writer's commit.
+        // Lock order is billing account, then tenant, matching subscription settlement.
+        $accountId = app(CurrentTenant::class)->tenant()->billing_account_id;
         if ($accountId) {
             DB::table('billing_accounts')->where('id', $accountId)->lockForUpdate()->first() ?? abort(404);
         }
         $tenant = Tenant::whereKey($tenantId)->lockForUpdate()->firstOrFail();
+        abort_unless((int) $tenant->billing_account_id === (int) $accountId, 409, 'Business account changed. Retry.');
         app(BillingService::class)->businessAccess($tenant, $writable, $this->role($actorId));
         $this->role($actorId);
         abort_if(DB::table('users')->where('id', $actorId)->whereNotNull('disabled_at')->exists(), 403);

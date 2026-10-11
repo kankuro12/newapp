@@ -6,6 +6,7 @@ use App\Models\Tenant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -48,7 +49,7 @@ class PlatformController extends Controller
         $page->getCollection()->transform(function ($tenant) {
             $owner = DB::table('tenant_user')->where('tenant_id', $tenant->id)->where('role', 'owner')->where('active', true)->join('users', 'users.id', '=', 'tenant_user.user_id')->select('users.email')->first();
 
-            return [...$tenant->only(['id', 'slug', 'name', 'access_status', 'trial_ends_at', 'access_until', 'created_at']), 'owner_email' => $owner?->email, 'staff_count' => (string) DB::table('tenant_user')->where('tenant_id', $tenant->id)->where('active', true)->count(), 'document_count' => (string) DB::table('documents')->where('tenant_id', $tenant->id)->count()];
+            return [...Arr::only($tenant->toArray(), ['id', 'slug', 'name', 'access_status', 'trial_ends_at', 'access_until', 'created_at']), 'owner_email' => $owner?->email, 'staff_count' => (string) DB::table('tenant_user')->where('tenant_id', $tenant->id)->where('active', true)->count(), 'document_count' => (string) DB::table('documents')->where('tenant_id', $tenant->id)->count()];
         });
 
         return response()->json(BusinessController::json($page->toArray()))->header('Cache-Control', 'no-store');
@@ -70,6 +71,6 @@ class PlatformController extends Controller
             return $tenant;
         });
 
-        return response()->json(['data' => BusinessController::json($tenant->only(['id', 'name', 'access_status', 'access_until']))]);
+        return response()->json(['data' => BusinessController::json(Arr::only($tenant->toArray(), ['id', 'name', 'access_status', 'access_until']))]);
     }
 }

@@ -5,6 +5,7 @@ import { Heading, Loading, Status } from '../components/ui';
 import { format } from '../lib/money';
 import BillingCheckout from './BillingCheckout';
 import type { BillingGateway } from './BillingCheckout';
+import { HelpLink } from '../components/Help';
 export interface PackageTerms {
   id: string;
   name: string;
@@ -27,7 +28,10 @@ interface Entitlements {
   products: string[];
   max_businesses: number | null;
   package?: PackageTerms;
+  next?: { start_at: string; end_at: string; package: PackageTerms } | null;
 }
+const nepalTime = (value: string) =>
+  new Date(value.replace(' ', 'T') + 'Z').toLocaleString('en-NP', { timeZone: 'Asia/Kathmandu' });
 function AccountSubscription({
   account,
   packages,
@@ -59,6 +63,13 @@ function AccountSubscription({
                 )}
               </p>
             )}
+            {subscription.data.data.next && (
+              <p>
+                Renewal {subscription.data.data.next.package.name} starts{' '}
+                {nepalTime(subscription.data.data.next.start_at)} and runs to{' '}
+                {nepalTime(subscription.data.data.next.end_at)}.
+              </p>
+            )}
             <p>Business limit: {subscription.data.data.max_businesses ?? 'Existing terms'}</p>
             <p>Products: {subscription.data.data.products.join(', ')}</p>
           </>
@@ -86,6 +97,7 @@ export default function Billing() {
           <header className="businesses-header">
             <Link to="/businesses">Businesses</Link>
             <Link to="/account">My account</Link>
+            <HelpLink section="packages" />
           </header>
           <Heading
             title="Accounts and packages"
