@@ -544,21 +544,23 @@ function ProductGrid({
           <p className="subtle">{t('No products found.')}</p>
         )}
       </div>
-      <div className="full-pos-pager">
-        <button type="button" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-          ‹ {t('Previous')}
-        </button>
-        <span>
-          {page} / {items.data?.last_page || 1}
-        </span>
-        <button
-          type="button"
-          disabled={page >= (items.data?.last_page || 1)}
-          onClick={() => setPage(page + 1)}
-        >
-          {t('Next')} ›
-        </button>
-      </div>
+      {(items.data?.last_page || 1) > 1 && (
+        <div className="full-pos-pager">
+          <button type="button" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+            ‹ {t('Previous')}
+          </button>
+          <span>
+            {page} / {items.data?.last_page || 1}
+          </span>
+          <button
+            type="button"
+            disabled={page >= (items.data?.last_page || 1)}
+            onClick={() => setPage(page + 1)}
+          >
+            {t('Next')} ›
+          </button>
+        </div>
+      )}
     </section>
   );
 }

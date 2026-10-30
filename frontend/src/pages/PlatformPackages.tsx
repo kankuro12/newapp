@@ -2,6 +2,7 @@ import { IonButton } from '@ionic/react';
 import { useState } from 'react';
 import { useData, useSave } from '../lib/api';
 import { Check, Errors, Field, Loading, Submit } from '../components/ui';
+import { PanelHelp } from '../components/PanelHelp';
 import { digits, format } from '../lib/money';
 import type { PackageTerms } from './Billing';
 import { packageProducts } from '../lib/businessTypes';
@@ -55,6 +56,7 @@ export default function PlatformPackages() {
   return (
     <details className="panel section">
       <summary>Manage packages</summary>
+      <PanelHelp guide="platform-packages" />
       {catalogue.loading || catalogue.error ? (
         <Loading error={catalogue.error} retry={catalogue.reload} />
       ) : (

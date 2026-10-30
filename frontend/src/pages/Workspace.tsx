@@ -36,6 +36,8 @@ import { WorkflowList, WorkflowDetail, WorkflowEditor } from './Workflows';
 import FulfilmentDetail from './FulfilmentDetail';
 import UserManual from './UserManual';
 import { HelpLink } from '../components/Help';
+import { PanelHelp } from '../components/PanelHelp';
+import { panelGuideKey } from '../lib/panelHelp';
 import { manualSection } from '../lib/manual';
 import Gym from './Gym';
 import FullPos from './FullPos';
@@ -218,7 +220,6 @@ function Shell({
                   ))}
                 </select>
               </label>
-              <div className="sidebar-label">WORKSPACE</div>
               <nav>
                 {links
                   .filter((link) => link[1] !== 'More')
@@ -243,14 +244,6 @@ function Shell({
                   ))}
               </nav>
               <div className="sidebar-bottom">
-                <div className="small-promo">
-                  <span className="eyebrow">A LITTLE ORDER, EVERY DAY.</span>
-                  <p>
-                    Your next good decision
-                    <br />
-                    starts with a clear book.
-                  </p>
-                </div>
                 <Link className="nav-link" to="/businesses">
                   <IonIcon icon={swapHorizontalOutline} />
                   {t('Switch business')}
@@ -285,10 +278,6 @@ function Shell({
                       }
                     />
                   )}
-                  <span className={`connection ${online ? '' : 'offline'}`}>
-                    <i />
-                    {online ? 'Online' : 'Offline'}
-                  </span>
                   <button
                     className="locale-button"
                     onClick={() =>
@@ -334,6 +323,15 @@ function Shell({
                 className="page-wrap"
                 key={location.pathname.includes('/new') ? location.pathname : business.slug}
               >
+                <PanelHelp
+                  key={location.pathname}
+                  path={path}
+                  label={t('How to use this screen')}
+                  guide={panelGuideKey(
+                    location.pathname.slice(path.length),
+                    jobTypes.includes(profile),
+                  )}
+                />
                 <Routes>
                   <Route index element={<Dashboard />} />
                   <Route path="pos" element={<Pos />} />
@@ -404,10 +402,6 @@ function Shell({
                   />
                 </Routes>
               </main>
-              <footer className="app-footer">
-                <span>Business Book · simple bookkeeping</span>
-                <span>NPR · {business.role}</span>
-              </footer>
             </div>
             <nav className="bottom-nav">
               {[

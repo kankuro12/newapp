@@ -78,12 +78,7 @@ export function PriceLists() {
   );
   return (
     <>
-      <Heading
-        title={t('Price lists')}
-        description={t(
-          'Shared prices for customers or suppliers. Quantity tiers use each item’s base unit.',
-        )}
-      >
+      <Heading title={t('Price lists')}>
         {manage && <Link to={path + '/price-lists/new'}>{t('New price list')}</Link>}
         {manage && <Link to={path + '/imports?resource=price_lists'}>{t('Import CSV')}</Link>}
       </Heading>
@@ -237,11 +232,6 @@ export function ReviewedPrices({
       >
         {t('Apply reviewed prices')}
       </IonButton>
-      <small>
-        {t(
-          'Changing party, list, day or quantity needs a new review. Entered prices stay until applied.',
-        )}
-      </small>
       <Errors error={error} />
       {ready && (
         <small role="status">
@@ -471,10 +461,7 @@ export function PriceListEditor() {
   }
   return (
     <>
-      <Heading
-        title={t(id ? 'Edit price list' : 'New price list')}
-        description={t('Save shared pricing rules. Books and stock stay unchanged.')}
-      >
+      <Heading title={t(id ? 'Edit price list' : 'New price list')}>
         <Link to={path + '/price-lists'}>{t('Price lists')}</Link>
       </Heading>
       {!manage && <p>{t('View only. Owner, manager or accountant manages lists.')}</p>}

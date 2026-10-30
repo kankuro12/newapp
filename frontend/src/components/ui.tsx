@@ -164,12 +164,10 @@ export function Status({ value }: { value: string }) {
   return <span className={`badge ${value}`}>{value.replaceAll('_', ' ')}</span>;
 }
 export function Heading({
-  eyebrow,
   title,
   children,
   description,
 }: {
-  eyebrow?: string;
   title: string;
   children?: ReactNode;
   description?: string;
@@ -202,12 +200,12 @@ export function Heading({
   return (
     <div className="page-heading">
       <div>
-        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
         <h1>{title}</h1>
         {description && <p>{description}</p>}
       </div>
       <div className="heading-actions">
-        {movingBack ? actions.filter((action) => action !== back) : children}
+        {/* In the workspace, Back is the phone topbar arrow only; desktop has the sidebar. */}
+        {back && backSlot ? actions.filter((action) => action !== back) : children}
       </div>
       {movingBack &&
         createPortal(

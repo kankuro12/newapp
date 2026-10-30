@@ -119,9 +119,6 @@ export function ScanItem({
       >
         {t(busy ? 'Checking code…' : 'Add scanned item')}
       </IonButton>
-      <small>
-        {t('Keep leading zeros. Scale amounts may round; review trusted total before payment.')}
-      </small>
     </section>
   );
 }
@@ -132,12 +129,7 @@ export default function BarcodeTools() {
   if (config.loading || config.error) return <Loading error={config.error} retry={config.reload} />;
   return (
     <>
-      <Heading
-        title={t('Product codes / scale setup')}
-        description={t(
-          'Alternate codes identify one item. Enable only formats matching your scale labels.',
-        )}
-      >
+      <Heading title={t('Product codes / scale setup')}>
         <Link to={path + '/pos'}>{t('POS')}</Link>
         <Link to={path + '/labels'}>{t('Product labels')}</Link>
       </Heading>
@@ -239,9 +231,6 @@ function BarcodeSettings({ initial, reload }: { initial: Config; reload: () => v
               spellCheck={false}
             />
           </Field>
-          <small>
-            {t('Up to 20 codes. Preserve zeros. Each code must identify one item in this branch.')}
-          </small>
           <IonButton
             fill="outline"
             disabled={locked || !item}

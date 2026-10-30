@@ -498,9 +498,6 @@ export function ReturnForm() {
               </Check>
               {refund && (
                 <>
-                  <p className="subtle">
-                    {t('Only refundable credit moves money. Unpaid portion simply reduces bill.')}
-                  </p>
                   <Select
                     label={t('Payment account')}
                     name="money_account_id"

@@ -378,15 +378,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
   if (business.role === 'cashier' && !sale) return <p>Action unavailable for this role.</p>;
   return (
     <>
-      <Heading
-        eyebrow="ONE SIMPLE ENTRY"
-        title={t(title)}
-        description={
-          workflowKind
-            ? t('Quote/order only. Stock and money update when billed.')
-            : 'Save once. Your stock and balances update together.'
-        }
-      >
+      <Heading title={t(title)}>
         <Link
           to={
             path +

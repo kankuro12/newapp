@@ -23,11 +23,7 @@ export function DocumentList({ type }: { type: string }) {
   const navigate = useNavigate();
   return (
     <>
-      <Heading
-        eyebrow="YOUR DAILY RECORDS"
-        title={t(title)}
-        description="Every bill, payment, and remaining amount in one place."
-      >
+      <Heading title={t(title)}>
         <IonButton onClick={() => navigate(`${path}/documents/${type}/new`)}>
           <IonIcon icon={addOutline} slot="start" />
           {t(type === 'expense' ? 'Record expense' : 'New ' + type)}
@@ -108,6 +104,7 @@ export function Pagination({
   pages: number;
   change: (page: number) => void;
 }) {
+  if (pages <= 1 && page <= 1) return null;
   return (
     <div className="pagination">
       <IonButton fill="clear" disabled={page <= 1} onClick={() => change(page - 1)}>
@@ -147,8 +144,7 @@ export function DocumentDetail() {
     <>
       <div className="no-print">
         <Heading
-          eyebrow={doc.type.replaceAll('_', ' ').toUpperCase()}
-          title={doc.number || 'Draft'}
+          title={`${doc.type.charAt(0).toUpperCase()}${doc.type.slice(1).replaceAll('_', ' ')} · ${doc.number || 'Draft'}`}
         >
           <Status value={doc.status} />
           {canCorrect &&
@@ -514,7 +510,7 @@ export function MoneyList() {
     : groups.find((group) => group.id === params.get('section')) || groups[0];
   return (
     <div className="money-tools">
-      <Heading title={t('Money')} description={t('Choose what happened.')} />
+      <Heading title={t('Money')} />
       <nav className="money-sections" aria-label={t('Money tools')}>
         {groups.map((group) => (
           <button

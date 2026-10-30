@@ -4,6 +4,7 @@ import type { FormEvent, ReactNode } from 'react';
 import { request, send, useData } from '../lib/api';
 import type { Page } from '../lib/types';
 import { Check, Errors, Field, Heading, Loading, Select, Status, Submit } from '../components/ui';
+import { PanelHelp } from '../components/PanelHelp';
 import { format } from '../lib/money';
 import { Pagination } from './Records';
 
@@ -511,11 +512,8 @@ export default function PlatformBilling() {
   const [tab, setTab] = useState<(typeof tabs)[number]>('accounts');
   return (
     <section className="section">
-      <Heading
-        eyebrow="PLATFORM ADMINISTRATION"
-        title="Accounts, payments and messages"
-        description="Account access, payment outcomes, marketing campaigns and delivery diagnostics."
-      />
+      <Heading title="Accounts, payments and messages" />
+      <PanelHelp guide="platform-billing" />
       <div className="segmented" role="tablist">
         {tabs.map((value) => (
           <IonButton

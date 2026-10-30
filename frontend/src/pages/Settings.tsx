@@ -56,11 +56,7 @@ export function Opening() {
     return <p>Starting setup requires owner or accountant.</p>;
   return (
     <>
-      <Heading
-        eyebrow="START WHERE YOUR BUSINESS IS TODAY"
-        title={t('Starting balances')}
-        description="Add current balances. No accounting grid, no duplicate stock value."
-      />
+      <Heading title={t('Starting balances')} />
       <div className="setup-steps">
         {['Cash & bank', 'Items in stock', 'Party dues', 'Review'].map((label, index) => (
           <button
@@ -314,7 +310,7 @@ export function Settings() {
   const allowed = business.role === 'owner';
   return (
     <>
-      <Heading eyebrow="MAKE THIS BOOK YOURS" title={t('Settings')} />
+      <Heading title={t('Settings')} />
       <div className="settings-tabs">
         {(allowed
           ? [
@@ -434,7 +430,6 @@ function BusinessSettings() {
           onChange={(e) => setRate(e.target.value)}
         />
       )}
-      <p className="subtle">Tax recording doesn’t enable statutory tax invoices.</p>
       <Submit busy={form.busy}>{t('Update business')}</Submit>
     </form>
   );
@@ -825,7 +820,7 @@ export function Audit() {
   const data = useData<Page<Record<string, unknown>>>(`${base}/audit?page=${page}`, revision);
   return (
     <>
-      <Heading title="Audit history" description="Append-only record of business actions." />
+      <Heading title="Audit history" />
       {data.loading || data.error ? (
         <Loading error={data.error} retry={data.reload} />
       ) : (

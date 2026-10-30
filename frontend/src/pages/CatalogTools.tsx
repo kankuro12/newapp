@@ -67,12 +67,7 @@ export function ItemCategories() {
   );
   return (
     <>
-      <Heading
-        title={t('Item categories')}
-        description={t(
-          'Grouping changes no stock or money. Archived categories keep existing products.',
-        )}
-      >
+      <Heading title={t('Item categories')}>
         <Link to={path + '/items'}>{t('Items')}</Link>
       </Heading>
       <form
@@ -266,12 +261,7 @@ export function Reorders() {
   }
   return (
     <>
-      <Heading
-        title={t('Reorder stock')}
-        description={t(
-          'Low stock minus open orders. Review one supplier at a time; stock changes when purchase bill posts.',
-        )}
-      >
+      <Heading title={t('Reorder stock')}>
         <Link to={path + '/items'}>{t('Item setup')}</Link>
         <Link to={path + '/workflows?kind=purchase_order'}>{t('Purchase orders')}</Link>
       </Heading>
@@ -486,9 +476,6 @@ export function Reorders() {
           >
             {t('Save purchase order')}
           </Submit>
-          <p className="subtle">
-            {t('No payment, stock receipt or supplier message is recorded here.')}
-          </p>
         </aside>
       </EntrySteps>
     </>

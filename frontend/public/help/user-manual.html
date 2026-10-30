@@ -29,7 +29,8 @@
         text-underline-offset: 3px;
       }
       a:focus-visible,
-      button:focus-visible {
+      button:focus-visible,
+      summary:focus-visible {
         outline: 3px solid #db8b23;
         outline-offset: 3px;
       }
@@ -65,7 +66,7 @@
       }
       h3 {
         font-size: 1.08rem;
-        margin-bottom: 4px;
+        margin: 22px 0 4px;
       }
       .eyebrow {
         color: var(--green);
@@ -89,13 +90,26 @@
         border-radius: 16px;
         padding: 20px;
       }
+      nav h2 {
+        font-size: 1.2rem;
+      }
+      nav h3 {
+        margin: 16px 0 4px;
+        color: var(--green);
+        font-size: 0.95rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
       nav ul {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 6px 22px;
+        gap: 4px 22px;
         margin: 0;
         list-style: none;
         padding: 0;
+      }
+      nav li {
+        margin: 2px 0;
       }
       section {
         scroll-margin-top: 20px;
@@ -112,6 +126,12 @@
         padding: 12px 16px;
         border-radius: 4px;
       }
+      .warn {
+        background: #fdf4e7;
+        border-left: 4px solid #db8b23;
+        padding: 12px 16px;
+        border-radius: 4px;
+      }
       .muted {
         color: var(--muted);
       }
@@ -121,18 +141,44 @@
         border-radius: 6px;
         font-size: 0.85rem;
       }
-      .profiles {
+      .card-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;
       }
-      .profiles article {
+      .card-grid article {
         border: 1px solid var(--line);
         padding: 14px;
         border-radius: 10px;
       }
-      .profiles h3 {
+      .card-grid h3 {
         margin-top: 0;
+      }
+      .screen {
+        border-top: 1px solid var(--line);
+        margin-top: 22px;
+        padding-top: 4px;
+      }
+      .where {
+        font-size: 0.92rem;
+        color: var(--muted);
+        margin: 0 0 6px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0 16px;
+        font-size: 0.95rem;
+      }
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 8px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #e9f1eb;
       }
       figure {
         margin: 16px 0;
@@ -164,6 +210,9 @@
         align-items: center;
         flex-wrap: wrap;
       }
+      .back {
+        font-size: 0.92rem;
+      }
       @media (max-width: 600px) {
         header,
         main,
@@ -174,11 +223,11 @@
           padding: 18px;
         }
         nav ul,
-        .profiles {
+        .card-grid {
           grid-template-columns: 1fr;
         }
-        body {
-          font-size: 16px;
+        table {
+          font-size: 0.88rem;
         }
       }
       @media print {
@@ -210,7 +259,9 @@
         h3 {
           break-after: avoid;
         }
-        figure {
+        figure,
+        table,
+        .card-grid article {
           break-inside: avoid;
         }
         a {
@@ -219,11 +270,10 @@
         figure img {
           width: 230px;
         }
-        .profiles {
+        .card-grid {
           display: block;
         }
-        .profiles article {
-          break-inside: avoid;
+        .card-grid article {
           margin-bottom: 10px;
         }
       }
@@ -233,14 +283,14 @@
     <a class="skip" href="#start">Skip to instructions</a>
     <header>
       <span class="eyebrow">BUSINESS BOOK · NEPAL</span>
-      <h1>Your daily business guide</h1>
+      <h1>Your business book: user manual</h1>
       <p>
-        Sales, purchases, salary, rent, stock and appointments. Use the same web app on phone or
-        computer.
+        Every screen in the app is described here, from first sign-in to month-end reports. Use the
+        same web app on a phone, tablet or computer.
       </p>
       <p class="muted">
-        Edition 8 · 5 October 2026. English instructions include key Nepali screen labels. Covers
-        features currently available; planned features are listed at the end.
+        Edition 9 · 12 October 2026. Covers the features available in the app today. Planned and
+        unfinished work is listed under <a href="#limits">Availability and limits</a>.
       </p>
       <div class="actions">
         <button type="button" onclick="window.print()">Print / save PDF</button
@@ -251,299 +301,567 @@
       <nav id="contents" aria-label="Manual contents">
         <h2>Find a task</h2>
         <p>
-          Tip: the <strong>Help</strong> button at the top of every business screen opens the part
-          of this guide for that screen.
+          <strong>Two ways to get help inside the app.</strong> Every business screen has a
+          <strong>How to use this screen</strong> link at the top. Tap it to see the steps for that
+          screen, then open the full chapter from there. The <strong>Help</strong> button in the
+          top bar opens the same chapter.
         </p>
+        <h3>A. Get started</h3>
         <ul>
-          <li><a href="#start">1. First setup</a></li>
-          <li><a href="#phone">2. Phone entry and dates</a></li>
-          <li><a href="#parties">3. Customers, suppliers and employees</a></li>
-          <li><a href="#items">4. Items and measurements</a></li>
-          <li><a href="#pos">5. Choose your POS screen</a></li>
-          <li><a href="#restaurant">6. Waiter and kitchen</a></li>
-          <li><a href="#salon">7. Salon and barber appointments</a></li>
-          <li><a href="#bills">8. Regular bills and drafts</a></li>
-          <li><a href="#offers">9. Prices and offers</a></li>
-          <li><a href="#workflows">10. Quotes, orders and jobs</a></li>
-          <li><a href="#regular">11. Salary, rent and regular dues</a></li>
-          <li><a href="#payments">12. Pay later and collect dues</a></li>
-          <li><a href="#corrections">13. Returns and corrections</a></li>
-          <li><a href="#stock">14. Stock and reordering</a></li>
-          <li><a href="#records">15. Find, print and export</a></li>
-          <li><a href="#branches">16. Staff and branches</a></li>
-          <li><a href="#recovery">17. Connection problems and retries</a></li>
-          <li><a href="#limits">18. Availability and limits</a></li>
-          <li><a href="#packages">19. Accounts and packages</a></li>
-          <li><a href="#account-messages">20. Account emails and notifications</a></li>
-          <li><a href="#gym">21. Gym desk</a></li>
-          <li><a href="#platform">22. Platform administration</a></li>
-          <li><a href="#agents">23. AI agents (MCP)</a></li>
-          <li>
-            <a href="#job-cards"
-              >24. Job cards: garage, repair, laundry, tailoring, printing, iron works</a
-            >
-          </li>
-          <li><a href="#full-pos">25. Full POS (tablet and desktop)</a></li>
+          <li><a href="#start">1. Sign up, verify and sign in</a></li>
+          <li><a href="#businesses">2. Your businesses and switching</a></li>
+          <li><a href="#settings">3. Business settings</a></li>
+          <li><a href="#opening">4. Starting balances</a></li>
+          <li><a href="#branches">5. Staff, roles and branches</a></li>
+          <li><a href="#home">6. Home screen</a></li>
+          <li><a href="#more">7. More menu</a></li>
+          <li><a href="#phone">8. Entry basics: money, quantity and dates</a></li>
+        </ul>
+        <h3>B. Selling and the counter</h3>
+        <ul>
+          <li><a href="#parties">9. Parties: customers, suppliers, employees</a></li>
+          <li><a href="#party-terms">10. Party payment terms and agreed prices</a></li>
+          <li><a href="#items">11. Items and measurements</a></li>
+          <li><a href="#pos">12. Quick POS</a></li>
+          <li><a href="#pos-setup">13. POS setup: screens, tables, staff and chairs</a></li>
+          <li><a href="#restaurant">14. Waiter and kitchen</a></li>
+          <li><a href="#salon">15. Salon and barber appointments</a></li>
+          <li><a href="#full-pos">16. Full POS (tablet and desktop)</a></li>
+          <li><a href="#gym">17. Gym desk</a></li>
+          <li><a href="#job-cards">18. Job cards: garage, repair, laundry, tailoring, printing, fabrication</a></li>
+        </ul>
+        <h3>C. Bills, prices and orders</h3>
+        <ul>
+          <li><a href="#bills">19. Sales, purchases and expenses lists</a></li>
+          <li><a href="#bill-entry">20. Entering a new bill</a></li>
+          <li><a href="#document">21. Bill detail: print, attach, pay, copy, cancel</a></li>
+          <li><a href="#offers">22. Prices and offers overview</a></li>
+          <li><a href="#price-lists">23. Price lists</a></li>
+          <li><a href="#basket-offers">24. Basket offers</a></li>
+          <li><a href="#workflows">25. Quotes, orders and job progress</a></li>
+          <li><a href="#fulfilment">26. Delivery, receipt and partial billing</a></li>
+          <li><a href="#corrections">27. Returns and cancellations</a></li>
+        </ul>
+        <h3>D. Money</h3>
+        <ul>
+          <li><a href="#payments">28. Money: receive, pay, transfers and refunds</a></li>
+          <li><a href="#money-entry">29. Entering a payment, transfer or refund</a></li>
+          <li><a href="#collections">30. Collections: who owes you and whom you owe</a></li>
+          <li><a href="#followups">31. Follow-ups</a></li>
+          <li><a href="#regular">32. Regular payments: salary, rent and monthly bills</a></li>
+        </ul>
+        <h3>E. Stock and setup tools</h3>
+        <ul>
+          <li><a href="#stock">33. Stock: how it moves and goes negative</a></li>
+          <li><a href="#stock-count">34. Count stock</a></li>
+          <li><a href="#reorders">35. Reorder stock</a></li>
+          <li><a href="#imports">36. Import CSV</a></li>
+          <li><a href="#barcodes">37. Product codes and scale labels</a></li>
+          <li><a href="#labels">38. Product labels</a></li>
+        </ul>
+        <h3>F. Reports and records</h3>
+        <ul>
+          <li><a href="#records">39. Find, print and export records</a></li>
+          <li><a href="#reports">40. Reports</a></li>
+          <li><a href="#audit">41. Audit history and period locks</a></li>
+        </ul>
+        <h3>G. Account, packages and platform</h3>
+        <ul>
+          <li><a href="#packages">42. Accounts, packages and business types</a></li>
+          <li><a href="#account-messages">43. Account emails and notifications</a></li>
+          <li><a href="#agents">44. AI agents (MCP)</a></li>
+          <li><a href="#platform">45. Platform administration: business access</a></li>
+          <li><a href="#platform-billing">46. Platform administration: accounts, payments and messages</a></li>
+        </ul>
+        <h3>H. Reference and help</h3>
+        <ul>
+          <li><a href="#roles">47. Who can do what</a></li>
+          <li><a href="#dates-money">48. Dates, money and quantities</a></li>
+          <li><a href="#recovery">49. Connection problems and retries</a></li>
+          <li><a href="#troubleshooting">50. Troubleshooting</a></li>
+          <li><a href="#glossary">51. Glossary</a></li>
+          <li><a href="#limits">52. Availability and limits</a></li>
         </ul>
       </nav>
 
       <section id="start">
-        <h2>1. First setup</h2>
+        <h2>1. Sign up, verify and sign in</h2>
         <p>
-          Create an account with your name, country, required phone number, email and password.
-          Country and phone have separate fields on the same row. Nepal (+977) is selected first;
-          choose another country when needed. Enter your national phone number without country code,
-          for example 9801234567, or your landline number. Nepali digits are accepted. A pasted
-          international number must match the selected country. Verify your email before opening a
-          business. Phone collection does not verify phone ownership.
+          The sign-in screen has two modes: <strong>Welcome back</strong> for existing users and
+          <strong>Let’s get started</strong> for new accounts. New accounts start a 14-day trial.
         </p>
+        <div class="screen">
+          <h3>Create an account</h3>
+          <p class="where">Sign-in screen → Let’s get started</p>
+          <ol>
+            <li>
+              Enter <strong>Your name</strong>, choose a <strong>Country</strong> (Nepal, +977, is
+              selected first), then enter your <strong>Phone number</strong>. Enter the number without
+              the country code, for example 9801234567. Nepali digits are accepted.
+            </li>
+            <li>Enter your <strong>Email</strong>, a <strong>Password</strong> and <strong>Confirm password</strong>.</li>
+            <li>Submit, then open the verification link in your email. The link expires.</li>
+          </ol>
+          <p class="note">
+            Verify your email before opening a business. Phone collection does not verify phone
+            ownership. Never share password-reset links or verification codes.
+          </p>
+        </div>
+        <div class="screen">
+          <h3>Sign in again and manage your account</h3>
+          <p class="where">Sign-in screen → Welcome back; then More → Account, or the account page</p>
+          <ul>
+            <li>Sign in with your email and password.</li>
+            <li>
+              <strong>My account</strong> shows <strong>Update details</strong> and <strong>Change password</strong>
+              (Current password, New password, Confirm new password).
+            </li>
+            <li>
+              <strong>Sign out</strong> is the round avatar button at the top right. The app first
+              checks for an unsaved entry and asks before signing out.
+            </li>
+          </ul>
+        </div>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="businesses">
+        <h2>2. Your businesses and switching</h2>
+        <p class="where">Choose your business screen (after sign-in), or the business switcher in the side menu</p>
+        <ul>
+          <li>
+            Each business is a separate book with its own items, parties, stock, cash accounts and
+            staff. Tap a business to open its books.
+          </li>
+          <li>
+            <strong>Previous businesses</strong> and <strong>Next businesses</strong> show the rest of
+            your list.
+          </li>
+          <li>
+            <strong>New business</strong> opens setup: <strong>Business name</strong>, <strong>Address</strong>,
+            <strong>Business type</strong> and <strong>Billing account</strong>, then <strong>Create business</strong>.
+            Your account must have an active package to add more businesses.
+          </li>
+          <li>
+            To join a business someone else runs, open the invitation link while signed in. Your
+            verified email must match the invitation.
+          </li>
+          <li>
+            To switch, use the business selector at the top of the side menu. If an entry is still
+            open, the app asks before leaving it.
+          </li>
+        </ul>
+        <p class="note">
+          Membership in one business does not give access to another. A branch is a business too; it
+          needs its own staff membership.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="settings">
+        <h2>3. Business settings</h2>
+        <p class="where">Settings (side menu, or More → Business tools)</p>
         <p>
-          Open this guide inside the app from
-          <strong>More / थप → User manual / प्रयोगकर्ता पुस्तिका</strong>. Use
-          <strong>Back</strong> to return to More. The guide's print button prints the instructions.
+          Settings has tabs. Owners see <strong>Business</strong>, <strong>Staff</strong>,
+          <strong>Cash &amp; bank</strong> and <strong>Expense categories</strong>. Owners and other
+          roles see <strong>Lock period</strong> and <strong>Owner money history</strong> as their
+          role allows. The top of the page also links to <strong>Starting balances</strong> and, for
+          owners and accountants, <strong>Audit history</strong>.
+        </p>
+        <div class="screen">
+          <h3>Business</h3>
+          <ul>
+            <li><strong>Business name</strong>, <strong>Address</strong>, <strong>Phone</strong> and <strong>PAN</strong>.</li>
+            <li><strong>Business language</strong>: the default language of the books.</li>
+            <li>
+              <strong>Default tax rate (%)</strong>: used only where tax is recorded. Enable tax only after
+              checking your business’s requirements; see <a href="#limits">Availability and limits</a>.
+            </li>
+            <li>Choose <strong>Update business</strong> to save.</li>
+          </ul>
+        </div>
+        <div class="screen">
+          <h3>Cash &amp; bank</h3>
+          <ul>
+            <li>Choose <strong>Add cash / bank account</strong>, enter an <strong>Account name</strong> and a <strong>Kind</strong> (cash or bank).</li>
+            <li>Every sale, purchase and payment chooses one of these accounts. Balances are shown on Home.</li>
+          </ul>
+        </div>
+        <div class="screen">
+          <h3>Expense categories</h3>
+          <ul>
+            <li>Add a category with <strong>Category name</strong>. Expenses and regular bills use these categories in their reports.</li>
+          </ul>
+        </div>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="opening">
+        <h2>4. Starting balances</h2>
+        <p class="where">Starting balances (Settings → Starting balances, or the Home banner until finished)</p>
+        <p>
+          Starting balances record where the business stands on the first day of these books. They
+          are entered once. Owners and accountants can open this screen; other roles see a notice.
         </p>
         <ol>
-          <li>Sign in using your business account. Create or choose your business.</li>
           <li>
-            Open <strong>Settings / सेटिङ</strong>. Check name, address, phone, PAN, language and
-            the POS business type.
+            <strong>Cash &amp; bank</strong>: set the <strong>Starting date (BS)</strong>, then enter the
+            balance of each cash and bank account (NPR), labelled <em>Cash &amp; bank you have now</em>.
           </li>
-          <li>Add the parties, items and cash/bank accounts you need.</li>
           <li>
-            Open <strong>Starting balances / सुरुको मौज्दात</strong>. Choose your first BS business
-            date. Enter actual money, stock quantity and stock cost, and amounts customers owe or
-            you owe suppliers. Review before finalizing.
+            <strong>Items in stock</strong>: for each stock item enter the <strong>Quantity</strong> and
+            the <strong>Total starting value (NPR)</strong>. Enter your cost, not the selling price.
           </li>
-          <li>After starting balances are finalized, use POS or daily forms to record business.</li>
+          <li>
+            <strong>Party dues</strong>: for each party choose <strong>Who owes whom?</strong> and enter the
+            <strong>Amount (NPR)</strong>. Use this for money customers owe you and money you owe suppliers.
+          </li>
+          <li>
+            <strong>Review your starting point</strong>, then choose <strong>Confirm starting balances</strong>.
+          </li>
         </ol>
         <p class="note">
-          Starting stock value means your cost, not selling price. Starting balances establish the
-          beginning of these books; they do not record a new customer sale or supplier payment.
+          Starting balances do not record a new customer sale or supplier payment. They set the opening
+          position only. After confirmation the balances are fixed, and later changes go through sales,
+          purchases, payments and stock counts.
         </p>
         <p>
-          Use an empty starting balance only when this is a genuinely new business with no opening
-          stock, money or dues. Add later stock through a purchase.
+          A genuinely new business with no opening cash, stock or dues can confirm empty balances.
+          Leave a section empty only if the amount is truly zero.
         </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="branches">
+        <h2>5. Staff, roles and branches</h2>
+        <p class="where">Settings → Staff; More → Business tools → Branches (owner only)</p>
+        <div class="screen">
+          <h3>Invite staff</h3>
+          <ol>
+            <li>Settings → Staff → <strong>Invite staff</strong>. Enter the person’s <strong>Email</strong> and choose a <strong>Role</strong>.</li>
+            <li>They sign up or sign in with that same email and open the invitation. Their verified email must match.</li>
+            <li>The invitation stays under <strong>Invitations</strong> until accepted or revoked.</li>
+          </ol>
+          <p>
+            Roles: <strong>owner</strong>, <strong>manager</strong>, <strong>accountant</strong> and
+            <strong>cashier</strong>. See <a href="#roles">Who can do what</a>.
+          </p>
+        </div>
+        <div class="screen">
+          <h3>Change a role or remove access</h3>
+          <ul>
+            <li>Open the member under <strong>Access for</strong> and change the <strong>Staff role</strong>.</li>
+            <li>Saving a role change asks you to <strong>Confirm your password</strong>.</li>
+            <li>Remove access as soon as someone leaves. Keep staff accounts individual; do not share logins.</li>
+          </ul>
+        </div>
+        <div class="screen">
+          <h3>Branches</h3>
+          <ul>
+            <li>
+              The owner of a main business can add a branch from <strong>POS setup → Add branch</strong>
+              (<strong>Branch name</strong>, then <strong>Create branch</strong>). The business type can differ per branch.
+            </li>
+            <li>Each branch has its own opening setup, items, stock, cash accounts, staff and books.</li>
+            <li>Parent membership gives no access to a branch. Use the business switcher before entering anything, and check the branch name at the top of the screen.</li>
+            <li>Branches do not share stock or transfer goods between each other in this release.</li>
+          </ul>
+        </div>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="home">
+        <h2>6. Home screen</h2>
+        <p class="where">Side menu → Home (the first screen after you open a business)</p>
+        <p>
+          Home shows the business for today. Use the four tabs (<strong>Daily actions</strong>,
+          <strong>Balances</strong>, <strong>Recent activity</strong>, <strong>Low stock</strong>) to switch view.
+          Cashiers do not see <strong>Balances</strong>.
+        </p>
+        <ul>
+          <li>
+            <strong>Daily actions</strong> has quick buttons: <strong>New sale</strong>, <strong>New purchase</strong>,
+            <strong>Receive money</strong> and <strong>Pay party</strong>. <strong>Record expense</strong> sits below them.
+            Cashiers see only <strong>New sale</strong>.
+          </li>
+          <li>
+            <strong>Balances</strong> shows four figures: <strong>Today’s sales</strong> (after returns, before tax),
+            <strong>Cash &amp; bank</strong>, <strong>Customers owe</strong> (still to collect) and
+            <strong>Still to pay</strong> (supplier bills outstanding).
+          </li>
+          <li>
+            <strong>Recent activity</strong> lists the latest bills, two at a time with <strong>Previous</strong> and
+            <strong>Next</strong>. <strong>See all</strong> opens the sales list.
+          </li>
+          <li>
+            <strong>Low stock</strong> lists items at or below their alert quantity. Each row shows the quantity
+            and unit. If there is none, the screen says <em>No stock alerts.</em>
+          </li>
+        </ul>
+        <p>
+          <strong>Negative stock.</strong> The app allows a sale of more than is in stock. The item then shows a
+          negative quantity and Home lists it under <strong>Negative stock</strong>, with shortcuts to
+          <strong>Record purchase</strong> and <strong>Count stock</strong>. The shortfall is costed at the current average
+          (or the last purchase price when stock was zero). When the purchase arrives, any price difference for the
+          units already sold moves to cost of goods sold automatically.
+        </p>
+        <p class="note">
+          If the <strong>Starting balances</strong> link shows, the opening balances are not finished yet.
+          Finish them before relying on the figures on Home.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="more">
+        <h2>7. More menu</h2>
+        <p class="where">Side menu → More (phones: bottom navigation → More / थप)</p>
+        <p>
+          More groups every tool by what you are doing. Your role decides which groups you see; cashiers see the
+          sales tools. The user manual opens from Help at the top of every screen.
+        </p>
+        <ul>
+          <li><strong>Sales tools</strong>: POS, Basket offers, Price lists, Quotes / orders / jobs. Gym desk appears for gyms.</li>
+          <li><strong>Money tools</strong>: Collections / payments, Follow-ups, Purchases, Expenses, Regular payments, Money.</li>
+          <li><strong>Stock tools</strong>: Reorder stock, Import CSV, Count stock (owner and manager).</li>
+          <li><strong>Business tools</strong>: Reports, Settings.</li>
+          <li><strong>Account</strong>: Notifications, AI agents, Packages, Switch business.</li>
+        </ul>
+        <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
 
       <section id="phone">
-        <h2>2. Phone entry and dates</h2>
+        <h2>8. Entry basics: money, quantity and dates</h2>
+        <ul>
+          <li><strong>Money</strong> is NPR. Enter rupees, for example <strong>150.50</strong>. The app keeps paisa exactly.</li>
+          <li><strong>Quantity</strong> allows three decimal places, for example <strong>2.501 kg</strong>.</li>
+          <li>
+            <strong>Dates</strong> are BS (Bikram Sambat). Use the displayed BS date or its picker, not an AD date. Appointment
+            times use Nepal time.
+          </li>
+          <li>
+            <strong>Language</strong>: the button at the top right switches English and नेपाली. Some Nepali labels are still being completed;
+            English always works.
+          </li>
+          <li>
+            <strong>Online or offline</strong>: a banner shows when you are <em>Offline</em>. Financial entries need a connection.
+          </li>
+        </ul>
         <p>
-          Bottom navigation keeps <strong>Home, POS, Sales, Parties and More</strong> close to your
-          thumb. <strong>Home / गृह</strong> shows one view at a time: Daily actions / दैनिक काम,
-          Balances / मौज्दात र बाँकी, Recent activity / हालको कारोबार or Low stock / कम मौज्दात.
-          Activity and stock previews use Previous / अघिल्लो and Next / अर्को; See all opens sales
-          history. Cashiers see their available actions. <strong>More / थप</strong> groups tools
-          under Sales, Money, Stock, Business and Account. Choose a section, then a tool. User
-          manual stays visible above every section.
+          <strong>Working on a phone.</strong> Bottom navigation keeps <strong>Home</strong>, <strong>POS</strong>,
+          <strong>Sales</strong>, <strong>Parties</strong> and <strong>More</strong> within reach. Long entries are split into
+          steps, and the <strong>Back</strong> arrow at the top left returns to the previous step or screen. Optional fields
+          sit under an expandable section.
         </p>
-        <ol>
-          <li>Choose the business or branch first.</li>
-          <li>Choose the party and date.</li>
-          <li>Add items one at a time. Search by name/code or use a configured barcode.</li>
-          <li>Review quantity, price, discount, tax and total.</li>
-          <li>Choose paid amount and payment account. Save once; wait for the saved record.</li>
-        </ol>
-        <p>
-          Money is <strong>NPR</strong>. Enter rupees, for example <strong>150.50</strong>. Quantity
-          allows three decimal places, for example <strong>2.501 kg</strong>. Dates use
-          <strong>BS</strong>; use the displayed BS date or its date picker, not an AD date.
-          Appointments use Nepal time.
+        <p class="note">
+          Each entry follows the same pattern: choose the party or account, enter items or the amount, review the total, then
+          save once and wait for the saved record. A confirmed save shows the saved bill or payment.
         </p>
-        <p>
-          Screens use compact spacing, steps and sections to reduce scrolling. Expanded details,
-          long lists, errors, larger text and an open keyboard can still require vertical scrolling.
-          Optional fields stay in expandable sections. Use them for due dates, references, notes or
-          other details needed for that entry. Change English/Nepali from the workspace language
-          control.
-        </p>
-        <p>
-          On phones, large workspace headings are removed. The Back arrow appears before the logo in
-          the top bar and follows the same return destination. History and other page actions remain
-          available above the task. Back at the bottom of a form changes its entry step.
-        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
 
       <section id="parties">
-        <h2>3. One party, several roles</h2>
+        <h2>9. Parties: customers, suppliers, employees</h2>
+        <p class="where">Side menu → Parties (Contacts)</p>
         <p>
-          Open <strong>Parties / पक्षहरू</strong> → add party. On a phone follow Party / पक्ष →
-          Roles / भूमिकाहरू → Review / जाँच. Enter a useful name and optional phone; select every
-          applicable customer, supplier, employee or rent role. Review retains all roles; optional
-          contact details contain address, email and PAN. Save stays in the bottom action area.
-          Editing shows balances and related actions in Balances / actions / बाँकी / कामहरू.
+          A party is one person or business. One party can hold several roles, so a customer who also supplies you has one record
+          with two roles. Avoid creating a duplicate for each role.
         </p>
+        <div class="screen">
+          <h3>Add or edit a party</h3>
+          <ol>
+            <li>Parties → <strong>Add party</strong>.</li>
+            <li>Enter a <strong>Name</strong> and an optional <strong>Phone (optional)</strong>.</li>
+            <li>
+              Under <strong>Party roles</strong>, tick every role that applies: <strong>Customer</strong>, <strong>Supplier</strong>,
+              <strong>Employee</strong> and <strong>Rent</strong>. Choose at least one role.
+            </li>
+            <li>
+              <strong>Contact details (optional)</strong> holds <strong>Address (optional)</strong>, <strong>Email (optional)</strong>
+              and <strong>PAN (optional)</strong>.
+            </li>
+            <li>Save. When editing, <strong>Balances / actions</strong> shows the balance, payment terms, follow-ups and <strong>View statement</strong>.</li>
+          </ol>
+        </div>
         <p>
-          A person may be both customer and supplier, or employee and customer. Keep one party
-          record and select the right daily action. Avoid creating a duplicate for each role.
+          Archiving keeps old records for history, but the party is no longer offered for new entries. Use
+          <a href="#party-terms">payment terms and agreed prices</a> for credit limits and party-specific prices.
         </p>
-        <p>
-          Use party trading settings for payment terms, credit controls and price lists. See
-          collections for amounts due; record a payment against the correct bill. Archiving
-          preserves old records.
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="party-terms">
+        <h2>10. Party payment terms and agreed prices</h2>
+        <p class="where">Parties → open a party → Balances / actions → <strong>Payment terms / prices</strong></p>
+        <ul>
+          <li>
+            <strong>Customer credit limit (NPR)</strong>: the most a customer may owe you. A sale that pushes unpaid balances
+            above the limit is refused. Fully paid sales and returns remain allowed.
+          </li>
+          <li>
+            <strong>Customer payment days</strong> and <strong>Supplier payment days</strong> set the default due date (BS)
+            for new bills. A blank <strong>Due date (BS)</strong> on a bill uses these days.
+          </li>
+          <li>
+            <strong>Agreed item prices</strong>: for one item, enter <strong>Agreed price (NPR)</strong> and choose
+            <strong>Save price</strong>. Bills for this party then use that price. <strong>Use this price</strong> applies it to a line.
+          </li>
+          <li>Choose <strong>Save payment terms</strong> to save the limit and days.</li>
+          <li>
+            Cashiers see sale-price suggestions only. Credit limits and purchase prices are not shown to them.
+          </li>
+        </ul>
+        <p class="note">
+          An agreed party price takes priority over price lists. A saved bill and an accepted quote keep the prices they were created with.
         </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
 
       <section id="items">
-        <h2>4. Items and measurements</h2>
+        <h2>11. Items and measurements</h2>
+        <p class="where">Side menu → Items; Items → Add product</p>
         <ol>
           <li>
-            Open <strong>Items / सामान</strong> → add item. On phones follow Product / सामान → Price
-            / unit / मूल्य / एकाइ → Review / जाँच. Enter the name; choose stock for tracked goods or
-            service for labour and appointments.
+            Enter the <strong>Name</strong> and choose the <strong>Item type</strong>: a <strong>Stock item</strong> for goods you buy and
+            sell, or a <strong>Service</strong> for labour and appointments.
           </li>
           <li>
-            Set the unit label and selling price. Continue retains values; Save submits the product.
+            Choose the <strong>Item category</strong> and an optional <strong>SKU (optional)</strong>. Set the <strong>Selling price</strong>
+            and the <strong>Unit</strong>.
           </li>
           <li>
-            In Review, expand <strong>Product options / सामानको थप सेटिङ</strong> for category, item
-            code, stock alerts, reordering and POS measurements / scheduling. Choose the billed base
-            unit, enable needed entry methods and configure custom packs/conversions. Existing stock
-            and Count stock remain under Balances / actions when editing.
+            Under <strong>Product options</strong> set the <strong>Billed base unit</strong>, the entry methods (<strong>Enabled entry methods</strong>),
+            custom units (<strong>Add custom unit</strong>, with <strong>Custom unit name</strong> and <strong>Quantity in base units</strong>) and
+            <strong>Service duration (minutes)</strong> for appointment services.
           </li>
-          <li>Test a small example in POS and review the billed base quantity before saving.</li>
+          <li>
+            Under <strong>Stock details (optional)</strong> and <strong>Reorder settings</strong> set <strong>Low stock alert quantity</strong>,
+            <strong>Target stock quantity</strong> and <strong>Preferred supplier</strong>.
+          </li>
+          <li>Save. Test a small sale in POS before relying on the unit.</li>
         </ol>
         <p>
-          Available methods include quantity, amount, pack, length, area and volume where compatible
-          with the item's base unit. Base-unit choices are grouped for easy selection:
+          Entry methods include quantity, amount, pack, length, area and volume where they suit the item’s base unit. Base-unit groups:
         </p>
         <ul>
           <li><strong>Count:</strong> piece/unit, pair, dozen.</li>
           <li><strong>Weight:</strong> kg, g, mg, metric tonne, pound and ounce.</li>
           <li>
-            <strong>Liquid:</strong> litre, millilitre, centilitre, US gallon and Imperial gallon.
-            The two gallons are different; choose the named standard.
+            <strong>Liquid:</strong> litre, millilitre, centilitre, US gallon and Imperial gallon. The two gallons differ; choose the one you trade in.
           </li>
           <li><strong>Length:</strong> mm, cm, metre, inch, foot and yard.</li>
           <li><strong>Area:</strong> square mm, cm, metre, inch, foot and yard.</li>
           <li><strong>Volume:</strong> cubic mm, cm, metre, inch, foot, yard and board foot.</li>
         </ul>
         <p>
-          Glass area uses length × width × pieces. Wood volume adds thickness. Choose a unit
-          separately for each dimension; mixed metric and international inch/foot/yard measurements
-          are supported. Board foot means 1 square foot × 1 inch thick.
+          Glass area uses length × width × pieces. Timber volume adds thickness. A board foot is 1 square foot × 1 inch thick. Each
+          dimension has its own unit, and metric and inch measures can be mixed.
         </p>
         <p>
-          For a bottle, tray, sheet, bundle or local measure, choose
-          <strong>Add custom unit / आफ्नो एकाइ थप्नुहोस्</strong>. Give it a clear name and the
-          quantity it represents in this item's billed base unit. Set a shop-agreed conversion; the
-          app does not guess local measures. A custom pack uses that fixed conversion, not a new
-          cutting or rounding formula.
-        </p>
-        <p>
-          For glass, enter length × width × pieces. For timber, use the configured length, area,
-          volume or board-foot method. Select a unit beside each dimension. The bill records entered
-          dimensions and the resulting base quantity.
+          For a bottle, tray, sheet, bundle or local measure, use <strong>Add custom unit</strong> and state exactly how many base units it
+          holds. The app does not guess local conversions.
         </p>
         <p class="note">
-          Define a bottle, tray, bundle, sheet or local measure by its exact base quantity.
-          Distinguish US gallon from Imperial gallon. Do not use an unnamed regional wood formula;
-          configure the conversion you actually trade with.
+          Converted quantities round once to 0.001 base unit. A conversion that rounds to zero is rejected. Changing only the displayed unit name
+          does not convert stock or prices. Base-unit changes are blocked once stock has moved, so plan the unit before receiving stock.
         </p>
-        <p>
-          All converted quantities round once to 0.001 billed base unit. Choose a suitably small
-          base unit for very small goods; a conversion that rounds to zero is rejected. Amount entry
-          also uses this precision. Review the resulting bill amount; some requested amounts cannot
-          match exactly after rounding. Existing stock history restricts base-unit changes; plan
-          units before receiving stock. Changing only the displayed unit name does not convert stock
-          or prices.
-        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
 
       <section id="pos">
-        <h2>5. Choose your POS screen</h2>
+        <h2>12. Quick POS</h2>
+        <p class="where">Side menu → Quick POS (phones: bottom navigation → POS). Heading reads “Quick POS · your business type”.</p>
         <p>
-          Open <strong>POS → POS setup / काउन्टर सेटिङ</strong>. Choose the business profile and
-          configure items/resources. Profile changes the entry screen; your branch keeps the same
-          books.
+          Quick POS is the counter that works on phones and small screens. Its layout follows your business type (general, meat, restaurant,
+          barber, salon, milk, glass or wood). It refreshes every 2 seconds while open, so kitchen tickets and appointment changes appear
+          without reloading.
         </p>
-        <div class="profiles">
-          <article>
-            <h3>Meat shop</h3>
-            <p>
-              Pick meat/cut, enter weight or amount, review quantity and price, collect payment.
-              Configure scale-label parsing before scanning weighed labels.
-            </p>
-          </article>
-          <article>
-            <h3>General store</h3>
-            <p>
-              Search/scan items, add quantity or configured pack, review cart and payment. Use
-              categories for quick item selection.
-            </p>
-          </article>
-          <article>
-            <h3>Restaurant</h3>
-            <p>
-              Choose table or takeaway, enter order and send tickets to kitchen. Serve tickets
-              before final checkout.
-            </p>
-          </article>
-          <article>
-            <h3>Barber</h3>
-            <p>
-              Choose staff/chair and service. Use walk-in checkout or schedule an appointment;
-              record arrival before appointment checkout.
-            </p>
-          </article>
-          <article>
-            <h3>Salon</h3>
-            <p>
-              Book service, resource and Nepal-time slot. Manage arrival, service and completion;
-              review saved service prices at checkout.
-            </p>
-          </article>
-          <article>
-            <h3>Milk sales</h3>
-            <p>
-              Choose product, enter litres or configured bottle/pack. Review quantity and amount;
-              save payment now or named-customer due.
-            </p>
-          </article>
-          <article>
-            <h3>Glass sales</h3>
-            <p>
-              Choose glass type, dimensions, pieces and measurement units. Add cutting notes; review
-              area and price. Use a quote/job for later work.
-            </p>
-          </article>
-          <article>
-            <h3>Wood sales</h3>
-            <p>
-              Choose timber or sheet and your configured method. Enter dimensions/pieces; review
-              billed length, area, volume or board feet.
-            </p>
-          </article>
+        <div class="screen">
+          <h3>Make a sale</h3>
+          <ol>
+            <li><strong>Search / barcode</strong>: type a name or exact SKU, or scan a configured barcode. Tap the item.</li>
+            <li>Enter a quantity or measurement. Choose <strong>Add to cart</strong>. Weighed and measured items open the entry boxes for their unit.</li>
+            <li>
+              Open <strong>Cart</strong>. Check quantities, measurements and <strong>Items before offer and tax</strong>. Use <strong>Remove</strong>
+              to delete a line.
+            </li>
+            <li>
+              Optional: pick a basket offer from the offer selector if one applies. The counter shows the offer name, the discount and the final total.
+            </li>
+            <li>
+              Choose <strong>Review &amp; pay</strong>. Check the total. If it changed, choose <strong>Check total again</strong>.
+            </li>
+            <li>
+              Enter <strong>Paid now</strong> and choose the <strong>Payment account</strong>. Choose <strong>Save bill + payment</strong>.
+            </li>
+          </ol>
+          <p>
+            Choose a <strong>Customer (optional)</strong> to use agreed prices or to leave a balance due. Tick
+            <strong>Link customer for pay later</strong> for a credit sale. An unpaid sale needs a named customer.
+          </p>
         </div>
-        <p>
-          For an ordinary cart, review the app-calculated total, choose cash/bank and save. Named
-          customers may pay partly or later; unpaid walk-in sales are restricted.
+        <div class="screen">
+          <h3>Modes by business type</h3>
+          <ul>
+            <li><strong>Restaurant</strong>: <strong>Order tickets</strong>, <strong>Table / takeaway</strong>, <strong>Open order</strong>; see <a href="#restaurant">Waiter and kitchen</a>.</li>
+            <li><strong>Barber and salon</strong>: <strong>Book appointment</strong>; see <a href="#salon">Appointments</a>.</li>
+            <li><strong>Gym</strong>: <strong>Member check-in</strong>; see <a href="#gym">Gym desk</a>.</li>
+            <li><strong>Job businesses</strong>: <strong>Job cards</strong> and ready jobs; see <a href="#job-cards">Job cards</a>.</li>
+          </ul>
+        </div>
+        <p class="note">
+          If the reply to <strong>Save bill + payment</strong> is lost, the screen locks and offers <strong>Retry original action</strong>. Use it;
+          do not start a second bill. See <a href="#recovery">Connection problems and retries</a>.
         </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="pos-setup">
+        <h2>13. POS setup: screens, tables, staff and chairs</h2>
+        <p class="where">Side menu → POS → <strong>POS setup</strong> (heading “POS setup”)</p>
+        <ul>
+          <li>
+            <strong>Business type / POS screen</strong>: choose the counter layout. This changes the screen only; your books stay the same.
+          </li>
+          <li>
+            <strong>Tables / staff / chairs</strong>: add restaurant tables, takeaway, staff and chairs for appointments. Set their working hours.
+          </li>
+          <li>
+            <strong>Item measurement setup</strong> and <strong>Measurements and service duration</strong>: enable the entry methods an item needs and
+            set <strong>Duration (minutes)</strong> for appointment services.
+          </li>
+          <li>
+            <strong>Product codes / scale setup</strong>: opens <a href="#barcodes">alternate codes and scale formats</a>.
+          </li>
+          <li><strong>Save screen</strong> stores the settings for this branch.</li>
+        </ul>
+        <p class="note">
+          Add products before selling. Each branch has its own POS setup.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
 
       <section id="restaurant">
-        <h2>6. Waiter and kitchen</h2>
+        <h2>14. Waiter and kitchen</h2>
         <ol>
-          <li>Manager: add tables/resources and menu items in POS setup.</li>
+          <li>Manager or owner: add tables, takeaway and menu items in POS setup.</li>
           <li>
-            Waiter: open table/takeaway order, enter a useful customer or reference, add items and
-            send to kitchen.
+            Waiter: open a <strong>New order</strong> for a table or takeaway. Enter a useful guest name or reference (<strong>Guest name (optional)</strong>),
+            add items, then <strong>Send to kitchen</strong>.
           </li>
-          <li>Kitchen: view new tickets and move each through the available preparation states.</li>
-          <li>Waiter: mark ready food served. Cancel unneeded tickets using the allowed action.</li>
+          <li>Kitchen: each new round appears as a ticket. Move each through the preparation states.</li>
+          <li>Waiter: <strong>Mark served</strong> when food is served. <strong>Cancel ticket</strong> removes a ticket that is no longer needed.</li>
           <li>
-            Cashier: open checkout once all active tickets are served. Select an optional offer;
-            review total and payment. Save the bill.
+            Cashier: when every active ticket is served, open the bill (<strong>Open bill</strong>), choose any offer, review the total and save with
+            <strong>Save bill + payment</strong>.
           </li>
         </ol>
         <p>
-          Waiter and kitchen views refresh while open and connected. Normal foreground refresh is
-          about two seconds; a connection error means updates may be delayed. A changed order must
-          be reviewed again.
+          Sending tickets does not create the financial bill. Prices saved on a ticket stay with that order. Checkout rechecks current offer terms.
+          Use <strong>New kitchen round</strong> for extra items on an open table; <strong>Cancel open order</strong> cancels the whole order.
         </p>
         <p>
-          Menu prices saved on tickets remain with the order. Checkout rechecks current offer terms.
-          Sending tickets does not itself create the financial bill.
+          Waiter and kitchen screens refresh about every two seconds while open. If the connection drops, updates may lag; reconnect and check the
+          ticket status again before serving.
         </p>
         <figure>
           <img
@@ -555,30 +873,33 @@
             Example: 2.501 × NPR 100 − NPR 10 = NPR 240.10, before any configured tax.
           </figcaption>
         </figure>
+        <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
 
       <section id="salon">
-        <h2>7. Salon and barber appointments</h2>
+        <h2>15. Salon and barber appointments</h2>
+        <p class="where">Quick POS → <strong>Appointments</strong> (or Full POS → Appointments)</p>
         <ol>
-          <li>Add staff/chairs, working hours and service duration/price in POS setup.</li>
+          <li>Add staff or chairs, their hours and each service’s price and <strong>Duration (minutes)</strong> in POS setup.</li>
           <li>
-            Choose <strong>Book appointment / बुकिङ गर्नुहोस्</strong>. Choose service, resource, BS
-            date, Nepal-time slot and customer.
-          </li>
-          <li>Review and save booking. The app rejects overlapping occupied slots.</li>
-          <li>
-            On arrival, select the booking and choose <strong>Mark arrived / ग्राहक आएको</strong>.
-            Continue service using available actions.
+            Choose <strong>Book appointment</strong>. Enter the <strong>Client name</strong>, optional <strong>Phone (optional)</strong>, the service,
+            <strong>Staff / chair</strong>, the <strong>Day (BS)</strong> and the <strong>Start time (Nepal)</strong>.
           </li>
           <li>
-            At checkout, choose an optional offer, review total, then save bill/payment. Successful
-            checkout completes the appointment.
+            <strong>Save appointment</strong>. The app rejects a slot that overlaps another booking or a <strong>Blocked time</strong>.
+            Use <strong>Block personal / unavailable time</strong> to keep a slot free.
+          </li>
+          <li>
+            On arrival choose <strong>Mark arrived</strong>, then <strong>Start service</strong>. A client who does not come can be marked
+            <strong>No show</strong>.
+          </li>
+          <li>
+            At checkout choose any offer, check the total and save the bill and payment. A successful checkout completes the appointment.
           </li>
         </ol>
         <p>
-          Reschedule or cancel using the booking action instead of creating an unnoticed duplicate.
-          Walk-in checkout is available separately. Saved booking prices remain fixed; checkout
-          offers use current availability. Appointment billing must match the booked BS date.
+          To change a booking, use <strong>Reschedule</strong> and <strong>Save new time</strong> rather than creating a duplicate. Saved booking prices
+          stay fixed; offers at checkout use current availability. The bill follows the booked BS day.
         </p>
         <figure>
           <img
@@ -590,823 +911,1136 @@
             Example: booked service NPR 150 − checkout offer NPR 10 = NPR 140.
           </figcaption>
         </figure>
-      </section>
-
-      <section id="bills">
-        <h2>8. Regular bills and drafts</h2>
-        <p>
-          Use <strong>Sales</strong> for customer bills, <strong>Purchases</strong> for supplier
-          goods and <strong>Expenses</strong> for business costs. Choose party, BS date, lines and
-          price. Add only applicable tax and discount. Review total and payment before posting.
-        </p>
-        <p>
-          <strong>Save draft</strong> keeps an editable bill without changing money, stock or dues.
-          Open the draft, edit it if needed, then review and post. Posting performs the financial
-          and stock changes.
-        </p>
-        <p>
-          <strong>Clone as draft</strong> helps repeat a bill. Review party, new date, quantities,
-          prices, discounts and tax; never assume last bill's terms are still valid.
-        </p>
-        <p>
-          Supplier references and bill dates help identify purchase paperwork. Attach supporting
-          files to the saved record where available. Tax recording and recoverability depend on
-          enabled business settings.
-        </p>
-        <p class="note">
-          For a sale or sales draft, select an optional named offer in Review &amp; save. Wait for
-          the current total before saving. Selecting an offer clears the separate bill discount;
-          line discounts remain. Offers do not apply to purchases or expenses.
-        </p>
-        <p>
-          A draft with an offer rechecks its saved terms before posting. If the offer changed,
-          expired or became unavailable, choose <strong>Edit draft</strong>, review the new terms or
-          remove the offer, save changes, then post. Cloning restores pre-offer prices and removes
-          the named offer; choose any new offer explicitly.
-        </p>
-        <p>
-          A bill showing <strong>Source order allocation</strong> uses agreed source amounts for its
-          quantities. Its rounding notes explain any price, tax or receipt-cost difference. An
-          agreed offer label does not mean the whole original bundle was delivered. Copying an
-          allocated bill keeps its rates/quantities and clears source discounts; review today's
-          discounts and offers before posting the new draft.
-        </p>
-      </section>
-
-      <section id="offers">
-        <h2>9. Prices and offers</h2>
-        <p>
-          <strong>More → Sales tools → Price lists</strong>: create reviewed item prices,
-          party-specific lists and configured quantity pricing. Volume pricing applies a qualifying
-          rate to the whole quantity; slab pricing splits quantity across configured bands. Review
-          the calculated result.
-        </p>
-        <p>
-          <strong>More → Sales tools → Basket offers</strong>: create a named fixed/percentage
-          basket offer, selected-item/category offer, bundle or buy/get offer. Set minimum spend,
-          validity, schedule and staff permission where needed. Compatible choice groups may accept
-          several items sharing one billed base unit.
-        </p>
-        <ol>
-          <li>At checkout select <strong>Bill offer (optional) / बिल छुट (ऐच्छिक)</strong>.</li>
-          <li>Read offer name, before-offer amount, discount, tax and final total.</li>
-          <li>
-            If quantity, customer, date or offer changes, wait for the new review. Use
-            <strong>Check total again / कुल रकम फेरि जाँच्नुहोस्</strong> when needed.
-          </li>
-          <li>Choose payment from the reviewed total and save.</li>
-        </ol>
-        <p>
-          Offers apply before tax. Bundle choices cannot count the same quantity twice. An
-          unavailable offer must be removed or corrected. A selected named offer does not stack with
-          a separate bill discount. Staff can use only permitted offers.
-        </p>
-        <p>
-          Returns use the original saved bill's prices and discount allocation. Changing an offer
-          later does not change an already posted sale.
-        </p>
-      </section>
-
-      <section id="workflows">
-        <h2>10. Quotes, orders and jobs</h2>
-        <p>
-          Open <strong>Quotes / orders / jobs</strong>. Choose quotation, sales order or purchase
-          order; choose a business/job type for niche work. Select party, BS date, items and agreed
-          prices. Add reference, specifications, validity and fulfilment date as needed.
-        </p>
-        <ol>
-          <li>Save quotation, review it, then mark sent.</li>
-          <li>
-            Record acceptance or rejection after the customer's decision. Acceptance records your
-            decision; the app does not collect a public digital signature.
-          </li>
-          <li>
-            Create a sales order from an accepted quote, or create a sales/purchase order directly.
-          </li>
-          <li>
-            Use <strong>Delivery / receipt and billing</strong> for actual partial work. Progress
-            shows ordered, completed, remaining, billed and ready-to-bill quantities.
-          </li>
-        </ol>
-        <h3>Deliver or receive first; bill later</h3>
-        <ol>
-          <li>
-            Choose <strong>Deliver goods / complete work</strong> or
-            <strong>Receive goods / work</strong>. Enter only quantities completed now, using the
-            displayed order units. Blank lines stay out of this action.
-            <strong>Use available quantity</strong> fills the remaining amount.
-          </li>
-          <li>
-            Choose BS date. For a first purchase receipt, check recoverable tax under additional
-            details if applicable; later receipts and bills keep this treatment.
-          </li>
-          <li>
-            Choose <strong>Review quantities</strong>, check the selected amounts, then confirm.
-            Stock moves once now; party dues are created when the bill posts. Service completion
-            does not move stock.
-          </li>
-          <li>
-            Choose <strong>Bill completed quantities</strong>. Select quantities from the listed
-            delivery/receipt records. Enter actual paid amount and choose an account when paying;
-            leave paid amount zero for later payment.
-          </li>
-          <li>
-            Review quantities, total, tax, original-order allocation and payment. Confirm bill and
-            payment. Multiple partial bills retain agreed prices and consume exact remaining
-            amounts; billing does not move this stock again.
-          </li>
-        </ol>
-        <p>
-          Changing quantity, date, payment or other terms requires a fresh review. If save cannot be
-          confirmed, fields stay locked: reconnect and use <strong>Retry original action</strong>.
-          Do not create another entry.
-        </p>
-        <h3>Returns, corrections and slips</h3>
-        <p>
-          For goods not yet billed, use <strong>Return unbilled quantities</strong> on their
-          original recorded action. For billed goods, open the linked bill and use its normal return
-          flow. Billed returns retain original amounts and costs and do not reopen order capacity
-          for replacement.
-        </p>
-        <p>
-          <strong>Open quantity slip</strong> prints the actual action quantities, separate from
-          billing/payment. Owners, managers and accountants can cancel a mistaken action with a BS
-          date and reason, subject to later stock activity and dependent bills/returns. Cancel
-          related bills/returns first when prompted. Cancelling a staged bill releases billing
-          capacity and leaves the physical delivery/receipt recorded. Cancelled slips keep their
-          quantities/status and omit customer details from an order that may now be edited.
-        </p>
-        <p>
-          Status changes and order/job summaries do not move stock or collect money. Before partial
-          work starts, <strong>Review + create bill</strong> remains available for the original
-          full-bill flow. Once partial actions are active, use their separate bill controls; order
-          edit/cancel and full-order delivery sheets are restricted. Billing before delivery,
-          package dispatch and backorder documents are still in progress.
-        </p>
-        <p>
-          For a quote or sales order, select an optional named offer and review the current total
-          before saving. An accepted quote and its linked sales order keep that agreed discount when
-          billed, even if the offer later changes. Quote validity still applies. Copying a quote
-          restores pre-offer values and asks you to choose an offer again.
-        </p>
-        <p>
-          For the original full-bill conversion, cancelling the linked bill leaves the order closed.
-          Copy for a replacement and review it. Cancelling a staged partial bill instead releases
-          its billing allocation; the recorded delivery/receipt remains.
-        </p>
-      </section>
-
-      <section id="regular">
-        <h2>11. Salary, rent and regular dues</h2>
-        <p>
-          Open <strong>Regular payments / नियमित भुक्तानी</strong>. Select
-          <strong>Employees</strong>, <strong>Rent</strong> or <strong>Other</strong>.
-        </p>
-        <ol>
-          <li>
-            Choose <strong>Add employee / कर्मचारी थप्नुहोस्</strong>, <strong>Add rent</strong> or
-            add regular bill. Create a payee or choose an existing party.
-          </li>
-          <li>
-            On a phone, follow Payee / पाउने पक्ष → Amount / रकम → Schedule / तालिका. Enter the
-            monthly amount; Additional setup / थप सेटिङ contains the payment label, enabled/paused
-            setting and full monthly rules. Other bills also need their expense category. In
-            Schedule check payee, amount and active/paused status, first BS date and monthly day.
-            Enable automatic dues only when wanted. Continue changes steps; Save submits the setup.
-          </li>
-          <li>
-            Open the regular record. Expand Monthly history to inspect previous months. Review the
-            month's expense; generate it if manual, or check the automatically generated monthly
-            entry.
-          </li>
-          <li>
-            Pay now or leave the month's amount payable. Pay later from that month's bill or regular
-            record.
-          </li>
-        </ol>
-        <p>
-          One monthly expense creates the payable. Payment later reduces that payable; it must not
-          create a second expense. Check this month's remaining amount and next date before
-          repeating.
-        </p>
-        <p>
-          Automatic dues create expenses/payables, not automatic bank transfers. Deployment must run
-          the regular-payment schedule. Check displayed errors and overdue months; pausing stops
-          future generation.
-        </p>
-      </section>
-
-      <section id="payments">
-        <h2>12. Pay later and collect dues</h2>
-        <p>
-          For a named customer sale, choose partial/later payment and enter actual amount paid now.
-          Remaining bill amount becomes due, subject to party credit controls. Choose the correct
-          cash/bank account.
-        </p>
-        <p>
-          Open <strong>Collections / payments</strong> to find dues by party/date. Review the bill
-          and record money received from a customer or paid to a supplier/payee. Allocate to the
-          intended bill; check its remaining amount afterward.
-        </p>
-        <p>
-          <strong>Follow-ups</strong> records promised dates, notes and next actions. Saving a
-          follow-up does not send a message or receive money. A customer or supplier advance remains
-          separate until correctly used.
-        </p>
-        <p>
-          <strong>Money</strong> groups Receive / pay, Transfers / owner money, Refunds and History.
-          Choose a group, then the action. History shows payment records and permitted corrections.
-          An open correction keeps its context locked; if its result is uncertain, use Retry
-          original action before leaving. Money also provides transfers between your accounts,
-          personal money added and owner withdrawals. Choose the daily action that actually
-          happened; transfers are not sales.
-        </p>
-        <p>
-          On phones, money entry uses <strong>Party / पक्ष</strong> or
-          <strong>Accounts / खाताहरू</strong>, <strong>Amount / रकम</strong>, then
-          <strong>Review / जाँच</strong>. Continue advances without posting. Check amount, account
-          and BS date; Save stays beside Back in the bottom action area. Additional details contains
-          notes, chosen bill allocations, advance confirmation and permitted bank overdraft. A
-          selected bill keeps its allocation. Unconfirmed saves lock entry; use Retry original
-          action.
-        </p>
-      </section>
-
-      <section id="corrections">
-        <h2>13. Returns and corrections</h2>
-        <ol>
-          <li>Open the original posted sale/purchase.</li>
-          <li>
-            Choose return, select original lines and return quantity, enter BS date and reason.
-          </li>
-          <li>
-            Review original-value refund/credit and save. Record actual refund money using the
-            applicable payment action.
-          </li>
-        </ol>
-        <p>
-          Returns cannot exceed unreturned original quantity. They preserve original prices,
-          discounts, tax and stock cost. Do not use today's selling price for an old return.
-        </p>
-        <p>
-          Phone return entry uses <strong>Items / सामान</strong>, <strong>Reason / कारण</strong> and
-          <strong>Review / जाँच</strong>. Previous items / अघिल्लो सामान and Next items / अर्को
-          सामान show two source lines at a time; quantities remain entered across pages. Review
-          shows the original bill reduction. Choose an immediate refund only when money actually
-          moves, and select its account. Unpaid bill amounts reduce dues. Save appears in the bottom
-          action area.
-        </p>
-        <p>
-          For an entire mistaken posted bill, use cancel with a reason and allowed date. Cancel
-          related active payments/returns first when prompted. Reverse later partial returns before
-          earlier ones when required.
-        </p>
-        <p>
-          Correct drafts by editing or deleting them. Correct posted records through
-          return/cancellation paths. Check the replacement bill before posting; do not overwrite
-          financial history.
-        </p>
-      </section>
-
-      <section id="stock">
-        <h2>14. Stock and reordering</h2>
-        <p>
-          <strong>Selling more than you have in stock is allowed.</strong> The item then shows a
-          negative quantity, and Home shows a <strong>Negative stock</strong> notice listing those
-          items until you record the purchase or count the stock. The shortfall is costed at the
-          current average (or the last purchase price when stock was zero); when the purchase
-          arrives, any price difference for the units already sold goes to cost of goods sold
-          automatically.
-        </p>
-        <p>
-          Ordinary posted purchases increase stock; ordinary posted sales decrease it. For staged
-          orders, the delivery/receipt action moves stock first and its later bill does not move
-          stock again. Services do not consume stock. Use <strong>Count stock</strong> for actual
-          physical quantity, with the required adjustment reason and reviewed cost.
-        </p>
-        <p>
-          Phone stock counts use <strong>Item / सामान</strong>, <strong>Count / गन्ती</strong> and
-          <strong>Review / जाँच</strong>. Choose the item, enter actual count and cost for extra
-          units, then check recorded quantity, counted quantity, cost, BS date and reason. Confirm
-          zero-cost extra stock only when appropriate. Count history / गणनाको इतिहास opens
-          separately; returning to entry preserves unsaved values. Continue does not save. Use Retry
-          original action when a result is unconfirmed.
-        </p>
-        <p>
-          Set item categories and reorder settings. Open <strong>Reorder stock</strong>, review
-          suggested items, quantities, supplier and price. Create the reviewed purchase order; use
-          <strong>Receive goods / work</strong> for an actual partial receipt, then bill its
-          completed quantities. The original full-bill flow remains available before staging starts.
-        </p>
-        <p>
-          Use reviewed CSV import for supported party/item fields. Download the template, preview
-          errors and duplicates, then apply the confirmed import. CSV item import does not record a
-          purchase or opening stock.
-        </p>
-        <p>
-          Configure alternate item codes, scale-label formats and printable Code128 labels before
-          use. Scanner entry works with configured codes; direct physical scale readings and
-          automatic printer/cash-drawer commands need separate device integration.
-        </p>
-      </section>
-
-      <section id="records">
-        <h2>15. Find, print and export</h2>
-        <p>
-          Open Sales, Purchases, Expenses or Money. Filter/search available records; open a record
-          to see payment, remaining due, source links and supporting files.
-        </p>
-        <p>
-          Use the record's print action and your browser's printer/PDF destination. Use label
-          preview before printing item labels. Paper size and printer settings must match your
-          hardware.
-        </p>
-        <p>
-          Reports open in Results / नतिजा. Choose Filters / छनोट to change the report and BS dates;
-          party statements also need the party and customer/supplier account channel. Show results /
-          नतिजा हेर्नुहोस् returns to the figures. Overview and balance sheet keep additional cash,
-          customer and supplier balances in Balances / मौज्दात र बाँकी.
-        </p>
-        <p>
-          Previous rows / अघिल्लो विवरण and Next rows / अर्को विवरण reveal every result page. Print
-          (printer icon) includes every report row, including other result pages, and both overview
-          sections. Download CSV uses the chosen report and filters. Wide or long reports, expanded
-          details and enlarged text may still need scrolling.
-        </p>
-        <p>
-          Owners/managers can review activity in Audit and configure period locks. A locked period
-          restricts changes; ask the responsible owner to review the correct correction date.
-        </p>
-      </section>
-
-      <section id="branches">
-        <h2>16. Staff and branches</h2>
-        <p>
-          Owner creates a branch from business settings/selection. Each branch needs its own opening
-          setup, items, staff access and books. Use the business switcher before entry; confirm
-          branch name at the top.
-        </p>
-        <p>
-          Business selection shows two books at a time. Previous businesses / अघिल्लो व्यवसाय and
-          Next businesses / अर्को व्यवसाय reveal the remaining books. New business / नयाँ व्यवसाय
-          opens its setup separately; Cancel returns to selection and retains entered name/address
-          until leaving this screen.
-        </p>
-        <p>
-          Invite staff to the intended business and choose an appropriate role. Cashiers see
-          permitted sales tools and their own protected records. Owner/manager/accountant
-          permissions differ; waiter/kitchen staff use their permitted restaurant views.
-        </p>
-        <p>
-          Membership in one branch does not automatically grant access to siblings. Branch grouping
-          currently does not perform shared-stock transfers or consolidated tax filing.
-        </p>
-        <p>
-          Platform administration uses a separate superadmin sign-in. Ordinary business staff should
-          use the business sign-in.
-        </p>
-      </section>
-
-      <section id="recovery">
-        <h2>17. Connection problems and retries</h2>
-        <p class="note">
-          If saving loses its reply, keep the current screen and use
-          <strong>Retry original action</strong>. The app retries the same entry so it can recover
-          an already saved record.
-        </p>
-        <ol>
-          <li>Read the connection/status message. Do not immediately create a second bill.</li>
-          <li>Reconnect, then use the displayed original retry.</li>
-          <li>
-            Wait for the saved record or a clear error. Review current records before starting a
-            replacement.
-          </li>
-          <li>
-            If total or source changed before posting, recheck the total. If a draft offer changed,
-            edit/review the draft before posting.
-          </li>
-        </ol>
-        <p>
-          While an outcome is uncertain, entry controls may stay locked. Restaurant/appointment
-          views can show completion from another device while the retry is still needed to recover
-          the original result.
-        </p>
-        <p>
-          Use stable internet for financial entry. The installed PWA currently does not accept
-          offline financial writes. Closing the screen may lose an unsaved entry; resolve an
-          uncertain save before leaving.
-        </p>
-      </section>
-
-      <section id="limits">
-        <h2>18. Availability and limits</h2>
-        <p>
-          <span class="tag">Available now</span> Ionic web/PWA, separate business books, eight POS
-          profiles, configured measurements, waiter/kitchen views, appointments, quotes/orders/jobs,
-          reviewed offers on sale bills/drafts/quotes and checkout, party prices, salary/rent dues
-          and daily bookkeeping.
-        </p>
-        <p>
-          <span class="tag">Available</span> Partial delivery/receipt, service completion, source
-          unbilled returns, partial billing, progress and quantity slips. Use section 10 for the
-          delivery-first flow.
-        </p>
-        <p>
-          <span class="tag">In progress</span> Billing before delivery/receipt, packages, dispatch
-          and backorders. Further niche features remain tracked in the project feature ledger;
-          controls appear as each batch is verified.
-        </p>
-        <p>
-          The upcoming package flow separates packing, shipment, actual customer delivery and goods
-          returned before delivery. Packing reserves billed quantity without moving stock.
-          Undelivered goods return at their original shipment cost; only the remaining goods can be
-          marked delivered. These screens and their entry instructions remain in progress.
-        </p>
-        <p>
-          <span class="tag">Separate release work</span> Android/iOS native builds, offline
-          financial entry, automated SMS/WhatsApp, public customer self-ordering, digital approval
-          signatures, loyalty wallets and advanced industry production/dispatch features.
-        </p>
-        <p>
-          Current bill printouts are bookkeeping records. Nepal regulatory invoice
-          issuance/certification is a separate release check. Enable tax settings only after
-          reviewing your business's actual requirements.
-        </p>
-        <p>
-          Owner/operator must verify deployment, backups and restore procedures. Use the project's
-          deployment guide for operating the installation. Keep staff accounts individual and review
-          access when someone leaves.
-        </p>
         <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
-      <section id="packages">
-        <h2>19. Accounts, packages and business types</h2>
-        <ol>
-          <li>
-            Open <strong>Packages</strong> from the business chooser, or More → Account → Packages.
-          </li>
-          <li>
-            Review each account's current terms, expiry, products and business limit. Billing
-            remains accessible when business access expires.
-          </li>
-          <li>
-            When adding a business, choose its billing account and one business type. Restaurant
-            shows waiter/kitchen tools; barber/salon shows appointments; gym adds the
-            <strong>Gym desk</strong>; other types show their configured counter. The business type
-            appears beside the business name. Switching business clears the open screen.
-          </li>
-        </ol>
+
+      <section id="full-pos">
+        <h2>16. Full POS (tablet and desktop)</h2>
+        <p class="where">Side menu → Full POS (shows on tablets and computers). Phones show a link back to Quick POS.</p>
         <p>
-          Businesses keep separate books and staff membership. Account ownership does not
-          automatically grant access to another business's financial records. Each account has one
-          trial clock; adding a business does not restart it. Each owner receives one trial in
-          total: opening another billing account does not start a second trial.
-        </p>
-        <p>
-          Package changes apply to future subscriptions. Expired owners/accountants can still
-          read/export existing records; new entries and additional businesses require active access.
-          Existing migrated books retain their original access dates. If the package no longer
-          includes this business type, its records stay readable but new entries need a package that
-          includes it.
-        </p>
-        <p>
-          Platform administrators use <strong>Manage packages</strong> in the separate platform
-          panel. Set duration, trial days, business limit, enabled products and exact prices.
-          Confirm password and give change reason. Finish open restaurant orders/appointments before
-          changing business type.
+          Full POS is a full-screen counter with no side menu and no scrolling: one tap per product. It has its own <strong>Help</strong> button
+          at the top right, and <strong>Quick POS</strong> and <strong>Exit</strong> links.
         </p>
         <ol>
           <li>
-            Under <strong>Buy or renew package</strong>, choose package and fixed-price currency.
-            Available providers appear after platform configuration: eSewa/Khalti for NPR, Stripe
-            for NPR/USD/EUR, PayPal for USD/EUR.
+            <strong>Sell</strong>: search, or pick a category and tap a product tile (tap again to add one more). Scan a barcode to add it. Weighed or
+            measured items open a small entry box. Use <strong>‹ Previous</strong> and <strong>Next ›</strong> to page through products.
           </li>
           <li>
-            Review duration, products, exact price and business limit. Select businesses to retain;
-            excluded businesses keep owner/accountant read/export access. Confirm review, then
-            <strong>Create checkout</strong>.
+            <strong>Ticket</strong>: + and − change quantity; tap a line to change its measurement with <strong>Update line</strong>. Choose a
+            <strong>Customer</strong> for agreed prices or a balance due. Remove the customer with <strong>Remove customer</strong>.
           </li>
           <li>
-            Use <strong>Continue with</strong> the chosen provider. On returning, choose
-            <strong>Check payment status</strong>. Provider confirmation activates access; a return
-            page alone does not prove payment.
+            <strong>Pay</strong>: choose <strong>Cash</strong> or a bank account, enter <strong>Amount received (NPR)</strong> with the keypad or a quick
+            note (500, 1000…). The <strong>Change</strong> is shown. Less than the total saves <strong>Still due</strong> for the chosen customer
+            (<strong>Save with balance due</strong>); a walk-in customer must pay in full. <strong>Complete sale</strong> saves. Then <strong>View / print bill</strong>.
           </li>
           <li>
-            If outcome is unknown, check status or contact platform with payment reference. Resolve
-            previous payment before another checkout. An uncertain save uses
-            <strong>Retry original action</strong>.
+            <strong>Park / Recall</strong>: <strong>Park</strong> a ticket to serve the next customer; <strong>Recall</strong> it from
+            <strong>Parked tickets</strong> later. Parked tickets stay on this device only.
           </li>
         </ol>
-        <p>
-          A configured server schedule checks unresolved payments every five minutes. Provider
-          outages defer checks; an unknown payment without provider identifier needs platform help
-          and never creates a replacement charge automatically. Package payments appear under Recent
-          payments and do not create sales, expenses or cash entries in business books. No automatic
-          currency conversion is performed.
-        </p>
-        <p>
-          <strong>Renewing early.</strong> A package bought before the current term ends starts when
-          the current term ends; you never lose paid or trial days. The new business limit and
-          products apply from that start. The Packages page shows the upcoming renewal dates.
-        </p>
-        <p>
-          <strong>Started a payment but did not pay?</strong> Choose
-          <strong>I did not pay — start over</strong> on the payment card, then create a new
-          checkout. We keep checking the closed payment with the provider for seven days; if it
-          completes, your package is still extended. Unpaid provider pages are closed automatically
-          after one day.
-        </p>
-        <p>
-          Refunds and disputes are recorded by the platform. A refunded or disputed payment stops
-          that package term; your business books are not changed.
-        </p>
-        <p class="note">
-          Live provider settlement needs merchant credentials and was verified with test doubles,
-          not live provider accounts.
-        </p>
-        <p class="back"><a href="#contents">Back to contents</a></p>
-      </section>
-      <section id="account-messages">
-        <h2>20. Account emails and notifications</h2>
-        <p>
-          Registration prepares a welcome email. Verification and password-reset emails keep their
-          secure, expiring links. Successful password changes and resets prepare a separate security
-          notice. If you did not change your password, reset it and review account access.
-        </p>
-        <p>
-          Confirmed package payments prepare a receipt. A provider return alone does not produce a
-          confirmed receipt. Receipts belong to platform billing and do not post entries in your
-          business books.
-        </p>
-        <p>
-          Welcome, security notices and receipts send through the configured background delivery
-          service. If mail is missing, check your email address and spam folder, then contact
-          platform support. Never share password-reset links or verification codes.
-        </p>
-        <p>
-          Open <strong>My account → Notifications</strong> or
-          <strong>More → Account → Notifications</strong>. Choose package reminders separately from
-          promotions. Email, push and WhatsApp promotions start off and require your choice.
-        </p>
-        <ol>
-          <li>
-            On your own browser, choose <strong>Enable push on this device</strong>, then allow
-            browser notifications. If permission is denied, change browser permissions and try
-            again. Push needs a supported browser and a configured secure website.
-          </li>
-          <li>
-            Use <strong>Disable push on this device</strong> to remove this browser registration.
-            Under <strong>Your devices</strong>, revoke any device you no longer use.
-          </li>
-          <li>
-            Sign out when sharing a device. Sign out removes this browser's account registration
-            first. Other registered devices keep their own settings.
-          </li>
-        </ol>
-        <p>
-          Push account alerts use a generic message. Open Business Book to review details.
-          Notifications can arrive while the app is open or in the background; device and browser
-          settings affect delivery.
-        </p>
-        <p>
-          <strong>Package reminders</strong> are sent 7, 3 and 1 days before your trial or package
-          ends (Nepal calendar), and once on the day it ends. Renewing stops later reminders. Each
-          channel is separate: email by default, push on devices you enabled, and WhatsApp only if
-          you switched it on and your account has a phone number.
-        </p>
-        <p>
-          <strong>Promotions</strong> reach you only on channels where you turned promotions on.
-          Every promotion email links back to these settings so you can switch it off.
-        </p>
-        <p class="note">
-          WhatsApp needs approved message templates from the platform. Existing invitations keep
-          their current sending flow.
-        </p>
-        <p class="back"><a href="#contents">Back to contents</a></p>
-      </section>
-      <section id="gym">
-        <h2>21. Gym desk</h2>
-        <p>
-          Gym businesses get <strong>Gym desk</strong> in the menu (and under More → Sales tools on
-          a phone). It has three tabs: Today, Members and Plans.
-        </p>
-        <ol>
-          <li>
-            <strong>Set up a plan</strong> (owner or manager): first create a service item such as
-            “Membership fee”. In <strong>Plans → New plan</strong> enter name, the service item,
-            fee, number of days, an optional visit limit and whether classes are included. Changing
-            a plan's fee only affects new joins and renewals.
-          </li>
-          <li>
-            <strong>Add a member</strong>: Members → Add member. Name and phone create a customer
-            party automatically; the member code is generated if left empty.
-          </li>
-          <li>
-            <strong>Join or renew</strong>: open the member, choose a plan and review the total.
-            Enter the amount paid now and the cash or bank account, then pay. This posts a normal
-            sale bill. A renewal starts the day after the current membership ends. Collect any
-            unpaid balance later from <strong>Collections / payments</strong>.
-          </li>
-          <li>
-            <strong>Check in</strong>: Today → find the member and tap them. Check-in needs a
-            membership valid for today; each membership counts one visit per day and stops at the
-            plan's visit limit.
-          </li>
-          <li>
-            <strong>Classes</strong>: owners and managers add today's classes with start time,
-            length and capacity. Tap <strong>Book member</strong> and choose a member whose plan
-            includes classes. A full class or a second booking is refused.
-          </li>
-          <li>
-            <strong>End a membership</strong> (owner or manager): first cancel the payment and the
-            membership bill, or return it, from the bill screen. Then choose
-            <strong>End membership</strong>. This keeps refunds in the normal returns flow.
-          </li>
-        </ol>
-        <p>
-          Today also lists memberships ending within seven days, so you can remind members to renew.
-        </p>
-        <p class="back"><a href="#contents">Back to contents</a></p>
-      </section>
-      <section id="platform">
-        <h2>22. Platform administration</h2>
-        <p>
-          The platform panel uses a separate administrator sign-in at <strong>/platform</strong>.
-          Tenant passwords never open it, and it never shows business books.
-        </p>
+        <p>Extra modes appear by business type under <strong>POS modes</strong>:</p>
         <ul>
-          <li>
-            <strong>Manage packages</strong>: duration, trial days, business limit, products and
-            prices.
-          </li>
-          <li>
-            <strong>Accounts</strong>: see each account's package status, owner and business count.
-            Suspend or restore an account.
-          </li>
-          <li>
-            <strong>Payments</strong>: filter by status, see provider issues, and record a refund or
-            dispute for a confirmed payment.
-          </li>
-          <li>
-            <strong>Campaigns</strong>: write a draft, choose the audience (all owners, trial, paid
-            or expired) and channels, then <strong>Preview and send</strong>. The preview shows the
-            message, the audience size and how many owners opted in per channel. Send now or
-            schedule for later; a scheduled campaign can be cancelled until it is sent.
-          </li>
-          <li>
-            <strong>Deliveries</strong>: delivery outcomes by event and channel, with the reason for
-            skipped or failed messages. Message contents are not shown.
-          </li>
-          <li><strong>Business access</strong>: adjust access dates for an individual business.</li>
+          <li><strong>Sale</strong>: the default counter.</li>
+          <li><strong>Open tables</strong> (restaurant): running totals and checkout. Take orders in Quick POS.</li>
+          <li><strong>Appointments</strong> (barber, salon): today’s bookings. Arrived clients can be checked out.</li>
+          <li><strong>Member check-in</strong> (gym): find a member by <strong>Find member by name, phone or code</strong>.</li>
+          <li><strong>Ready jobs</strong> (job businesses): deliver and bill a job at its agreed total.</li>
         </ul>
-        <p>Every change needs your password and a reason, and is recorded in the audit log.</p>
+        <p class="note">
+          Full POS needs a tablet or desktop-sized screen. The server checks the total before payment.
+        </p>
         <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
-      <section id="agents">
-        <h2>23. AI agents (MCP)</h2>
-        <p>
-          An AI assistant that supports the Model Context Protocol (MCP), such as Claude, can look
-          up your items and customers and record sales for one business. It works as you, with your
-          role in that business, and follows the same checks as the app.
-        </p>
+
+      <section id="gym">
+        <h2>17. Gym desk</h2>
+        <p class="where">Side menu → Gym desk (gym businesses only). Tabs: <strong>Today</strong>, <strong>Members</strong>, <strong>Plans</strong>.</p>
         <ol>
           <li>
-            Open <strong>AI agents</strong> from the business chooser or More → Account. Choose the
-            business, a name and how long the access lasts.
+            <strong>Set up a plan</strong> (owner or manager): first create a service item such as “Membership fee”. On <strong>Plans</strong>, choose
+            <strong>New plan</strong>. Enter the <strong>Plan name</strong>, <strong>Choose service item</strong>, <strong>Fee (NPR)</strong>,
+            <strong>Days</strong>, an optional <strong>Visit limit (empty = unlimited)</strong> and whether it <strong>Includes classes</strong>. Choose
+            <strong>Save plan</strong>. Changing a fee applies to new joins and renewals only.
           </li>
           <li>
-            Tick <strong>Allow recording sales</strong> only if the assistant should save sales.
-            Without it the assistant can only read.
+            <strong>Add a member</strong>: Members → <strong>Add member</strong>. Name and phone create a customer party automatically. A
+            <strong>Member code (optional)</strong> is generated if left empty.
           </li>
           <li>
-            Choose <strong>Create token</strong> and copy it straight away; it is shown once. The
-            page also shows the setup line for Claude Code and a JSON block for other MCP apps.
+            <strong>Join or renew</strong>: open the member, choose <strong>Join plan</strong> or <strong>Renew membership</strong>, and review the total.
+            Enter <strong>Paid now</strong> and the account, then pay. This posts a normal sale. A renewal starts the day after the current membership ends.
+            Collect any remaining fee later from <a href="#collections">Collections / payments</a>.
           </li>
           <li>
-            Ask the assistant in plain words, for example “sell 2 haircuts to Ram, paid in cash”. It
-            first previews the bill and confirms the total, then records it. Retrying the same
-            request never saves the sale twice.
+            <strong>Check in</strong>: Today → find the member and tap <strong>Check in</strong>. The membership must be valid today. Each membership counts one visit a day
+            and stops at its visit limit. <strong>Checked in today</strong> lists the day’s visits.
+          </li>
+          <li>
+            <strong>Classes</strong>: owners and managers add today’s classes (<strong>Add class</strong>, with <strong>Class name</strong>, <strong>Start time</strong>,
+            <strong>Minutes</strong>, <strong>Capacity</strong> and <strong>Trainer</strong>). Choose <strong>Book member</strong>. A full class or a second booking is refused.
+          </li>
+          <li>
+            <strong>End a membership</strong> (owner or manager): first cancel the payment and the membership bill, or return it, from the bill screen.
+            Then choose <strong>End membership</strong>. Refunds stay in the normal returns flow.
           </li>
         </ol>
         <p>
-          The assistant can see the business overview, search items and customers, list cash and
-          bank accounts, check low stock, list recent sales, preview a sale and record a sale. It
-          cannot change settings, prices, staff or past bills, and it never sees other businesses.
-        </p>
-        <p>
-          Revoke a token on the AI agents page at any time. Tokens also stop working when they
-          expire, when you leave the business, or when the business package expires (reading stays
-          available to owners and accountants).
-        </p>
-        <p class="note">
-          Agents follow business access rules: a cashier's token can record sales but not see
-          reports. Every agent sale is marked “Recorded by AI agent” in its notes.
+          <strong>Memberships ending within 7 days</strong> appear on Today so you can remind members to renew. <strong>Membership history</strong>
+          lists a member’s past plans.
         </p>
         <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
+
       <section id="job-cards">
-        <h2>24. Job cards: garage, repair, laundry, tailoring, printing, iron works</h2>
+        <h2>18. Job cards: garage, repair, laundry, tailoring, printing, fabrication</h2>
+        <p class="where">Side menu → Job cards (for job business types)</p>
         <p>
-          Choose <strong>Auto garage</strong>, <strong>Mobile / device repair</strong>,
-          <strong>Laundry / dry cleaning</strong>, <strong>Tailoring</strong> or
-          <strong>Printing / signage</strong> or <strong>Iron works / grill fabrication</strong> as
-          the business type. <strong>Job cards</strong> then leads the menu. A job card is a sales
-          order with the details your trade needs.
+          The job business types are <strong>Auto garage</strong>, <strong>Mobile / device repair</strong>, <strong>Laundry / dry cleaning</strong>,
+          <strong>Tailoring</strong>, <strong>Printing / signage</strong> and <strong>Iron works / grill fabrication</strong>. For these, <strong>Job cards</strong>
+          leads the menu. A job card is a sales order with the details your trade needs.
         </p>
         <ol>
           <li>
-            <strong>Take in the job:</strong> Job cards → new sales order (or a quote first if the
-            customer must approve the price). Choose the customer and fill the job details:
+            <strong>Take in the job</strong>: Job cards → new job, or a quote first when the customer must approve the price. Choose the customer
+            and fill the job details:
           </li>
         </ol>
         <ul>
-          <li>Garage: vehicle number, make/model, odometer, fuel level, customer complaint.</li>
+          <li>Garage: vehicle number, make and model, odometer, fuel level and the customer’s complaint.</li>
+          <li>Device repair: IMEI or serial number, device, reported issue, condition at intake and accessories received. Never write down passwords or PINs.</li>
+          <li>Laundry: number of pieces, garments, service, stains or damage, and the rack or bag tag.</li>
+          <li>Tailoring: garment and style, measurements with units, fabric and fitting date.</li>
+          <li>Printing: size, material, colours and sides, quantity, artwork version and finish.</li>
           <li>
-            Device repair: IMEI or serial number, device, reported issue, condition at intake,
-            accessories received. Never write down passwords or PINs.
-          </li>
-          <li>Laundry: number of pieces, garments, service, stains or damage, rack or bag tag.</li>
-          <li>Tailoring: garment and style, measurements with units, fabric, fitting date.</li>
-          <li>Printing: size, material, colours/sides, quantity, artwork version, finish.</li>
-          <li>
-            Iron works / grill: gate, grill, shutter, railing or truss; size W × H in feet; area in
-            sq ft; estimated weight in kg; material, section and gauge; design; finish (paint,
-            powder coat, galvanise); installation site and date. Price per sq ft or per kg using
-            items set up with area or weight measurement, and add installation, hardware and
-            transport as separate lines. Sell rods, pipes and sheets at the counter by length, area
-            or weight.
+            Iron works and grill: gate, grill, shutter, railing or truss; size W × H in feet; area in sq ft; estimated weight in kg; material, section and gauge;
+            design; finish (paint, powder coat or galvanise); installation site and date. Price per sq ft or per kg using items set up with area or weight
+            measurement, and add installation, hardware and transport as separate lines. Rods, pipes and sheets can be sold at the counter by length, area or weight.
           </li>
         </ul>
         <ol start="2">
           <li>
-            <strong>Price it:</strong> add labour as service items and parts as stock items. For a
-            quote, send it and mark it accepted when the customer approves, then create the order.
+            <strong>Price it</strong>: add labour as service items and parts as stock items. For a quote, send it and mark it accepted when the customer approves,
+            then create the order.
           </li>
           <li>
-            <strong>Track it:</strong> move the job through In progress → Ready. Overdue jobs show
-            with the “Overdue work only” filter.
+            <strong>Track it</strong>: move the job through <strong>In progress</strong> → <strong>Ready</strong>. Choose <strong>Overdue work only</strong> to see late jobs.
           </li>
           <li>
-            <strong>Deliver and bill:</strong> on handover, bill the job. Parts leave stock and the
-            bill posts like any sale; collect payment now or later.
+            <strong>Deliver and bill</strong>: on handover, bill the job. Parts leave stock and the bill posts like any sale. Collect payment now or later.
           </li>
         </ol>
         <p>
-          <strong>Service history:</strong> search a vehicle number or IMEI in Job cards (spacing
-          and dashes do not matter), or open a job and choose <strong>Service history</strong> to
-          see every earlier job for the same vehicle or device.
+          <strong>Service history</strong>: search a vehicle number or IMEI in Job cards (spaces and dashes do not matter), or open a job and choose
+          <strong>Service history</strong> to see every earlier job for the same vehicle or device.
         </p>
         <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
-      <section id="full-pos">
-        <h2>25. Full POS (tablet and desktop)</h2>
+
+      <section id="bills">
+        <h2>19. Sales, purchases and expenses lists</h2>
+        <p class="where">Side menu → Sales, Purchases or Expenses</p>
         <p>
-          The original counter is now called <strong>Quick POS</strong>; it works on phones.
-          <strong>Full POS</strong>
-          is a full-screen counter for tablets and computers: no menu, no scrolling, one tap per
-          item. Open it from the menu or from Quick POS. Phones show a link back to Quick POS.
+          Each list shows bills of one kind. Use <strong>Status</strong> to choose <strong>All entries</strong>, <strong>Draft</strong>, <strong>Posted</strong>
+          or <strong>Cancelled</strong>, and <strong>Search</strong> to find a bill by party or number. Open a row to see its detail.
+        </p>
+        <ul>
+          <li><strong>Sales</strong>: customer bills. <strong>New sale</strong> starts one.</li>
+          <li><strong>Purchases</strong>: supplier bills for goods bought. <strong>New purchase</strong> starts one.</li>
+          <li><strong>Expenses</strong>: business costs that are not stock purchases. <strong>Record expense</strong> on Home starts one.</li>
+        </ul>
+        <p class="note">
+          A draft changes no money, stock or dues. Only a posted bill does. Cancelled bills keep their record for history.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="bill-entry">
+        <h2>20. Entering a new bill</h2>
+        <p class="where">Sales → New sale; Purchases → New purchase; Expenses → New expense (the heading reads “ONE SIMPLE ENTRY”)</p>
+        <p>
+          The bill form has three steps: <strong>Party</strong> → <strong>Items</strong> → <strong>Review</strong>. Expenses use the same form. The fields
+          below are the ones you fill in along the way.
         </p>
         <ol>
           <li>
-            <strong>Sell:</strong> search or pick a category, tap product tiles (tap again for one
-            more) or scan a barcode. Weighed or measured items open a small entry box. Use
-            <strong>‹ Previous</strong> and <strong>Next ›</strong> to page through products.
+            <strong>Party</strong>: choose the customer or supplier. Choose <strong>Walk-in customer</strong> for a cash sale without a name.
+            For an expense, choose the <strong>Category</strong> and the payee where one applies.
           </li>
           <li>
-            <strong>Ticket:</strong> + and − change quantity; tap a line to change its measurement.
-            Choose a customer for agreed prices or to leave a balance due. The total is checked by
-            the server before payment.
+            <strong>Items</strong>: add each item. Set the quantity, the price, any line <strong>Discount</strong> and the <strong>Tax category</strong>.
+            Choose the <strong>Business date (BS)</strong> for the bill.
           </li>
           <li>
-            <strong>Pay:</strong> choose Cash or a bank account, enter the amount received with the
-            keypad or a quick note (500, 1000…), and the change is shown. Less than the total saves
-            a balance due for the chosen customer. After saving, open the bill to print it.
+            <strong>Payment</strong>: choose the <strong>Payment status</strong>, enter <strong>Paid now</strong> and choose the <strong>Payment account</strong>.
+            Leave <strong>Paid now</strong> at zero for a later payment.
           </li>
           <li>
-            <strong>Park / Recall:</strong> park a ticket to serve the next customer and recall it
-            later. Parked tickets stay on this device only.
+            <strong>Discount &amp; notes</strong> (optional): <strong>Bill discount type</strong> and the discount, <strong>Due date (BS, optional)</strong>,
+            <strong>Supplier bill reference</strong>, <strong>Supplier bill date (BS, optional)</strong> and notes. Under
+            <strong>Discount &amp; bookkeeping tax</strong> set the <strong>Tax rate (%)</strong> where it applies.
+          </li>
+          <li>
+            <strong>Review &amp; save</strong>: check <strong>Subtotal</strong>, <strong>Discount</strong>, <strong>Tax</strong> and <strong>Total</strong>, then save.
+            <strong>Save draft</strong> keeps the bill editable instead.
           </li>
         </ol>
-        <p>Extra modes appear by business type:</p>
+        <p>
+          Quotes, orders and job cards use this same form in workflow mode; their extra fields are <strong>Reference / device / job</strong>,
+          <strong>Job title</strong>, <strong>Business / job type</strong>, <strong>Specifications / measurements</strong>, <strong>Valid until (BS, optional)</strong>
+          and <strong>Fulfilment date (BS, optional)</strong>. Quote and order saves do not move stock or money.
+        </p>
+        <p class="note">
+          A blank <strong>Due date (BS)</strong> uses the party’s payment days. Unpaid sales need a named customer. If the reply is lost after you save, use
+          <strong>Retry original action</strong> instead of entering the bill again.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="document">
+        <h2>21. Bill detail: print, attach, pay, copy, cancel</h2>
+        <p class="where">Open any row in a bill list</p>
+        <p>
+          The detail shows the lines, then <strong>Subtotal</strong>, <strong>Discount</strong>, <strong>Tax</strong>, <strong>Total</strong>, <strong>Paid</strong>,
+          <strong>Due</strong> and any <strong>Refund pending</strong>. <strong>Payments</strong>, <strong>Returns</strong> and <strong>Attachments</strong> are listed below.
+        </p>
         <ul>
-          <li>Restaurant: <strong>Open tables</strong> with running totals and checkout.</li>
           <li>
-            Barber / salon: today’s <strong>Appointments</strong>; arrived clients can be checked
-            out.
+            <strong>Print</strong> prints the bill. The printed copy is a bookkeeping record; see <a href="#limits">Availability and limits</a>.
           </li>
-          <li>Gym: <strong>Member check-in</strong> by name, phone or member code.</li>
           <li>
-            Garage, repair, laundry, tailoring, printing, iron works: <strong>Ready jobs</strong> to
-            deliver and bill with the job’s agreed total.
+            <strong>Receive money</strong> (sales) or <strong>Pay party</strong> (purchases) pays the remaining due. The amount is filled in for you.
+          </li>
+          <li>
+            <strong>Attachments</strong> lets you add a receipt or supplier paper: <em>Add receipt (JPG, PNG, PDF · up to 5 MB)</em>.
+          </li>
+          <li>
+            <strong>Copy as new draft</strong> makes an editable copy with a new date. Review the party, quantities, prices, discounts and tax before posting; do not
+            assume the old terms still apply.
+          </li>
+          <li>
+            <strong>Return goods</strong> (sales and purchases) starts a return. See <a href="#corrections">Returns and cancellations</a>.
+          </li>
+          <li>
+            <strong>Cancel mistaken entry</strong> reverses a bill that was entered by mistake. It asks for the <strong>Business date (BS)</strong>
+            and a <strong>Reason</strong>, then <strong>Confirm cancellation</strong>. Related payments or returns must be cancelled first.
           </li>
         </ul>
+        <h3>Draft bills</h3>
+        <ul>
+          <li><strong>Finish this draft</strong> shows the posting fields: <strong>Paid now</strong>, <strong>Payment account</strong>, then <strong>Post bill</strong>.</li>
+          <li><strong>Edit draft</strong> reopens the draft to change it.</li>
+          <li><strong>Delete draft</strong> removes it after you confirm. Attached files are removed only after the delete succeeds.</li>
+        </ul>
+        <p class="note">
+          Posted bills are never edited. Correct a posted bill with a return or a cancellation. A draft that carries a basket offer is rechecked before posting; if the
+          offer has changed or expired, edit the draft and review its terms first.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="offers">
+        <h2>22. Prices and offers overview</h2>
+        <p>There are three ways a price can change at the counter. Use them in this order of priority:</p>
+        <ol>
+          <li><strong>Agreed party price</strong> (Parties → Payment terms / prices). Always wins for that party.</li>
+          <li><strong>Price list</strong> (More → Sales tools → Price lists): shared lists for customers or suppliers, with quantity pricing.</li>
+          <li><strong>Basket offer</strong> (More → Sales tools → Basket offers): a named discount chosen at checkout.</li>
+        </ol>
+        <p>
+          The counter shows the item amounts before the offer and tax, then the deduction once, then the tax on the discounted amount and the grand total. An offer
+          never stacks with a separate bill discount, and a saved bill keeps the offer it was posted with.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="price-lists">
+        <h2>23. Price lists</h2>
+        <p class="where">More → Sales tools → Price lists (owner, manager and accountant manage; cashiers can read sale lists and suggestions)</p>
+        <ol>
+          <li>
+            <strong>New price list</strong>: enter the <strong>List name</strong> and choose a <strong>Customer price list</strong> or
+            <strong>Supplier price list</strong>.
+          </li>
+          <li>
+            <strong>Standard price adjustment</strong>: choose <strong>Increase</strong> or <strong>Decrease</strong> and a <strong>Percentage</strong> for the
+            standard prices of the list.
+          </li>
+          <li>
+            <strong>Quantity pricing method</strong>: <strong>Volume: one rate for all units</strong> applies one rate to the whole quantity, or
+            <strong>Slab: price each range separately</strong> splits a quantity across the configured bands.
+          </li>
+          <li>
+            <strong>Item prices / tiers</strong>: choose <strong>Add quantity tier</strong>, then enter the <strong>Minimum quantity</strong> and
+            <strong>Unit price (NPR)</strong>. <strong>Remove tier</strong> deletes a tier. A tier with zero keeps the standard price.
+          </li>
+          <li>
+            <strong>Valid BS dates (optional)</strong>: <strong>Start day (BS)</strong> and <strong>End day (BS)</strong>. Leave them empty for no limit.
+          </li>
+          <li>
+            <strong>Review &amp; save</strong> checks the rules. <strong>Save price list</strong> stores them. Books and stock do not change.
+          </li>
+          <li>
+            <strong>Use this list</strong> assigns the list to a party (<strong>Save list assignment</strong>). <strong>Apply reviewed prices</strong> applies a reviewed set of changes.
+          </li>
+        </ol>
+        <p>
+          Lists can be loaded from a reviewed CSV; see <a href="#imports">Import CSV</a>. A list with a disabled or expired assignment fails for review rather than
+          quietly using another price.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="basket-offers">
+        <h2>24. Basket offers</h2>
+        <p class="where">More → Sales tools → Basket offers (owner, manager and accountant set them up)</p>
+        <ol>
+          <li>
+            <strong>New basket offer</strong>, then enter the <strong>Offer name</strong>.
+          </li>
+          <li>
+            Choose the <strong>Offer type</strong>:
+            <ul>
+              <li><strong>Whole basket saving</strong>: a discount on the whole bill.</li>
+              <li><strong>Item bundle</strong>: a set of 2 to 20 different items sold at one price.</li>
+              <li><strong>Buy and get</strong>: buy one item, get a reward item at a percentage off (up to 100%).</li>
+              <li><strong>Selected items / categories</strong>: a discount only on the chosen items or categories.</li>
+            </ul>
+          </li>
+          <li>
+            Choose the <strong>Discount type</strong> (<strong>Amount (NPR)</strong> or <strong>Percent (%)</strong>) and the value. Add a
+            <strong>Maximum saving (NPR, optional)</strong> cap if needed. Set the <strong>Minimum spend (NPR)</strong> a bill must reach.
+          </li>
+          <li>
+            Under <strong>Validity and staff</strong> set <strong>Starts (BS, optional)</strong> and <strong>Ends (BS, optional)</strong>,
+            <strong>Starts at (Nepal time, optional)</strong> and <strong>Ends at (Nepal time, optional)</strong>, the days of the week (leave empty for every day),
+            <strong>Maximum applications (optional)</strong>, and whether <strong>Cashier may apply this offer</strong>.
+          </li>
+          <li>
+            <strong>Save basket offer</strong>. <strong>Refresh offer availability</strong> shows whether it is active right now.
+          </li>
+        </ol>
+        <h3>Choice groups and matching</h3>
+        <p>
+          For <strong>Item bundle</strong> and <strong>Buy and get</strong>, <strong>Add choice group</strong> sets which items qualify. Items in a choice group must share one
+          billed base unit. A group offers <strong>Any of</strong> its items. <strong>How choices count</strong> explains the matching on the screen.
+        </p>
+        <p class="note">
+          One offer applies to a bill, before tax. An offer that becomes unavailable must be removed or corrected at the counter. A saved bill keeps the offer terms it was
+          posted with, even if the offer changes later.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="workflows">
+        <h2>25. Quotes, orders and job progress</h2>
+        <p class="where">Side menu → Quotes / orders / jobs (for job businesses, Job cards)</p>
+        <p>
+          Choose <strong>New quote</strong>, <strong>New sales order</strong> or <strong>New purchase order</strong>. Pick the party, the <strong>Business date (BS)</strong>,
+          the items with agreed prices, and any <strong>Reference</strong>, <strong>Specifications / measurements</strong>,
+          <strong>Valid until (BS, optional)</strong> or <strong>Fulfilment date (BS, optional)</strong>.
+        </p>
+        <ol>
+          <li>Save the quote, review it, then mark it sent.</li>
+          <li>
+            Record the customer’s decision: accepted or <strong>Reject</strong> (with a reason). Acceptance records your decision; the app does not collect a digital signature.
+          </li>
+          <li>Create a sales order from an accepted quote, or create a sales or purchase order directly.</li>
+          <li>
+            Open the order to work on it. Its progress shows ordered, completed, remaining, billed and ready-to-bill quantities. Delivery and billing are described in the next section.
+          </li>
+        </ol>
+        <p>
+          <strong>Quote validity.</strong> A quote past its <strong>Valid until</strong> date shows <em>Quote expired</em>. Copy it, revise it and send again before accepting.
+          An accepted quote and its sales order keep the agreed discount when billed, even if the offer changes later.
+        </p>
+        <p>
+          <strong>Printing.</strong> <strong>Print</strong> offers the <strong>Print layout</strong>: a <strong>Delivery note</strong> or a <strong>Job card</strong>. Delivery notes
+          include <strong>Received by / date / signature</strong> lines for a paper record.
+        </p>
+        <p>
+          <strong>Service history</strong> (job businesses) lists the earlier jobs for the same vehicle or device.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="fulfilment">
+        <h2>26. Delivery, receipt and partial billing</h2>
+        <p class="where">Open an order → <strong>Delivery / receipt and billing</strong></p>
+        <p>
+          Partial work is recorded in two separate steps: first the delivery (or receipt), which moves stock; then the bill, which creates the dues and money. Billing
+          does not move stock a second time.
+        </p>
+        <h3>Deliver or receive first</h3>
+        <ol>
+          <li>
+            Choose <strong>Deliver goods / complete work</strong> or <strong>Receive goods / work</strong>. Enter only the quantities completed now, using the displayed
+            order units. Blank lines are skipped. <strong>Use available quantity</strong> fills the remaining amount.
+          </li>
+          <li>
+            Choose the <strong>Business date (BS)</strong>. On a first purchase receipt, check <strong>Tax is recoverable</strong> if it applies; later receipts and bills keep
+            the same treatment.
+          </li>
+          <li>
+            Choose <strong>Review quantities</strong>, check the amounts and confirm. Stock moves once now. Dues are created when the bill posts.
+            Completing a service does not move stock.
+          </li>
+        </ol>
+        <h3>Bill what was completed</h3>
+        <ol>
+          <li>
+            Choose <strong>Bill completed quantities</strong>. Select the listed delivery or receipt records. Enter the <strong>Paid now</strong> amount and the
+            <strong>Payment account</strong> when paying, or leave it at zero for a later payment.
+          </li>
+          <li>
+            Review quantities, total, tax, original-order allocation and payment. Confirm the bill and payment. Several partial bills keep the agreed prices and use up
+            exactly the remaining amounts.
+          </li>
+        </ol>
+        <p>
+          If a save cannot be confirmed, the fields stay locked. Reconnect and use <strong>Retry original action</strong>; do not create another entry. Changing a
+          quantity, date, payment or other term needs a fresh review.
+        </p>
+        <h3>Slips and cancellation</h3>
+        <ul>
+          <li><strong>Open quantity slip</strong> prints the actual quantities moved. It is separate from billing and payment.</li>
+          <li>
+            Owners, managers and accountants can cancel a mistaken delivery or receipt with a BS date and a reason. Cancel related bills or returns first when asked.
+            Cancelling a staged bill releases its billing capacity; the recorded delivery or receipt remains.
+          </li>
+        </ul>
+        <p class="note">
+          Billing before delivery, packages and backorder documents are still in progress; see <a href="#limits">Availability and limits</a>.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="corrections">
+        <h2>27. Returns and cancellations</h2>
+        <p class="where">Open a posted bill → <strong>Return goods</strong> or <strong>Cancel mistaken entry</strong></p>
+        <div class="screen">
+          <h3>Return goods</h3>
+          <ol>
+            <li>Open the original posted sale or purchase and choose <strong>Return goods</strong>.</li>
+            <li>
+              <strong>Items</strong>: choose the lines and the quantity to return. Use <strong>Previous items</strong> and <strong>Next items</strong> to page through
+              the lines; the entered quantities stay as you move. A quantity above what is left unreturned shows <em>Quantity exceeds available return.</em>
+            </li>
+            <li>
+              <strong>Reason</strong>: enter the reason and the business date (BS).
+            </li>
+            <li>
+              <strong>Review</strong> shows <strong>Original prices and tax</strong> and the <strong>Bill reduction</strong>. Returns always use the price and tax of the original
+              bill, never today’s price.
+            </li>
+            <li>
+              If cash changes hands, choose <strong>Refund customer now</strong> (sale) or <strong>Refund received from supplier now</strong> (purchase) and the account.
+              Only the refundable part moves money; the unpaid part simply reduces the bill.
+            </li>
+            <li>Confirm. Use <strong>Retry original action</strong> if the reply is lost.</li>
+          </ol>
+          <p>
+            Returns preserve original amounts, discounts, tax and stock cost. Returns cannot exceed the quantity left on the original bill.
+          </p>
+        </div>
+        <div class="screen">
+          <h3>Cancel a mistaken bill</h3>
+          <ol>
+            <li>Open the bill and choose <strong>Cancel mistaken entry</strong>.</li>
+            <li>Enter the <strong>Business date (BS)</strong> and a <strong>Reason</strong>, then <strong>Confirm cancellation</strong>.</li>
+            <li>If related payments or returns exist, cancel or reverse them first, starting with the most recent.</li>
+          </ol>
+        </div>
+        <p>
+          <strong>Drafts</strong> are corrected by editing or deleting them. <strong>Posted</strong> records are corrected through a return or a cancellation. Check the
+          replacement bill before posting, and never overwrite financial history.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="payments">
+        <h2>28. Money: receive, pay, transfers and refunds</h2>
+        <p class="where">Side menu → Money (More → Money tools)</p>
+        <p>
+          Money is organised in four groups, shown as buttons at the top: <strong>Receive / pay</strong>, <strong>Transfers / owner money</strong>, <strong>Refunds</strong> and
+          <strong>History</strong>. Choose a group, then the action.
+        </p>
+        <table>
+          <thead>
+            <tr><th>Group</th><th>Actions</th><th>Use it when</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Receive / pay</td><td>Receive money; Pay party</td><td>A customer pays you, or you pay a supplier or payee.</td></tr>
+            <tr><td>Transfers / owner money</td><td>Move money; Add my money; Personal withdrawal</td><td>Money moves between your accounts, or you put money in or take it out personally.</td></tr>
+            <tr><td>Refunds</td><td>Customer refund; Payee refund</td><td>Cash actually goes back to a customer or from a supplier, outside a bill return.</td></tr>
+            <tr><td>History</td><td>Earlier payments and permitted corrections</td><td>Check or correct an entry. An open correction keeps its context locked.</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Transfers are not sales. <strong>Your own money stays separate from sales and expenses</strong>, and <strong>moving between your accounts keeps the total business money the same</strong>.
+        </p>
+        <p class="note">
+          Record the action that actually happened. Payment against a bill is recorded here or from the bill, not as a new sale or expense.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="money-entry">
+        <h2>29. Entering a payment, transfer or refund</h2>
+        <p class="where">Money → choose a group → choose the action</p>
+        <p>Each money entry has three steps: <strong>Party</strong> (or <strong>Accounts</strong> for transfers and owner money) → <strong>Amount</strong> → <strong>Review</strong>.</p>
+        <ol>
+          <li>
+            <strong>Party</strong> or <strong>Accounts</strong>: choose the customer, supplier or payee. For a transfer choose the accounts; the labels read
+            <strong>Received into</strong> and <strong>Paid from</strong>.
+          </li>
+          <li>
+            <strong>Amount (NPR)</strong>: enter the rupee amount. Check the <strong>Business date (BS)</strong>.
+          </li>
+          <li>
+            <strong>Bills suggested</strong> lists the open bills for the party. Tick the bill(s) this money settles, or use <strong>Choose bills</strong>. The
+            <strong>Applied to selected bill</strong> and <strong>Unapplied amount</strong> lines update as you go.
+          </li>
+          <li>
+            <strong>Review</strong>, then save. An amount that is not applied to any bill stays unapplied only if you tick
+            <em>Explicitly keep unapplied amount as advance / starting-balance settlement</em>.
+          </li>
+        </ol>
+        <p>
+          <strong>Allow confirmed bank overdraft</strong> lets a payment take a bank account below zero. Only the owner or accountant can allow it,
+          and it is recorded in the audit history.
+        </p>
+        <p>
+          Money entries are also available from a bill: <strong>Receive money</strong> or <strong>Pay party</strong> on the bill detail fills in the party, bill and the due
+          amount for you.
+        </p>
+        <p class="note">
+          If the reply is lost after you save, the entry locks and offers <strong>Retry original action</strong>. Use it; do not repeat the payment.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="collections">
+        <h2>30. Collections: who owes you and whom you owe</h2>
+        <p class="where">Side menu → Collections / payments</p>
+        <ul>
+          <li>Choose <strong>Customers owe us</strong> to see what customers still owe, or <strong>We owe parties</strong> for what you still owe.</li>
+          <li><strong>Search party / phone</strong> finds one party. <strong>Aging</strong> groups the dues by how old they are.</li>
+          <li><strong>Due today or overdue</strong> shows what needs attention first.</li>
+          <li>Open a row to see its open bills. <strong>Open bill</strong> goes to the bill; <strong>View statement</strong> shows the full account history.</li>
+          <li>
+            <strong>Receive money</strong> or <strong>Pay party</strong> records a payment against the bill you choose. Check the bill’s remaining due afterwards.
+          </li>
+        </ul>
+        <p class="note">
+          <strong>No outstanding balance</strong> appears for a party that owes nothing. A payment never reduces a balance you have not chosen.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="followups">
+        <h2>31. Follow-ups</h2>
+        <p class="where">Side menu → Follow-ups (More → Money tools)</p>
+        <p>A follow-up is a reminder to contact a party, with a note of what happened.</p>
+        <ol>
+          <li>
+            <strong>Add follow-up</strong>: enter the <strong>Follow-up title</strong>, the <strong>Follow-up day (BS)</strong>, the <strong>Contact method</strong>
+            and <strong>Assigned to</strong>. Choose <strong>Money direction</strong> when it is about a balance.
+          </li>
+          <li>
+            After contacting the party, record <strong>What happened / next action</strong>, then set the <strong>Next follow-up day (BS)</strong> and choose
+            <strong>Save follow-up</strong>. <strong>Follow-up history</strong> keeps the earlier notes.
+          </li>
+          <li>Filter with <strong>Assigned to me</strong> or <strong>Due today or overdue</strong>. <strong>No follow-ups due</strong> means the list is clear.</li>
+        </ol>
+        <p class="note">
+          <strong>Recording a follow-up does not settle any balance.</strong> It sends no message and receives no money. Record a payment separately.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="regular">
+        <h2>32. Regular payments: salary, rent and monthly bills</h2>
+        <p class="where">Side menu → Regular payments (More → Money tools). Choose <strong>Employees</strong>, <strong>Rent</strong> or <strong>Other</strong>.</p>
+        <p>
+          A regular payment creates one payable each month. Paying it later reduces that payable; it never creates a second expense.
+        </p>
+        <ol>
+          <li>
+            Choose <strong>Add employee</strong>, <strong>Add rent</strong>, or add another regular bill. Choose the <strong>Payee</strong>: an existing party, or create one.
+            A party can have several roles; add the matching role under Parties if needed.
+          </li>
+          <li>
+            Enter the <strong>Amount</strong> (the monthly amount). Under <strong>Schedule</strong> set the <strong>First expense date (BS)</strong> and the day of each
+            following month, or <strong>Month end</strong>. A short month uses its last day, and the amount stays the full monthly amount.
+          </li>
+          <li>
+            Under <strong>Additional setup</strong> enter the <strong>Payment label</strong>, choose the <strong>Category</strong> (other bills need one), and tick
+            <strong>Automatically record monthly expense + payable</strong> only if you want the month recorded for you. <strong>Enabled</strong> switches it on or off.
+          </li>
+          <li>
+            Open the record and expand <strong>Monthly history</strong>. For the current month choose <strong>Pay remaining now</strong>, or leave it for later. A month
+            partly paid shows <strong>Part paid</strong> and its <strong>Still to pay</strong> amount. Choose <strong>Pay later</strong> to leave it.
+          </li>
+        </ol>
+        <p class="note">
+          Automatic recording creates an expense and a payable on the due date. It does not transfer money from your account; money leaves only when you pay. Recording
+          needs the server’s scheduled task. If a month does not appear, check the deployment with your administrator.
+        </p>
+        <p>
+          <strong>Pausing</strong> stops new months. Existing dues stay. <strong>Resuming</strong> records the missed months. An amount change applies to future months that are
+          not yet recorded; expenses already recorded keep their original amount.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="stock">
+        <h2>33. Stock: how it moves and goes negative</h2>
+        <p class="where">Items (stock details), Home → Low stock, Reorder stock, Count stock</p>
+        <ul>
+          <li>Purchases and returns from suppliers <strong>increase</strong> stock. Sales and returns to customers <strong>decrease</strong> it.</li>
+          <li>For orders, the delivery or receipt moves stock. The later bill does not move it again.</li>
+          <li>Services never consume stock.</li>
+          <li>
+            Stock is valued at the moving average cost. Returns use their original cost.
+          </li>
+        </ul>
+        <p>
+          <strong>Selling more than you have is allowed.</strong> The item then shows a negative quantity and appears under <strong>Negative stock</strong> on Home. Record the
+          purchase or count the stock to clear it. The shortfall is costed at the current average (or the last purchase price when stock was zero). When the purchase
+          arrives, any price difference for the units already sold moves to cost of goods sold automatically.
+        </p>
+        <p class="note">
+          Use <strong>Count stock</strong> for the physical quantity, with a reason and a reviewed cost. Stock counts are covered in the next section.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="stock-count">
+        <h2>34. Count stock</h2>
+        <p class="where">More → Stock tools → Count stock (owner and manager)</p>
+        <ol>
+          <li><strong>Item</strong>: choose the item to count.</li>
+          <li>
+            <strong>Count</strong>: enter the <strong>Physically counted quantity</strong>. <strong>Recorded stock</strong> shows the figure the books hold.
+          </li>
+          <li>
+            If the count is above the recorded stock, enter the <strong>Cost per extra unit (NPR)</strong>. Tick <strong>Zero-cost extra stock</strong> only when the extra
+            units really carry no cost, and confirm <strong>Zero cost confirmed</strong>.
+          </li>
+          <li>
+            <strong>Review</strong> shows the recorded quantity, the counted quantity, the cost, the BS date and the reason. Confirm to save. Choose <strong>Continue</strong> to
+            move on without saving.
+          </li>
+          <li><strong>Count history</strong> lists earlier counts. Returning to entry keeps values you have not yet saved.</li>
+        </ol>
+        <p class="note">
+          A count corrects stock. It is not a sale and collects no money. If the reply is lost, use <strong>Retry original action</strong> rather than counting again.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="reorders">
+        <h2>35. Reorder stock</h2>
+        <p class="where">More → Stock tools → Reorder stock</p>
+        <p>
+          Reorder stock turns low stock into reviewed purchase orders. Set <strong>Target stock quantity</strong> on each item first; items without it show as needing setup.
+        </p>
+        <ol>
+          <li>
+            Select the low-stock items to order. The suggested quantity works from the target stock. Open orders already count toward it, so they are not ordered twice.
+          </li>
+          <li>Choose the <strong>Supplier</strong> (<strong>Choose supplier</strong>), then check the <strong>Order quantity</strong> and <strong>Purchase price (NPR)</strong>.</li>
+          <li>Enter the <strong>Business date (BS)</strong> and the optional <strong>Fulfilment date (BS)</strong>.</li>
+          <li>
+            Choose <strong>Review &amp; save</strong>, check the summary and choose <strong>Save purchase order</strong>. The order appears under <strong>Purchase orders</strong>.
+          </li>
+        </ol>
+        <p class="note">
+          A purchase order does not move stock. Stock arrives when goods are received through <strong>Receive goods / work</strong>, and the bill follows from there.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="imports">
+        <h2>36. Import CSV</h2>
+        <p class="where">More → Stock tools → Import CSV</p>
+        <p>
+          Import brings in <strong>Parties</strong>, <strong>Items</strong>, <strong>Categories</strong> or <strong>Price lists</strong> from a spreadsheet exported as CSV. The
+          file must be UTF-8 and at most 1 MiB.
+        </p>
+        <ol>
+          <li>Choose the <strong>Import type</strong>, then <strong>Download template</strong> for the exact column layout.</li>
+          <li>Choose <strong>Choose CSV file</strong>, or paste the rows into <strong>CSV text</strong>.</li>
+          <li>
+            <strong>Preview column mapping</strong> matches each column to a field (<strong>Choose field</strong>). Use <strong>Ignore column</strong> for columns you do not
+            need. <strong>Reset column mapping</strong> starts again.
+          </li>
+          <li>
+            Check <strong>Columns &amp; errors</strong>. Fix the rows with errors, then preview again. <strong>See changed fields</strong> shows what each row will change.
+          </li>
+          <li>Choose <strong>Review &amp; apply</strong>, then <strong>Apply reviewed import</strong>.</li>
+        </ol>
+        <p>
+          <strong>Export existing records</strong> gives you a current copy to edit and import back. <strong>Import history</strong> lists earlier imports, and
+          <strong>Replace tiers for included lists</strong> (price lists) replaces the tiers for the lists in the file.
+        </p>
+        <p class="note">
+          An import never records a purchase, opening stock or a party assignment. Change those through their own screens.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="barcodes">
+        <h2>37. Product codes and scale labels</h2>
+        <p class="where">POS setup → Product codes / scale setup</p>
+        <ul>
+          <li>
+            <strong>Alternate product codes</strong>: choose the item, type one code per line in <strong>One alternate code per line</strong>, then
+            <strong>Save product codes</strong>. <strong>Suggest item code</strong> proposes a code for an item that has none.
+          </li>
+          <li>
+            <strong>Scale label formats</strong>: <strong>Add scale format</strong> sets the <strong>Format name</strong>, <strong>Prefix</strong>, <strong>Product digits</strong>,
+            <strong>Value digits</strong>, <strong>Decimal places</strong>, <strong>Encoded quantity unit</strong> and <strong>Barcode length</strong> (EAN-13 or UPC-A).
+          </li>
+          <li>
+            Check the format with an <strong>Example encoded value</strong>, then <strong>Save scale formats</strong>. A scanned scale label is decoded into an item and
+            quantity at the counter.
+          </li>
+        </ul>
+        <p class="note">
+          Changing codes changes no stock or money. Scanner entry works with configured codes. Direct connection to a scale or cash drawer is not supported; see
+          <a href="#limits">Availability and limits</a>.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="labels">
+        <h2>38. Product labels</h2>
+        <p class="where">POS setup → Product codes / scale setup → Product labels</p>
+        <ol>
+          <li>Choose the items. <strong>Add by category / supplier</strong> adds all matching items at once.</li>
+          <li>Set the <strong>Copies</strong> for each item.</li>
+          <li>
+            Under <strong>Paper &amp; layout</strong> choose <strong>Quick paper setup</strong> (for example <em>A4 · 60 × 35 mm</em>, or <strong>Roll</strong>) or
+            <strong>Custom / current settings</strong>. <strong>Gaps / barcode calibration</strong> helps line up sheet labels.
+          </li>
+          <li>Choose <strong>Preview labels</strong>, then <strong>Print labels</strong>. <strong>Review &amp; print</strong> checks the list first.</li>
+        </ol>
+        <p class="note">
+          Items with no barcode are listed as <em>No barcode</em> and are skipped until they have one. <strong>Remember paper settings</strong> keeps your layout on this browser only.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="reports">
+        <h2>40. Reports</h2>
+        <p class="where">Side menu → Reports</p>
+        <p>
+          Choose a report from <strong>Report</strong>. The sections are grouped under <strong>Report sections</strong>:
+        </p>
+        <table>
+          <thead>
+            <tr><th>Section</th><th>What it shows</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Overview</td><td><strong>Net sales</strong>, <strong>Cost of goods sold</strong>, <strong>Net profit</strong> and the key balances.</td></tr>
+            <tr><td>Profit &amp; loss</td><td>Sales, cost of goods sold, expenses and the resulting profit for the range.</td></tr>
+            <tr><td>Balance sheet</td><td>Assets, liabilities and equity, with <strong>Balance check</strong>.</td></tr>
+            <tr><td>Cash &amp; bank book</td><td>Money in and money out per account.</td></tr>
+            <tr><td>Party statement</td><td>One party’s account, with the <strong>Customer channel</strong> or <strong>Supplier channel</strong>.</td></tr>
+            <tr><td>Stock valuation and stock movements</td><td>Stock value and each movement.</td></tr>
+            <tr><td>Customer aging and payable aging</td><td>How old customer and supplier dues are.</td></tr>
+            <tr><td>Balance reconciliation and trial balance</td><td>Checks that the books agree.</td></tr>
+          </tbody>
+        </table>
+        <ul>
+          <li>
+            <strong>Filters</strong> sets the range with <strong>From</strong> and <strong>Date (BS)</strong>. Choose <strong>Show results</strong> to see the figures;
+            <strong>Filters</strong> returns to change the range.
+          </li>
+          <li><strong>Previous rows</strong> and <strong>Next rows</strong> reveal long reports. <strong>Report pages</strong> shows where you are.</li>
+          <li><strong>Print</strong> prints every row, including other pages. <strong>Download CSV</strong> exports the chosen report and filters.</li>
+        </ul>
+        <p class="note">
+          Reports only read the books. Opening or printing a report never changes a figure. <strong>No entries in this range.</strong> means nothing was recorded in those dates.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="records">
+        <h2>39. Find, print and export records</h2>
+        <p class="where">Sales, Purchases, Expenses and Money lists; a bill’s detail</p>
+        <ul>
+          <li>Filter by <strong>Status</strong> and search with <strong>Search</strong>.</li>
+          <li>Open a record to see its items, payments, returns, remaining due, source links and attachments.</li>
+          <li>
+            Print a bill from its detail with <strong>Print</strong>, then use your browser’s print or save-as-PDF option. Paper size and printer settings must match your
+            hardware.
+          </li>
+          <li>Export reports as CSV from <a href="#reports">Reports</a>.</li>
+        </ul>
+        <p>
+          Owners and accountants can review every business action in <a href="#audit">Audit history</a>, and owners and accountants can lock a closed period so it cannot be changed.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="audit">
+        <h2>41. Audit history and period locks</h2>
+        <p class="where">Settings → Audit history (owner and accountant); Settings → Lock period</p>
+        <ul>
+          <li>
+            <strong>Audit history</strong> is an append-only record of business actions. Browse it with the page controls. Entries cannot be edited or removed.
+          </li>
+          <li>
+            <strong>Lock period</strong>: <strong>Lock completed period</strong> with <strong>Close through (BS)</strong>, a <strong>Reason</strong> and your
+            <strong>Confirm your password</strong>. Dates up to and including that day can no longer change.
+          </li>
+          <li>
+            <strong>Owner money history</strong> lists owner contributions and withdrawals.
+          </li>
+        </ul>
+        <p class="note">
+          A locked period restricts changes. To correct something inside a locked period, ask the owner or accountant to review it and to choose the correct correction date.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="packages">
+        <h2>42. Accounts, packages and business types</h2>
+        <p class="where">Side menu → Packages (More → Account → Packages), or the business chooser</p>
+        <ol>
+          <li>
+            Open <strong>Accounts and packages</strong>. Review your package, its expiry, the products it includes and its business limit. Billing stays available when
+            business access expires.
+          </li>
+          <li>
+            When adding a business, choose its <strong>Billing account</strong> and one <strong>Business type</strong>. Restaurant shows waiter and kitchen tools; barber and salon
+            show appointments; gym adds the <strong>Gym desk</strong>; job types show <strong>Job cards</strong>; the other types show their configured counter.
+          </li>
+        </ol>
+        <p>
+          Each business keeps its own books and staff. A trial starts once per account and is not restarted when you add a business. Package changes apply to future
+          subscriptions. When access expires, owners and accountants can still read and export records, but new entries and new businesses need an active package.
+        </p>
+        <h3>Buy or renew</h3>
+        <ol>
+          <li>
+            Under <strong>Buy or renew package</strong> choose the <strong>Package</strong> and <strong>Payment currency</strong>, then the <strong>Payment provider</strong>.
+            Only providers configured by the platform appear.
+          </li>
+          <li>
+            Review the duration, products, exact price and business limit. Keep the businesses you want covered, then choose <strong>Create checkout</strong>.
+          </li>
+          <li>
+            Choose <strong>Continue with</strong> your provider and pay there. When you come back, choose <strong>Check payment status</strong>. Access changes only
+            after the provider confirms payment; a return page alone does not prove payment.
+          </li>
+          <li>
+            If you started a payment and did not pay, choose <strong>I did not pay — start over</strong>, then create a new checkout. A payment that is still open must be resolved
+            before another checkout.
+          </li>
+        </ol>
+        <p>
+          <strong>Early renewal.</strong> A package bought before the current term ends starts when that term ends, so no paid or trial days are lost. <strong>Recent
+          payments</strong> lists your payments. Package payments do not create sales, expenses or cash entries in your business books.
+        </p>
+        <p class="note">
+          Refunds and disputes are recorded by the platform. A refunded or disputed payment ends that package term; your business books are not changed. Live provider
+          settlement depends on the platform’s merchant credentials.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="account-messages">
+        <h2>43. Account emails and notifications</h2>
+        <p class="where">My account → Notifications, or More → Account → Notifications</p>
+        <p>
+          The app sends account emails: a welcome email at registration, verification and password-reset links that expire, a security notice after a password change, and
+          a receipt after a confirmed package payment. A provider return alone produces no receipt. If an email is missing, check the spelling of your address and your spam
+          folder, then contact platform support.
+        </p>
+        <h3>Choose what reaches you</h3>
+        <ul>
+          <li>
+            <strong>Delivery preferences</strong>: package reminders are sent 7, 3 and 1 days before a trial or package ends, and on the day it ends. Renewing stops later
+            reminders. Security emails and payment receipts always arrive.
+          </li>
+          <li>
+            <strong>Promotions</strong> are off until you choose them, on each channel separately (email, push and WhatsApp). Every promotion email links back here so you
+            can switch it off. WhatsApp needs a phone number on your account.
+          </li>
+        </ul>
+        <h3>Push on this browser</h3>
+        <ol>
+          <li>
+            Choose <strong>Enable push on this device</strong>, then allow notifications in your browser. If you denied permission, change it in the browser settings and try again.
+            Push needs a supported browser and the secure website.
+          </li>
+          <li>
+            Choose <strong>Disable push on this device</strong> to remove this browser’s registration.
+          </li>
+          <li>
+            Under <strong>Your devices</strong> choose <strong>Revoke device</strong> for any device you no longer use. Signing out on a shared computer removes that browser’s
+            registration first.
+          </li>
+        </ol>
+        <p>
+          Push alerts show a generic message; open Business Book for the details. Alerts can arrive while the app is open or in the background, and device and browser
+          settings affect delivery.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="agents">
+        <h2>44. AI agents (MCP)</h2>
+        <p class="where">Side menu → AI agents (More → Account → AI agents)</p>
+        <p>
+          An AI assistant that supports the Model Context Protocol (MCP), such as Claude, can look up your items and customers and record sales for one business. It acts with your
+          role in that business and follows the same rules as the app.
+        </p>
+        <ol>
+          <li>
+            Enter the agent’s <strong>Name</strong>, choose the <strong>Business</strong> and the <strong>Expires after</strong> period under <strong>Create agent access</strong>.
+          </li>
+          <li>
+            Tick <strong>Allow recording sales</strong> only if the assistant should save sales. Without it the assistant can only read.
+          </li>
+          <li>
+            Choose <strong>Create token</strong> and copy it straight away. It appears once, under <strong>Copy your token now</strong>. Treat it like a password.
+          </li>
+          <li>
+            Use the <strong>Claude Code</strong> setup line, or the JSON block under <strong>Other MCP clients (JSON config)</strong>.
+          </li>
+          <li>
+            Ask the assistant in plain words, for example “sell 2 haircuts to Ram, paid in cash”. It previews the bill and confirms the total before recording it. Retrying the same
+            request never saves the sale twice.
+          </li>
+        </ol>
+        <p>
+          The assistant can read the business overview, search items and customers, list cash and bank accounts, check low stock, list recent sales, preview a sale and record a
+          sale. It cannot change settings, prices, staff or past bills, and it never sees other businesses.
+        </p>
+        <p>
+          Revoke a token at any time under <strong>Your agent tokens</strong>. A token also stops working when it expires, when you leave the business, or when the business package
+          expires (reading stays available to owners and accountants).
+        </p>
+        <p class="note">
+          Every agent sale is marked “Recorded by AI agent” in its notes. A cashier’s token can record sales but cannot see reports.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="platform">
+        <h2>45. Platform administration: business access</h2>
+        <p class="where">Platform panel at /platform (separate administrator sign-in)</p>
+        <p>
+          Platform administrators sign in separately. Business passwords never open the platform panel, and it never shows a business’s books.
+        </p>
+        <ol>
+          <li>Search businesses and select the one to change.</li>
+          <li>Set the <strong>Access status</strong> and the <strong>Access until (local time)</strong>.</li>
+          <li>Enter a <strong>Reason</strong>, your <strong>Confirm admin password</strong>, then choose <strong>Update access</strong>.</li>
+        </ol>
+        <p>
+          <strong>Manage packages</strong> (on the same screen) sets the <strong>Package name</strong>, <strong>Duration days</strong>, <strong>Trial days</strong>,
+          <strong>Business limit</strong>, enabled products and exact prices. Enter a <strong>Change reason</strong> and your <strong>Confirm admin password</strong>. Changes apply to
+          future subscriptions.
+        </p>
+        <p class="note">
+          Every change needs your password and a reason, and is written to the audit log. Finish open restaurant orders and appointments before changing a business’s type.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="platform-billing">
+        <h2>46. Platform administration: accounts, payments and messages</h2>
+        <p class="where">Platform panel → Accounts, payments and messages</p>
+        <ul>
+          <li><strong>Accounts</strong>: <strong>Search accounts</strong> finds an owner account; you can suspend or restore it.</li>
+          <li><strong>Payments</strong>: filter by <strong>Payment status</strong> and <strong>Outcome</strong>. Record a refund or a dispute for a confirmed payment.</li>
+          <li>
+            <strong>Campaigns</strong>: choose <strong>New campaign</strong>, enter a <strong>Name</strong> and <strong>Message</strong>, and choose the <strong>Audience</strong>:
+            <strong>All account owners</strong>, <strong>Owners on trial</strong>, <strong>Owners with paid packages</strong> or <strong>Owners with expired packages</strong>. Save
+            the <strong>draft</strong>, then send now, or set <strong>Send later (local time, leave empty to send now)</strong>. A scheduled campaign can be cancelled until it is sent.
+          </li>
+          <li>
+            <strong>Deliveries</strong>: outcomes by event and channel, with the <strong>Delivery status</strong> and the reason for any skipped or failed message. The message text
+            itself is not shown.
+          </li>
+        </ul>
+        <p class="note">
+          Each action needs your admin password and a reason. Campaigns reach only owners who opted in on the channel used.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="roles">
+        <h2>47. Who can do what</h2>
+        <p>
+          The screens hide what your role cannot use, and the server checks every action again. If an action is missing, your role probably does not include it.
+        </p>
+        <table>
+          <thead>
+            <tr><th>Role</th><th>Can do</th><th>Cannot do</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Owner</strong></td>
+              <td>Everything in the business: settings, staff, cash and bank accounts, expense categories, starting balances, lock period, audit history, branches, offers and counts.</td>
+              <td>Platform administration, which uses a separate administrator sign-in.</td>
+            </tr>
+            <tr>
+              <td><strong>Manager</strong></td>
+              <td>Daily books: sales, purchases, expenses, money, collections, follow-ups, regular payments, reports, stock counts, reorders, offers, gym plans and classes.</td>
+              <td>Staff, starting balances, business settings, cash and bank accounts, and the period lock.</td>
+            </tr>
+            <tr>
+              <td><strong>Accountant</strong></td>
+              <td>Read and book records; period lock; audit history; allow a confirmed bank overdraft; manage price lists and basket offers; read and export records after the package expires.</td>
+              <td>Staff management and business settings.</td>
+            </tr>
+            <tr>
+              <td><strong>Cashier</strong></td>
+              <td>The counter: Quick POS and Full POS, new sales, appointments and table orders, and the sale lists and records they are allowed to see.</td>
+              <td>Balances on Home, purchases, expenses, money, collections, reports, settings, stock counts and regular payments. Sees sale-price suggestions only, not credit limits or purchase prices.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="note">
+          Each person should have an individual account. Remove access as soon as someone leaves the business.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="dates-money">
+        <h2>48. Dates, money and quantities</h2>
+        <ul>
+          <li>
+            <strong>BS dates</strong> are entered as Bikram Sambat dates, for example 2083-06-15, and stored as whole numbers. The date picker is in BS; the app does not
+            convert AD dates for you.
+          </li>
+          <li>
+            <strong>Nepal time</strong> applies to appointment times and basket offer clock times. Offers apply on the selected days and within the selected hours; an offer
+            outside its window does not apply.
+          </li>
+          <li>
+            <strong>Money</strong> is in NPR, with paisa. Totals are calculated by the server and must match the total you reviewed. If they differ, the screen asks you to
+            check the total again before saving.
+          </li>
+          <li>
+            <strong>Quantities</strong> have three decimal places. A converted quantity rounds once, to 0.001 of the billed base unit. Amounts entered in money are converted to
+            quantities at the same precision, so a few amounts cannot match exactly.
+          </li>
+        </ul>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="recovery">
+        <h2>49. Connection problems and retries</h2>
+        <p class="note">
+          If a save loses its reply, keep the current screen and use <strong>Retry original action</strong>. The app repeats the same entry so it can recover a record that
+          was already saved. Never create a second bill, payment or count while an outcome is unknown.
+        </p>
+        <ol>
+          <li>Read the connection or status message.</li>
+          <li>Reconnect, then use <strong>Retry original action</strong>.</li>
+          <li>Wait for the saved record or a clear error. Check the current records before starting a replacement.</li>
+          <li>
+            If the total or a source changed before posting, check the total again. If a draft’s offer changed, edit and review the draft before posting.
+          </li>
+        </ol>
+        <p>
+          While an outcome is uncertain, the entry controls stay locked. On restaurant and appointment screens, another device may already show the work as complete; the retry
+          still recovers the original result.
+        </p>
+        <p>
+          The installed app does not accept financial entries offline. Stay connected while entering money or stock. An unsaved entry may be lost if you close the screen, so resolve
+          an uncertain save before you leave.
+        </p>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="troubleshooting">
+        <h2>50. Troubleshooting</h2>
+        <dl>
+          <dt>A screen says “Offline” and I cannot save.</dt>
+          <dd>Financial entries need a connection. Reconnect; your entered values stay on the screen. Then save.</dd>
+          <dt>I cannot see Balances or Reports on Home.</dt>
+          <dd>Your role does not include them. Ask the owner or accountant.</dd>
+          <dt>An item shows a negative quantity.</dt>
+          <dd>It was sold before it was bought or counted. Record the purchase or count stock. See <a href="#stock">Stock</a>.</dd>
+          <dt>A customer sale is refused.</dt>
+          <dd>The sale would take the customer above their credit limit, or it is unpaid with no named customer. Check <a href="#party-terms">payment terms</a>.</dd>
+          <dt>An offer does not apply at checkout.</dt>
+          <dd>It may be outside its dates, days or Nepal-time window, below its minimum spend, or not allowed for your role. Choose <strong>Refresh offer availability</strong> on the offer.</dd>
+          <dt>A payment is shown as unpaid, though I paid.</dt>
+          <dd>Check that the money was applied to the right bill in <a href="#money-entry">Money entry</a>. A payment on the wrong party or bill does not reduce the due.</dd>
+          <dt>A regular payment month is missing.</dt>
+          <dd>Automatic recording needs the server schedule. Check the record’s <strong>Monthly history</strong>, and ask your administrator to confirm the schedule is running.</dd>
+          <dt>A period cannot be changed.</dt>
+          <dd>It is locked. Ask the owner or accountant to review the correct correction date.</dd>
+          <dt>A label prints in English but I want Nepali.</dt>
+          <dd>Choose <strong>नेपाली</strong> at the top right. A few Nepali labels are still being completed; English always works.</dd>
+          <dt>I cannot find a screen.</dt>
+          <dd>Use the business type and role. Gym desk, Job cards and POS screens appear only for the matching business type. Open the More menu to see every tool.</dd>
+        </dl>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="glossary">
+        <h2>51. Glossary</h2>
+        <dl>
+          <dt>BS (Bikram Sambat)</dt><dd>The Nepali calendar used for every business date in the app.</dd>
+          <dt>Base unit</dt><dd>The unit an item is counted, stocked and billed in, for example kg or piece.</dd>
+          <dt>Bill (sale, purchase, expense)</dt><dd>A record of goods or services. A draft changes nothing; a posted bill changes money, stock and dues.</dd>
+          <dt>Due</dt><dd>The part of a bill not yet paid.</dd>
+          <dt>Advance</dt><dd>Money received or paid that is not yet applied to a bill.</dd>
+          <dt>Negative stock</dt><dd>Stock below zero, after a sale that exceeded the quantity held.</dd>
+          <dt>Party</dt><dd>A customer, supplier, employee or rent payee. One party can have several roles.</dd>
+          <dt>Payable</dt><dd>An amount you owe, such as a supplier bill or a monthly regular payment.</dd>
+          <dt>Retry original action</dt><dd>Repeats an entry whose reply was lost, so the saved record is recovered instead of duplicated.</dd>
+          <dt>Quote, sales order, purchase order</dt><dd>Documents that agree a price and quantity. They move stock or money only when delivered or billed.</dd>
+          <dt>Slip</dt><dd>A printed record of the quantities moved in a delivery or receipt.</dd>
+          <dt>Basket offer</dt><dd>A named discount chosen at the counter for a whole bill, a bundle, a buy-and-get, or selected items.</dd>
+          <dt>Price list</dt><dd>A shared set of prices for customers or suppliers, with optional quantity pricing.</dd>
+          <dt>Period lock</dt><dd>A cut-off date after which records cannot change.</dd>
+          <dt>NPR</dt><dd>Nepalese rupee. Amounts are shown with paisa, for example NPR 150.50.</dd>
+        </dl>
+        <p class="back"><a href="#contents">Back to contents</a></p>
+      </section>
+
+      <section id="limits">
+        <h2>52. Availability and limits</h2>
+        <p>
+          <span class="tag">Available now</span> The web app (installable on a phone), separate business books, the POS screens for each business type, configured measurements,
+          waiter and kitchen screens, appointments, quotes, orders and jobs, delivery and partial billing, reviewed offers on bills, drafts, quotes and checkout, party
+          prices, price lists, regular payments and daily bookkeeping.
+        </p>
+        <p>
+          <span class="tag">In progress</span> Billing before delivery or receipt, packages, dispatch and backorders. Other niche features are tracked in the project feature list;
+          their controls appear as each batch is verified.
+        </p>
+        <p>
+          <span class="tag">Separate release work</span> Android and iOS builds, offline financial entry, automated SMS or WhatsApp sending, public customer self-ordering, digital
+          approval signatures, loyalty wallets, direct scale and cash-drawer connection, and advanced production or dispatch features.
+        </p>
+        <p class="note">
+          Printed bills are bookkeeping records. Nepal regulatory invoice issuance is a separate release check. Turn tax settings on only after you have checked your
+          business’s actual requirements.
+        </p>
+        <p>
+          The owner must verify the deployment, backups and restore procedure. Keep staff accounts individual and review access when someone leaves.
+        </p>
         <p class="back"><a href="#contents">Back to contents</a></p>
       </section>
     </main>
     <footer>
       <p>Business Book · NPR · BS dates · Nepal time</p>
       <p class="muted">
-        Use your browser's Find to search this guide. Reopen from More → User manual.
+        Use your browser’s Find to search this guide. Reopen it from the Help button at the top of any screen.
       </p>
     </footer>
   </body>

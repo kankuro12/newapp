@@ -57,7 +57,7 @@ h1 {
   font-size: 32px;
   font-weight: 650;
   letter-spacing: -0.9px;
-  margin-bottom: 9px;
+  margin-bottom: 0;
 }
 h2 {
   font-size: 18px;
@@ -136,11 +136,11 @@ ion-spinner {
   background: #fff;
   border: 1px solid #e5e9e2;
   border-radius: 14px;
-  padding: 24px;
+  padding: 18px;
   box-shadow: 0 2px 5px #1e382504;
 }
 .section {
-  margin-top: 26px;
+  margin-top: 16px;
 }
 .app-frame {
   min-height: 100%;
@@ -150,7 +150,7 @@ ion-spinner {
   background: #fff;
   width: 244px;
   min-width: 244px;
-  padding: 28px 20px 22px;
+  padding: 8px 14px 14px;
   border-right: 1px solid #e4e9e1;
   position: fixed;
   inset: 0 auto 0 0;
@@ -159,8 +159,9 @@ ion-spinner {
   z-index: 5;
 }
 .sidebar > .brand {
+  min-height: 48px;
   padding: 0 9px;
-  margin-bottom: 35px;
+  margin-bottom: 12px;
 }
 .business-select {
   display: flex;
@@ -169,8 +170,8 @@ ion-spinner {
   background: #f7f8f5;
   border: 1px solid #e4e8df;
   border-radius: 10px;
-  padding: 10px 9px;
-  margin-bottom: 28px;
+  padding: 8px 9px;
+  margin-bottom: 12px;
 }
 .business-symbol {
   width: 34px;
@@ -191,20 +192,12 @@ ion-spinner {
   width: 155px;
   min-height: 32px;
 }
-.sidebar-label {
-  color: #58675a;
-  font-size: 10px;
-  letter-spacing: 1.4px;
-  padding: 0 14px;
-  margin-bottom: 10px;
-  font-weight: 600;
-}
 .sidebar nav {
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 .nav-link {
-  min-height: 45px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -227,21 +220,8 @@ ion-spinner {
 }
 .sidebar-bottom {
   margin-top: auto;
-  padding-top: 25px;
-}
-.small-promo {
-  padding: 20px 13px;
+  padding-top: 8px;
   border-top: 1px solid #e8ece6;
-}
-.small-promo .eyebrow {
-  font-size: 8px;
-  letter-spacing: 1px;
-}
-.small-promo p {
-  font-size: 12px;
-  line-height: 1.8;
-  color: #58675a;
-  margin-bottom: 4px;
 }
 .main-wrap {
   margin-left: 244px;
@@ -256,8 +236,8 @@ ion-spinner {
   align-items: center;
   background: #fff;
   border-bottom: 1px solid #e5e9e2;
-  min-height: 78px;
-  padding: 16px 38px;
+  min-height: 56px;
+  padding: 6px 24px;
 }
 .topbar-business {
   display: flex;
@@ -278,22 +258,6 @@ ion-spinner {
   display: flex;
   align-items: center;
   gap: 18px;
-}
-.connection {
-  font-size: 11px;
-  color: #58675a;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.connection i {
-  width: 6px;
-  height: 6px;
-  background: #79a878;
-  border-radius: 50%;
-}
-.connection.offline i {
-  background: #c07c39;
 }
 .locale-button {
   background: transparent;
@@ -317,7 +281,7 @@ ion-spinner {
   display: none;
 }
 .page-wrap {
-  padding: 34px 38px 24px;
+  padding: 20px 24px;
   width: 100%;
   max-width: 1500px;
   margin: 0 auto;
@@ -327,32 +291,23 @@ ion-spinner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 28px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 .page-heading p {
   font-size: 13px;
-  margin-bottom: 0;
+  margin: 2px 0 0;
 }
 .heading-actions {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-.app-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 20px 38px;
-  font-size: 10px;
-  color: #58675a;
-  border-top: 1px solid #e8ebe4;
-}
 .bottom-nav {
   display: none;
 }
 .offline-banner {
-  padding: 12px 38px;
+  padding: 8px 24px;
   background: #fff3d8;
   color: #58675a;
   font-size: 13px;
@@ -360,8 +315,8 @@ ion-spinner {
 .metrics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  margin-bottom: 27px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 .metric {
   padding: 20px;
@@ -1334,7 +1289,7 @@ table {
 th,
 td {
   text-align: left;
-  padding: 17px 14px;
+  padding: 10px 12px;
   border-bottom: 1px solid #edf4e3;
   font-size: 12px;
   color: #58675a;
@@ -1501,18 +1456,6 @@ th {
 .auth-footer ion-icon {
   font-size: 12px;
 }
-.privacy-note {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  font-size: 10px;
-  color: #58675a;
-  margin: 25px 0;
-}
-.privacy-note ion-icon {
-  font-size: 12px;
-}
 .auth-form > .subtle {
   font-size: 10px;
   text-align: center;
@@ -1529,7 +1472,8 @@ th {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 0 38px;
+  gap: 8px;
+  padding: 0 0 20px;
 }
 .business-grid {
   display: grid;
@@ -1598,7 +1542,7 @@ th {
 /* Text remains readable on small screens; touch targets stay at least 44px. */
 @media (max-width: 1200px) {
   .page-wrap {
-    padding: 28px;
+    padding: 20px;
   }
   .metric > strong {
     font-size: 21px;
@@ -1699,11 +1643,11 @@ th {
     width: 100%;
   }
   .page-wrap {
-    padding: 25px 18px 32px;
+    padding: 14px 14px 20px;
   }
   .topbar {
-    min-height: 72px;
-    padding: 14px 18px;
+    min-height: 56px;
+    padding: 6px 14px;
   }
   .topbar-business {
     gap: 9px;
@@ -1723,10 +1667,15 @@ th {
     border-radius: 8px;
   }
   .topbar-actions {
-    gap: 10px;
+    gap: 6px;
   }
-  .connection {
+  /* Phone topbar: Help is icon-only and the business-type badge is dropped so the avatar fits at 320px. */
+  .topbar .help-link span,
+  .topbar .business-type {
     display: none;
+  }
+  .topbar .help-link ion-icon {
+    font-size: 22px;
   }
   .locale-button {
     font-size: 11px;
@@ -1768,10 +1717,6 @@ th {
   }
   .main-wrap {
     padding-bottom: calc(69px + env(safe-area-inset-bottom));
-  }
-  .app-footer {
-    padding: 18px;
-    font-size: 9px;
   }
   h1 {
     font-size: 27px;
@@ -2112,13 +2057,24 @@ th {
   }
   .businesses-wrap,
   .platform-wrap {
-    padding: 25px 18px;
+    padding: 14px;
   }
+  /* Phone: brand on its own line, then account links in one wrapping row. */
   .businesses-header {
-    padding-bottom: 30px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0 16px;
+    padding-bottom: 12px;
   }
   .businesses-header .brand {
-    font-size: 20px;
+    flex-basis: 100%;
+    font-size: 18px;
+  }
+  .businesses-header .help-link span {
+    display: none;
+  }
+  .businesses-header .help-link ion-icon {
+    font-size: 22px;
   }
   .business-grid {
     grid-template-columns: 1fr;
@@ -2143,8 +2099,8 @@ th {
   .sidebar,
   .topbar,
   .bottom-nav,
-  .app-footer,
   .no-print,
+  .panel-help,
   .form-submit,
   .detail-actions,
   .offline-banner {
@@ -2231,9 +2187,6 @@ th {
     margin: 12px 0;
     padding-top: 0;
   }
-  .auth-form .privacy-note {
-    margin: 12px 0;
-  }
   .signup-password-row {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2259,7 +2212,7 @@ th {
 }
 .role-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   gap: 10px;
 }
 .role-grid .check {
@@ -2500,13 +2453,6 @@ th {
   .entry-step-actions {
     display: none !important;
   }
-}
-.pos-branch {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 0 0 20px;
-  font-size: 14px;
 }
 .pos-counter {
   display: grid;
@@ -2776,9 +2722,6 @@ th {
   }
   .kitchen-board {
     grid-template-columns: 1fr;
-  }
-  .pos-branch {
-    flex-wrap: wrap;
   }
   .pos-live small {
     display: block;
@@ -3260,9 +3203,6 @@ th {
     margin: 12px 0;
     padding-top: 0;
   }
-  .auth-form .privacy-note {
-    margin: 12px 0;
-  }
 }
 @media screen and (max-width: 767px) and (max-height: 700px) {
   .auth-story {
@@ -3274,19 +3214,13 @@ th {
   .auth-form .field {
     margin-bottom: 8px;
   }
-  .auth-form .auth-footer,
-  .auth-form .privacy-note {
+  .auth-form .auth-footer {
     margin: 8px 0;
   }
 }
 
 .more-tools .page-heading > div:first-child {
   min-width: 0;
-}
-.more-manual {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
 }
 .more-sections {
   display: grid;
@@ -3307,10 +3241,6 @@ th {
   background: #20574c;
   border-color: #20574c;
   color: #fff;
-}
-.more-section-title {
-  font-size: 15px;
-  margin: 0 0 12px;
 }
 .more-tools .more-card {
   min-height: 76px;
@@ -3656,10 +3586,6 @@ th {
     padding-top: 18px;
     padding-bottom: 18px;
   }
-  .page-wrap:has(> .master-tools) + .app-footer,
-  .page-wrap:has(> .report-tools) + .app-footer {
-    display: none;
-  }
   .master-tools .entry-lock {
     display: block;
   }
@@ -3696,15 +3622,6 @@ th {
     gap: 0 12px;
   }
   .master-tools .form-grid > .field:last-child {
-    grid-column: 1 / -1;
-  }
-  .business-tools .businesses-header {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
-    padding-bottom: 16px;
-  }
-  .business-tools .businesses-header .brand {
     grid-column: 1 / -1;
   }
   .business-tools .businesses-header > a {
@@ -3791,9 +3708,6 @@ th {
     padding-top: 18px;
     padding-bottom: 18px;
   }
-  .page-wrap:has(> .daily-entry) + .app-footer {
-    display: none;
-  }
   .daily-entry .form-main {
     display: block;
   }
@@ -3834,9 +3748,6 @@ th {
   .page-wrap:has(> .regular-tools) {
     padding-top: 18px;
     padding-bottom: 18px;
-  }
-  .page-wrap:has(.regular-setup) + .app-footer {
-    display: none;
   }
   .regular-setup .form-main {
     display: block;
@@ -3932,6 +3843,70 @@ th {
   gap: 4px;
   font-size: 0.875rem;
   text-decoration: none;
+}
+
+/* In-panel "How to use this screen" card; collapsed by default. */
+.panel-help {
+  margin: 0 0 8px;
+  color: #17352c;
+  font-size: 14px;
+}
+
+.panel-help[open] {
+  background: #f3f8f4;
+  border: 1px solid #d9e8df;
+  border-radius: 12px;
+}
+
+.panel-help summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 0;
+  color: #16614a;
+  font-size: 12px;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.panel-help summary::-webkit-details-marker {
+  display: none;
+}
+
+.panel-help[open] summary {
+  padding: 10px 14px;
+}
+
+.panel-help-body {
+  padding: 0 18px 16px;
+  line-height: 1.5;
+}
+
+.panel-help-body p {
+  margin: 0 0 10px;
+}
+
+.panel-help-body ol,
+.panel-help-body ul {
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+
+.panel-help-body li {
+  margin: 4px 0;
+}
+
+.panel-help-tips {
+  color: #4b5f57;
+}
+
+.panel-help-link {
+  display: inline-block;
+  margin-top: 4px;
+  font-weight: 600;
+  color: #16614a;
 }
 
 .agent-token {

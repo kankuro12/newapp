@@ -1,15 +1,11 @@
 import { tenantSignOut } from '../lib/push';
 import { IonButton, IonIcon, IonPage, IonContent } from '@ionic/react';
-import {
-  arrowForwardOutline,
-  checkmarkOutline,
-  leafOutline,
-  lockClosedOutline,
-} from 'ionicons/icons';
+import { arrowForwardOutline, checkmarkOutline, leafOutline } from 'ionicons/icons';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { send, resetSession } from '../lib/api';
 import { Errors, Field, Select, Submit } from '../components/ui';
+import { PanelHelp } from '../components/PanelHelp';
 import type { User } from '../lib/types';
 import callingCodes from '../../../backend/resources/country-calling-codes.json';
 
@@ -96,7 +92,6 @@ export default function Auth({ reload, admin = false }: { reload: () => void; ad
               </span>
             </Link>
             <div>
-              <span className="eyebrow">LESS PAPER. MORE PEACE OF MIND.</span>
               <h1>
                 Small business.
                 <br />
@@ -125,17 +120,9 @@ export default function Auth({ reload, admin = false }: { reload: () => void; ad
           </section>
           <section className="auth-form-wrap">
             <div className="auth-form">
-              <span className="eyebrow">
-                {admin ? 'SUPER ADMIN' : register ? 'LET’S GET STARTED' : 'WELCOME BACK'}
-              </span>
               <h2>{title}</h2>
-              <p>
-                {admin
-                  ? 'Separate platform account. Business finances remain private.'
-                  : register
-                    ? 'Start your 14-day trial.'
-                    : 'Sign in to your Business Book.'}
-              </p>
+              {register && <p>Start your 14-day trial.</p>}
+              <PanelHelp guide="auth" />
               <form onSubmit={submit}>
                 <Errors error={error} />
                 {message && (
@@ -239,10 +226,6 @@ export default function Auth({ reload, admin = false }: { reload: () => void; ad
                   </Link>
                 </p>
               )}
-              <div className="privacy-note">
-                <IonIcon icon={lockClosedOutline} />
-                Secure sign in. Your records stay yours.
-              </div>
               {admin ? (
                 <Link to="/signin">Business sign in</Link>
               ) : (
@@ -338,6 +321,7 @@ export function AccountPage({ user, reload }: { user: User; reload: () => void }
           <Link to="/businesses">Back to businesses</Link>
           <h1>My account</h1>
           <Link to="/notifications">Notifications</Link>
+          <PanelHelp guide="auth" />
           <Errors error={error} />
           {message && <p role="status">{message}</p>}
           <form

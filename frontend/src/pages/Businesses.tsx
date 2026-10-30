@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useData, resetSession, send, useSave } from '../lib/api';
 import type { Business, User } from '../lib/types';
 import { Errors, Field, Heading, Loading, Select, Status, Submit } from '../components/ui';
+import { PanelHelp } from '../components/PanelHelp';
 import { translator } from '../lib/i18n';
 import { HelpLink } from '../components/Help';
 import { businessTypes } from '../lib/businessTypes';
@@ -68,10 +69,7 @@ export default function Businesses({ user, logout }: { user: User; logout: () =>
             <Link to="/agents">{t('AI agents')}</Link>
             <HelpLink section="start" />
           </header>
-          <Heading
-            title={t(creating ? 'Start your business book' : 'Choose your business')}
-            description={creating ? undefined : t('A separate book for every business.')}
-          >
+          <Heading title={t(creating ? 'Start your business book' : 'Choose your business')}>
             {!creating && (
               <IonButton onClick={() => setCreate(true)}>
                 <IonIcon slot="start" icon={addOutline} />
@@ -79,6 +77,7 @@ export default function Businesses({ user, logout }: { user: User; logout: () =>
               </IonButton>
             )}
           </Heading>
+          <PanelHelp guide="businesses" label={t('How to use this screen')} />
           {loading ? (
             <Loading />
           ) : error ? (

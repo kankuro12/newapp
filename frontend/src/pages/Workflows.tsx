@@ -82,7 +82,6 @@ export function WorkflowList() {
                   : 'Quotes / orders / jobs',
               )
         }
-        description={t('Track work before billing. No stock or money movement until bill posts.')}
       >
         <Link to={path + '/workflows/new/quote'}>{t('New quote')}</Link>
         <Link to={path + '/workflows/new/sales_order'}>{t('New sales order')}</Link>

@@ -69,10 +69,7 @@ export default function RegularPayments() {
     kind === 'salary' ? 'Add employee' : kind === 'rent' ? 'Add rent' : 'Add regular bill';
   return (
     <div className="regular-tools">
-      <Heading
-        title={t(adding ? addLabel : 'Regular payments')}
-        description={adding ? undefined : t('Salary, rent and regular bills.')}
-      >
+      <Heading title={t(adding ? addLabel : 'Regular payments')}>
         <IonButton onClick={() => setAdding(!adding)}>{t(adding ? 'Back' : addLabel)}</IonButton>
       </Heading>
       {adding ? (
@@ -309,23 +306,6 @@ function Setup({ kind, row, done }: { kind: Kind; row?: Regular; done: (row: Reg
               <Check checked={enabled} onChange={setEnabled}>
                 {t('Enabled')}
               </Check>
-              <p className="subtle">
-                {t(
-                  'Monthly BS dates. Short months use last day; amount remains full monthly amount.',
-                )}
-              </p>
-              <p className="subtle">
-                {t(
-                  'Automatic action records unpaid expense on due date. Money leaves cash/bank only when you pay. Pausing keeps existing dues; resuming catches up missed months.',
-                )}
-              </p>
-              {row && (
-                <p className="subtle">
-                  {t(
-                    'Amount changes affect future unrecorded months. Recorded expenses keep original amount.',
-                  )}
-                </p>
-              )}
             </OptionalDetails>
           </section>
           <section className="panel" data-entry-step={scheduleStep}>
@@ -561,10 +541,6 @@ function RecordMonth({ row }: { row: Regular }) {
           )}
         </>
       )}
-      <p className="subtle">
-        One expense per setup per month. Paying existing month updates its dues; it adds no second
-        expense.
-      </p>
       <Submit
         busy={form.busy}
         disabled={

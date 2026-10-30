@@ -185,10 +185,7 @@ export function BasketOffers() {
   const manage = ['owner', 'manager', 'accountant'].includes(business.role);
   return (
     <>
-      <Heading
-        title={t('Basket offers')}
-        description={t('Choose one offer; quantities use billed base units.')}
-      >
+      <Heading title={t('Basket offers')}>
         {manage && (
           <Link className="button-link" to={path + '/basket-offers/new'}>
             {t('New basket offer')}
@@ -303,9 +300,6 @@ export function BasketOfferSelect({
           {t('Reload offers')}
         </IonButton>
       )}
-      <small>
-        {t('One offer per sale. Quantity prices apply first; offer saving is before tax.')}
-      </small>
     </>
   );
 }
@@ -663,10 +657,7 @@ export function BasketOfferEditor() {
   }
   return (
     <>
-      <Heading
-        title={t(id ? 'Edit basket offer' : 'New basket offer')}
-        description={t('Choose one offer; quantities use billed base units.')}
-      >
+      <Heading title={t(id ? 'Edit basket offer' : 'New basket offer')}>
         <Link to={path + '/basket-offers'}>{t('Back')}</Link>
       </Heading>
       <form

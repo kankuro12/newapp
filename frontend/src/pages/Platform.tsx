@@ -71,11 +71,7 @@ export default function Platform() {
           </header>
           <PlatformPackages />
           <PlatformBilling />
-          <Heading
-            eyebrow="PLATFORM ADMINISTRATION"
-            title="Business access"
-            description="Manage access dates and status. Financial records require tenant membership."
-          />
+          <Heading title="Business access" />
           <Field
             label="Search businesses"
             value={query}

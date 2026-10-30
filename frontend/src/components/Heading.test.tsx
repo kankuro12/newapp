@@ -76,14 +76,11 @@ it('preserves blocked Back handler after moving link', () => {
   expect(screen.getByLabelText('Current route')).toHaveTextContent('/stock/count');
 });
 
-it('keeps desktop Back in page actions', () => {
+it('hides workspace Back on desktop, where the sidebar navigates', () => {
   mobile(false);
   const view = render(page());
-  expect(
-    within(view.container.querySelector('.heading-actions') as HTMLElement).getByRole('link', {
-      name: 'Back',
-    }),
-  ).toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'Back' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Count history' })).toBeInTheDocument();
   expect(view.container.querySelector('.mobile-back-slot')).toBeEmptyDOMElement();
 });
 

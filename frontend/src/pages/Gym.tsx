@@ -101,7 +101,7 @@ function MemberSearch({ onPick }: { onPick: (member: Member) => void }) {
               </div>
               {member.current ? (
                 <span>
-                  {member.current.plan_snapshot.name} · {t('until')}{' '}
+                  {member.current.plan_snapshot.name} · {t('Valid until')}:{' '}
                   {bsDisplay(member.current.end_bs)}
                 </span>
               ) : (
@@ -420,6 +420,9 @@ function Members() {
   if (selected) return <MemberDetail id={selected} onClose={() => setSelected(undefined)} />;
   return (
     <>
+      <section className="section">
+        <MemberSearch onPick={(member) => setSelected(member.id)} />
+      </section>
       <form
         className="panel narrow-form section"
         onSubmit={(e) => {
@@ -453,9 +456,6 @@ function Members() {
         />
         <Submit busy={form.busy}>{t('Add member')}</Submit>
       </form>
-      <section className="section">
-        <MemberSearch onPick={(member) => setSelected(member.id)} />
-      </section>
     </>
   );
 }
@@ -596,11 +596,7 @@ export default function Gym() {
   const [tab, setTab] = useState<'today' | 'members' | 'plans'>('today');
   return (
     <div>
-      <Heading
-        eyebrow={t('GYM DESK')}
-        title={t('Gym')}
-        description={t('Check members in, sell or renew memberships and run classes.')}
-      />
+      <Heading title={t('Gym')} />
       <div className="segmented" role="tablist">
         {(
           [

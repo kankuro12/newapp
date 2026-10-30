@@ -70,8 +70,6 @@ export const ne: Record<string, string> = {
   'Bill reduction': 'बिलमा घट्ने रकम',
   'Refund customer now': 'ग्राहकलाई अहिले रकम फिर्ता दिने',
   'Refund received from supplier now': 'आपूर्तिकर्ताबाट अहिले रकम फिर्ता प्राप्त भयो',
-  'Only refundable credit moves money. Unpaid portion simply reduces bill.':
-    'फिर्ता दिन मिल्ने रकम मात्र खाताबाट सर्छ। नतिरेको भागले बिलको बाँकी घटाउँछ।',
   'Quantity exceeds available return.': 'फिर्ता गर्न मिल्नेभन्दा बढी परिमाण भयो।',
   'Count history': 'गणनाको इतिहास',
   'Recorded stock': 'अभिलेखको मौज्दात',
@@ -109,8 +107,6 @@ export const ne: Record<string, string> = {
   Copies: 'प्रतिहरू',
   Labels: 'लेबल',
   Pages: 'पृष्ठ',
-  'Up to 100 items / 1000 labels. ASCII SKU or alternate code; no barcode allows text-only labels.':
-    '१०० सामान / १००० लेबलसम्म। ASCII मुख्य वा वैकल्पिक कोड छान्नुहोस्; बारकोड नराखी नाम / मूल्य मात्र छाप्न सकिन्छ।',
   'Quick paper setup': 'छिटो कागज सेटिङ',
   'Custom / current settings': 'आफ्नो / हालको सेटिङ',
   Roll: 'रोल',
@@ -134,8 +130,6 @@ export const ne: Record<string, string> = {
   'Could not remember paper settings.': 'कागज सेटिङ राख्न सकिएन।',
   'Print at 100% / actual size, no browser headers. Match printer paper and calibrate one label first.':
     '१००% / वास्तविक आकारमा छाप्नुहोस्; ब्राउजर शीर्षक बन्द गर्नुहोस्। प्रिन्टरको कागज मिलाएर पहिले एउटा लेबल जाँच्नुहोस्।',
-  'Prices use standard unit price and optional configured tax. Party discounts are separate.':
-    'सामानको सामान्य एकाइ मूल्य र छानेको कर प्रयोग हुन्छ। पक्षको छुट छुट्टै हुन्छ।',
   'Preview labels': 'लेबल जाँच्नुहोस्',
   'Print labels': 'लेबल छाप्नुहोस्',
   'Printing refreshes item codes and prices again. Changes require a new preview.':
@@ -155,13 +149,9 @@ export const ne: Record<string, string> = {
   'Scan / enter product code': 'सामानको कोड स्क्यान / लेख्नुहोस्',
   'Checking code…': 'कोड जाँच हुँदैछ…',
   'Add scanned item': 'स्क्यान गरेको सामान थप्नुहोस्',
-  'Keep leading zeros. Scale amounts may round; review trusted total before payment.':
-    'सुरुका शून्य राख्नुहोस्। तौल लेबलको रकम गोलो हुन सक्छ; तिर्नुअघि अन्तिम जम्मा जाँच गर्नुहोस्।',
   'Alternate product codes': 'सामानका वैकल्पिक कोड',
   'Primary SKU': 'मुख्य सामान कोड',
   'One alternate code per line': 'हरेक पङ्क्तिमा एउटा वैकल्पिक कोड',
-  'Up to 20 codes. Preserve zeros. Each code must identify one item in this branch.':
-    '२० कोडसम्म। शून्य नहटाउनुहोस्। यस शाखामा हरेक कोडले एउटै सामान चिनाउनुपर्छ।',
   'No alternate codes': 'वैकल्पिक कोड छैनन्',
   'Save product codes': 'सामानको कोड राख्नुहोस्',
   'Product codes saved': 'सामानको कोड सुरक्षित भयो',
@@ -289,8 +279,6 @@ export const ne: Record<string, string> = {
   'Item measurement setup': 'सामानको मापन सेटिङ',
   'Select a product to start.': 'सुरु गर्न सामान छान्नुहोस्।',
   'Calculating trusted total…': 'कुल रकम हिसाब हुँदैछ…',
-  'Quantity rounds to 0.001 base unit. Confirm resulting total.':
-    'परिमाण ०.००१ मूल एकाइमा मिलाइन्छ। कुल रकम जाँच्नुहोस्।',
   'Serve all tickets before checkout.': 'बिल बनाउनु अघि सबै अर्डर पस्कनुहोस्।',
   'Block personal / unavailable time': 'काम गर्न नमिल्ने समय रोक्नुहोस्',
   'Blocked time': 'रोकिएको समय',
@@ -301,7 +289,6 @@ export const ne: Record<string, string> = {
   Review: 'जाँच',
   'Review & save': 'जाँच गरी सुरक्षित गर्नुहोस्',
   'Party roles': 'पक्षको भूमिका',
-  'Choose one or more roles.': 'एक वा धेरै भूमिका छान्नुहोस्।',
   'Phone (optional)': 'फोन (ऐच्छिक)',
   'Email (optional)': 'इमेल (ऐच्छिक)',
   'Address (optional)': 'ठेगाना (ऐच्छिक)',
@@ -311,8 +298,6 @@ export const ne: Record<string, string> = {
   'SKU (optional)': 'सामानको कोड (ऐच्छिक)',
   'Low stock alert quantity': 'कम मौज्दातको सूचना दिने परिमाण',
   'Item type': 'सामानको प्रकार',
-  'Stock changes through purchases, returns, and stock counts.':
-    'खरिद, फिर्ता र गन्तीबाट मौज्दात बदलिन्छ।',
   'Walk-in customer': 'सिधै आउने ग्राहक',
   'General expense': 'साधारण खर्च',
   items: 'सामान',
@@ -554,8 +539,6 @@ export const ne: Record<string, string> = {
   'Zero disables target reordering. Target must cover low-stock quantity.':
     'शून्य राख्दा लक्षित मौज्दातका अर्डर बन्द हुन्छन्। लक्ष्य कम मौज्दातको परिमाणभन्दा कम हुन सक्दैन।',
   'Quantity and price must be positive.': 'परिमाण र मूल्य शून्यभन्दा बढी हुनुपर्छ।',
-  'No payment, stock receipt or supplier message is recorded here.':
-    'यहाँ भुक्तानी, सामान प्राप्ति वा आपूर्तिकर्तालाई सन्देश पठाइँदैन।',
   'Save purchase order': 'खरिद अर्डर राख्नुहोस्',
   'Purchase orders': 'खरिद अर्डरहरू',
   'Cancel edit': 'सम्पादन रद्द',
@@ -653,8 +636,6 @@ export const ne: Record<string, string> = {
   'Reload payment terms': 'भुक्तानी सर्त फेरि ल्याउनुहोस्',
   'Shared prices for customers or suppliers. Quantity tiers use each item’s base unit.':
     'ग्राहक वा आपूर्तिकर्ताको साझा मूल्य। परिमाणको नियम सामानको आधार एकाइमा लाग्छ।',
-  'Changing party, list, day or quantity needs a new review. Entered prices stay until applied.':
-    'पक्ष, सूची, मिति वा परिमाण बदलेपछि फेरि जाँच गर्नुहोस्। लागू नगरेसम्म राखिएको मूल्य उस्तै रहन्छ।',
   'Save shared pricing rules. Books and stock stay unchanged.':
     'साझा मूल्य नियम राख्नुहोस्। हिसाब र मौज्दात बदलिँदैनन्।',
   'View only. Owner, manager or accountant manages lists.':
@@ -988,12 +969,6 @@ Object.assign(ne, {
   'Salary, rent and regular bills.': 'तलब, भाडा र नियमित खर्च।',
   'Party can have several roles. Add matching role in Parties.':
     'पक्षका धेरै भूमिका हुन सक्छन्। पक्षहरूमा मिल्ने भूमिका थप्नुहोस्।',
-  'Monthly BS dates. Short months use last day; amount remains full monthly amount.':
-    'मासिक वि.सं. मिति। छोटो महिनामा अन्तिम दिन प्रयोग हुन्छ; रकम पूरा मासिक रकम नै रहन्छ।',
-  'Automatic action records unpaid expense on due date. Money leaves cash/bank only when you pay. Pausing keeps existing dues; resuming catches up missed months.':
-    'स्वतः कामले तोकिएको दिन नतिरेको खर्च लेख्छ। पैसा भुक्तानी गर्दा मात्र खाताबाट जान्छ। रोक्दा पुरानो बाँकी रहन्छ; फेरि सुरु गर्दा छुटेका महिनाको खर्च लेखिन्छ।',
-  'Amount changes affect future unrecorded months. Recorded expenses keep original amount.':
-    'रकम बदल्दा लेख्न बाँकी आगामी महिनामा लागू हुन्छ। लेखिएको खर्चमा मूल रकम रहन्छ।',
   Previous: 'अघिल्लो',
   Next: 'अर्को',
   'No stock alerts.': 'कम मौज्दातको सूचना छैन।',
@@ -1001,6 +976,63 @@ Object.assign(ne, {
   'Money available in your business': 'व्यवसायमा उपलब्ध रकम',
   'Money you still need to collect': 'उठाउन बाँकी रकम',
   'Supplier bills still outstanding': 'आपूर्तिकर्तालाई तिर्न बाँकी बिल',
+});
+Object.assign(ne, {
+  Gym: 'जिम',
+  Today: 'आज',
+  Members: 'सदस्यहरू',
+  Plans: 'योजनाहरू',
+  Plan: 'योजना',
+  'Add class': 'कक्षा थप्नुहोस्',
+  'Add member': 'सदस्य थप्नुहोस्',
+  'Add one in the Plans tab.': 'योजनाहरू ट्याबमा थप्नुहोस्।',
+  'All members': 'सबै सदस्य',
+  'Available for new members': 'नयाँ सदस्यका लागि उपलब्ध',
+  'Bill as service item': 'सेवा सामानको रूपमा बिल',
+  Book: 'बुकिङ गर्नुहोस्',
+  'Book member': 'सदस्यको बुकिङ गर्नुहोस्',
+  'Cancel or return the invoice first': 'पहिले बिल रद्द वा फिर्ता गर्नुहोस्',
+  Capacity: 'क्षमता',
+  'Check in': 'हाजिरी',
+  'Checked in today': 'आज हाजिर',
+  'Choose plan': 'योजना छान्नुहोस्',
+  'Choose service item': 'सेवा सामान छान्नुहोस्',
+  'Class name': 'कक्षाको नाम',
+  'Classes today': 'आजका कक्षा',
+  'Collect any remaining fee later from': 'बाँकी शुल्क पछि यहाँबाट उठाउनुहोस्:',
+  'Create a service item first, for example “Membership fee”.':
+    'पहिले सेवा सामान बनाउनुहोस्, जस्तै “सदस्यता शुल्क”।',
+  Days: 'दिन',
+  'Edit plan': 'योजना सम्पादन',
+  'End membership': 'सदस्यता अन्त्य गर्नुहोस्',
+  'Fee (NPR)': 'शुल्क (रु)',
+  'Find member by name, phone or code': 'नाम, फोन वा कोडले सदस्य खोज्नुहोस्',
+  'Includes classes': 'कक्षा समावेश',
+  'Join plan': 'योजनामा जोड्नुहोस्',
+  'Member code (optional)': 'सदस्य कोड (ऐच्छिक)',
+  'Membership history': 'सदस्यताको इतिहास',
+  'Memberships ending within 7 days': '७ दिनभित्र सकिने सदस्यता',
+  Minutes: 'मिनेट',
+  'New plan': 'नयाँ योजना',
+  'No active membership today.': 'आज सक्रिय सदस्यता छैन।',
+  'No classes scheduled today.': 'आज कुनै कक्षा छैन।',
+  'No members found.': 'सदस्य भेटिएन।',
+  'No plans yet.': 'अहिलेसम्म योजना छैन।',
+  'No trainer': 'प्रशिक्षक छैन',
+  'None.': 'छैन।',
+  'Plan name': 'योजनाको नाम',
+  'Price changes apply to new joins and renewals only.':
+    'मूल्य परिवर्तन नयाँ जोडाइ र नवीकरणमा मात्र लाग्छ।',
+  'Renew membership': 'सदस्यता नवीकरण',
+  'Save plan': 'योजना सुरक्षित गर्नुहोस्',
+  'Start time': 'सुरु हुने समय',
+  Trainer: 'प्रशिक्षक',
+  'Visit limit (empty = unlimited)': 'भ्रमण सीमा (खाली = असीमित)',
+  booked: 'बुकिङ भयो',
+  'checked in.': 'हाजिर भयो।',
+  days: 'दिन',
+  'How to use this screen': 'यो स्क्रिन कसरी चलाउने',
+  visits: 'भ्रमण',
 });
 export const translator = (locale: 'en' | 'ne') => (text: string) =>
   locale === 'ne' ? ne[text] || text : text;

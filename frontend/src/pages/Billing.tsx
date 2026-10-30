@@ -2,6 +2,7 @@ import { IonContent, IonPage } from '@ionic/react';
 import { Link } from 'react-router-dom';
 import { useData } from '../lib/api';
 import { Heading, Loading, Status } from '../components/ui';
+import { PanelHelp } from '../components/PanelHelp';
 import { format } from '../lib/money';
 import BillingCheckout from './BillingCheckout';
 import type { BillingGateway } from './BillingCheckout';
@@ -99,10 +100,8 @@ export default function Billing() {
             <Link to="/account">My account</Link>
             <HelpLink section="packages" />
           </header>
-          <Heading
-            title="Accounts and packages"
-            description="Manage package access for your businesses."
-          />
+          <Heading title="Accounts and packages" />
+          <PanelHelp guide="billing" />
           {accounts.loading || accounts.error ? (
             <Loading error={accounts.error} retry={accounts.reload} />
           ) : accounts.data?.data.length ? (

@@ -20,12 +20,18 @@ export function HelpLink({
     </>
   );
   return path ? (
-    <Link className="help-link" to={`${path}/help?section=${section}`} title={`Manual: ${section}`}>
+    <Link
+      className="help-link"
+      to={`${path}/help?section=${section}`}
+      title={`Manual: ${section}`}
+      aria-label={label}
+    >
       {content}
     </Link>
   ) : (
     <a
       className="help-link"
+      aria-label={label}
       href={manualUrl(section)}
       target="_blank"
       rel="noopener"

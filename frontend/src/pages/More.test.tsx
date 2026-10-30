@@ -28,12 +28,8 @@ function page(role = 'owner', initial = '/app/shop/more') {
   );
 }
 
-it('shows a small section at a time, keeps manual available and retains all tools through sections', () => {
+it('shows a small section at a time, retains all tools through sections', () => {
   render(page());
-  expect(screen.getByRole('link', { name: 'User manual' })).toHaveAttribute(
-    'href',
-    '/app/shop/help',
-  );
   expect(screen.getByRole('link', { name: 'POS' })).toHaveAttribute('href', '/app/shop/pos');
   expect(screen.queryByRole('link', { name: 'Purchases' })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Money tools' }));
@@ -47,7 +43,6 @@ it('shows a small section at a time, keeps manual available and retains all tool
   );
   expect(screen.getByRole('link', { name: 'Regular payments' })).toBeInTheDocument();
   expect(screen.queryByRole('link', { name: 'Basket offers' })).not.toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'User manual' })).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Stock tools' }));
   expect(screen.getByRole('link', { name: 'Reorder stock' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Import CSV' })).toBeInTheDocument();
@@ -79,7 +74,6 @@ it('restores linked section and prevents cashier from opening hidden tool groups
   );
   expect(screen.queryByRole('button', { name: 'Money tools' })).not.toBeInTheDocument();
   expect(screen.queryByRole('link', { name: 'Purchases' })).not.toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'User manual' })).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Account' }));
   expect(screen.getByRole('link', { name: 'Switch business' })).toBeInTheDocument();
 });

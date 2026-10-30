@@ -1,6 +1,5 @@
-import { IonButton, IonIcon } from '@ionic/react';
+import { IonIcon } from '@ionic/react';
 import {
-  addOutline,
   arrowDownOutline,
   arrowForwardOutline,
   arrowUpOutline,
@@ -70,12 +69,7 @@ export default function Dashboard() {
   const currentStock = Math.min(stockPage, stockPages);
   return (
     <div className="home-tools">
-      <Heading title={t('Home')} description={`${bsDisplay(today)} BS`}>
-        <IonButton onClick={() => navigate(path + '/documents/sale/new')}>
-          <IonIcon icon={addOutline} slot="start" />
-          {t('New sale')}
-        </IonButton>
-      </Heading>
+      <Heading title={t('Home')} description={`${bsDisplay(today)} BS`} />
       {Number(home.negative_stock?.count || 0) > 0 && (
         <section className="negative-stock-notice" role="status">
           <strong>

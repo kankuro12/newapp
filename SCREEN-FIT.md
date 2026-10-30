@@ -21,8 +21,8 @@ preserving accessible content and controls; they do not require eliminating all 
 - Manual iframe uses available height with a smaller minimum, avoiding its old 480px minimum forcing
   additional outer-page scrolling on short phones.
 - Existing mobile sale/purchase/order form steps and optional fields remain.
-- More shows Sales, Money, Stock, Business or Account tools one section at a time. Manual remains
-  visible; section selection is kept in the URL. Existing tool links and role filtering are
+- More shows Sales, Money, Stock, Business or Account tools one section at a time. The manual
+  opens from the topbar Help (no separate More link); section selection is kept in the URL. Existing tool links and role filtering are
   retained, with a POS shortcut added.
 - Home opens daily actions first. Balances, recent activity and low stock have separate views;
   cashier balance view remains unavailable. Recent/stock previews page every returned row, two per
@@ -145,7 +145,8 @@ Audit still prints only the server page currently loaded, as before.
 Below768px, workspace Heading hides its large title/description visually while retaining the
 accessible heading. Its existing English/Nepali Back link moves before the navbar logo, preserving
 destination and click guard. Other actions, including Count history, remain. The bottom Back changes
-the entry step. Desktop and standalone pages without a workspace slot retain the original Back.
+the entry step. Desktop workspace pages drop the heading Back (sidebar navigates); standalone
+pages without a workspace slot retain the original Back.
 
 Posting-disabled current-source Ionic fixtures proved sample Nepali320x667 master steps, edited
 product review, business paging/setup and simple report sections. Edited product and receivables
@@ -161,3 +162,12 @@ These results do not certify live authenticated forms, every route, expanded det
 validation states, larger text or on-screen keyboards. No financial/account actions were submitted
 through the browser. Manual edition7 documents the new flows and mobile header. Remaining audit
 above stays active.
+
+## Whitespace and label clean-up (30 October 2026)
+
+Owner request: remove unnecessary spaces, headings and labels. Shared shell: topbar 56px, smaller
+page/panel/section/table padding; removed sidebar promo and WORKSPACE label, footer, Online pill
+(offline banner remains). Headings: no eyebrow prop; tagline descriptions removed (Home date and
+regular payment amount kept). Removed duplicate Home New sale button, More manual link and section
+title, POS branch row, and explanatory hint sentences; rules that prevent errors stay. In-panel
+help is a one-line link until opened.

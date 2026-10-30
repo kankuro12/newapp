@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { request, send, useData } from '../lib/api';
 import { enablePush, revokeCurrentPush } from '../lib/push';
 import { Errors, Heading, Loading } from '../components/ui';
+import { PanelHelp } from '../components/PanelHelp';
 import { HelpLink } from '../components/Help';
 type Preferences = Record<
   | 'operational_email'
@@ -58,18 +59,12 @@ export default function Notifications({ userId }: { userId: string }) {
             <Link to="/businesses">Businesses</Link>
             <HelpLink section="account-messages" />
           </header>
-          <Heading
-            title="Notifications"
-            description="Choose package reminders and optional promotions for your account."
-          />
+          <Heading title="Notifications" />
+          <PanelHelp guide="notifications" />
           <Errors error={error} />
           {notice && <p role="status">{notice}</p>}
           <section className="panel section">
             <h2>Delivery preferences</h2>
-            <p>
-              Security emails and payment receipts remain available. Promotions require your choice.
-              WhatsApp uses your account phone when configured.
-            </p>
             {preferences.loading || preferences.error ? (
               <Loading error={preferences.error} retry={preferences.reload} />
             ) : (

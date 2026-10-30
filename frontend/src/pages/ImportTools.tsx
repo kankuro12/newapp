@@ -208,12 +208,7 @@ export default function Imports() {
   }
   return (
     <>
-      <Heading
-        title={t('Import CSV')}
-        description={t(
-          'Preview first. Apply all rows together; errors leave existing records unchanged.',
-        )}
-      >
+      <Heading title={t('Import CSV')}>
         <Link to={path + '/' + (resource === 'price_lists' ? 'price-lists' : resource)}>
           {t(
             resource === 'price_lists' ? 'Price lists' : resource === 'items' ? 'Items' : 'Parties',

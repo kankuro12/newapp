@@ -185,23 +185,13 @@ export default function Pos() {
   if (config.loading || config.error) return <Loading error={config.error} retry={config.reload} />;
   return (
     <>
-      <Heading
-        eyebrow={t('COUNTER')}
-        title={`${t('Quick POS')} · ${t(titles[profile] || businessTypeLabel(profile))}`}
-        description={t('Select → enter → review → save')}
-      >
+      <Heading title={`${t('Quick POS')} · ${t(titles[profile] || businessTypeLabel(profile))}`}>
         <Link className="nav-desktop-only" to={path + '/pos/full'}>
           {t('Full POS')}
         </Link>
         <Link to={path + '/pos/setup'}>{t('POS setup')}</Link>
         <Link to={path + '/sales'}>{t('Sales')}</Link>
       </Heading>
-      <div className="pos-branch">
-        <span>
-          {t('Branch')}: <strong>{business.name}</strong>
-        </span>
-        <Link to="/businesses">{t('Switch business')}</Link>
-      </div>
       {profile === 'restaurant' ? (
         <Restaurant config={config.data!.data} />
       ) : ['barber', 'salon'].includes(profile) ? (
@@ -375,11 +365,6 @@ export function MeasurementEditor({
                 </button>
               ))}
             </div>
-          )}
-          {mode === 'amount' && (
-            <p className="subtle">
-              {t('Quantity rounds to 0.001 base unit. Confirm resulting total.')}
-            </p>
           )}
         </>
       ) : (
@@ -659,7 +644,6 @@ function Counter({ config, profile }: { config: Config; profile: string }) {
             {party && (
               <div className="mini-row">
                 <strong>{party.name}</strong>
-                <small>{t('Cart recalculates using this party’s agreed prices.')}</small>
                 <button type="button" onClick={() => setParty(undefined)}>
                   ×
                 </button>
@@ -1034,7 +1018,6 @@ function Restaurant({ config }: { config: Config }) {
                     </article>
                   )),
               )}
-              <p className="subtle">{t('Tickets stay until status confirmed.')}</p>
             </section>
           ))}
         </div>
@@ -1792,10 +1775,7 @@ export function PosSetup() {
   if (config.loading || config.error) return <Loading error={config.error} retry={config.reload} />;
   return (
     <>
-      <Heading
-        title={t('POS setup')}
-        description={t('Choose screen, units, tables and staff for this branch.')}
-      >
+      <Heading title={t('POS setup')}>
         <Link to={path + '/pos'}>{t('POS')}</Link>
         <Link to={path + '/barcodes'}>{t('Product codes / scale setup')}</Link>
       </Heading>
@@ -1831,17 +1811,7 @@ export function PosSetup() {
       )}
       <section className="panel narrow-form">
         <h2>{t('Measurements and service duration')}</h2>
-        <p>
-          {t(
-            'Set base unit and enabled entry methods on each item. Add custom units such as bottle, bundle or sheet with their base quantity.',
-          )}
-        </p>
         <Link to={path + '/items'}>{t('Items')}</Link>
-        <p className="subtle">
-          {t(
-            'Base unit cannot change after stock activity. All quantities round to 0.001 base unit.',
-          )}
-        </p>
       </section>
       {manager && (
         <>

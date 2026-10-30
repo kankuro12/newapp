@@ -87,11 +87,7 @@ export default function More() {
   const selected = groups.find((group) => group.id === params.get('section')) || groups[0];
   return (
     <div className="more-tools">
-      <Heading title={t('More')}>
-        <Link className="more-manual" to={path + '/help'}>
-          {t('User manual')}
-        </Link>
-      </Heading>
+      <Heading title={t('More')} />
       <nav className="more-sections" aria-label={t('Tool sections')}>
         {groups.map((group) => (
           <button
@@ -104,7 +100,6 @@ export default function More() {
           </button>
         ))}
       </nav>
-      <h2 className="more-section-title">{t(selected.label)}</h2>
       <div className="more-grid" role="region" aria-label={t(selected.label)}>
         {selected.tools.map(([label, suffix, icon]) => (
           <Link

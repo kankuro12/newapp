@@ -38,15 +38,7 @@ export function MasterList({ resource }: { resource: 'contacts' | 'items' }) {
   const cashier = business.role === 'cashier';
   return (
     <>
-      <Heading
-        eyebrow={contacts ? 'GOOD RELATIONSHIPS. CLEAR BALANCES.' : 'A PLACE FOR EVERY PRODUCT.'}
-        title={t(contacts ? 'Parties' : 'Items')}
-        description={
-          contacts
-            ? 'One party, any roles: customer, supplier, employee, rent.'
-            : 'Know what’s available before you sell.'
-        }
-      >
+      <Heading title={t(contacts ? 'Parties' : 'Items')}>
         {(!cashier || contacts) && (
           <IonButton onClick={() => navigate(`${path}/${resource}/new`)}>
             <IonIcon icon={addOutline} slot="start" />
@@ -228,10 +220,7 @@ export function MasterForm({ resource }: { resource: 'contacts' | 'items' }) {
   const blocked = form.busy || form.uncertain || categoryForm.busy || categoryForm.uncertain;
   return (
     <div className="master-tools">
-      <Heading
-        eyebrow={contacts ? 'PARTY DETAILS' : 'PRODUCT DETAILS'}
-        title={id ? name : t(contacts ? 'Add party' : 'Add product')}
-      >
+      <Heading title={id ? name : t(contacts ? 'Add party' : 'Add product')}>
         <Link
           aria-disabled={blocked}
           onClick={(event) => {
@@ -325,9 +314,7 @@ export function MasterForm({ resource }: { resource: 'contacts' | 'items' }) {
             <h2>{t(contacts ? 'Roles' : 'Price / unit')}</h2>
             {contacts ? (
               <>
-                <fieldset className="party-roles">
-                  <legend>{t('Party roles')}</legend>
-                  <p>{t('Choose one or more roles.')}</p>
+                <fieldset className="party-roles" aria-label={t('Party roles')}>
                   <div className="role-grid">
                     <Check checked={customer} onChange={setCustomer}>
                       {t('Customer')}
@@ -633,9 +620,6 @@ export function MasterForm({ resource }: { resource: 'contacts' | 'items' }) {
                     />
                   )}
                 </OptionalDetails>
-                <p className="subtle">
-                  {t('Stock changes through purchases, returns, and stock counts.')}
-                </p>
               </OptionalDetails>
             )}
             {row && (

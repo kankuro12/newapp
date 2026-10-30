@@ -68,7 +68,7 @@ it('lists members with current membership and opens plans for managers', async (
   vi.stubGlobal('fetch', fetch);
   render(page(<Gym />));
   await waitFor(() => expect(screen.getByText('Asha Member')).toBeInTheDocument());
-  expect(screen.getByText(/Monthly · until/)).toBeInTheDocument();
+  expect(screen.getByText(/Monthly · Valid until:/)).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Plans' }));
   expect(await screen.findByRole('button', { name: 'New plan' })).toBeInTheDocument();
 });

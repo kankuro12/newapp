@@ -164,12 +164,7 @@ export default function LabelTools() {
   return (
     <div ref={root} className="labels-workspace">
       <div className="no-print">
-        <Heading
-          title={t('Product labels')}
-          description={t(
-            'Choose items and copies. Review fresh prices, then print. No stock or money changes.',
-          )}
-        >
+        <Heading title={t('Product labels')}>
           <Link to={path + '/barcodes'}>{t('Product codes / scale setup')}</Link>
           <Link to={path + '/items'}>{t('Items')}</Link>
         </Heading>
@@ -269,11 +264,6 @@ export default function LabelTools() {
               </div>
             ))}
           </fieldset>
-          <small>
-            {t(
-              'Up to 100 items / 1000 labels. ASCII SKU or alternate code; no barcode allows text-only labels.',
-            )}
-          </small>
         </section>
         <section className="panel no-print" data-entry-step="1">
           <h2>{t('Paper & layout')}</h2>
@@ -388,11 +378,6 @@ export default function LabelTools() {
               'Print at 100% / actual size, no browser headers. Match printer paper and calibrate one label first.',
             )}
           </p>
-          <small>
-            {t(
-              'Prices use standard unit price and optional configured tax. Party discounts are separate.',
-            )}
-          </small>
         </section>
         <section className="panel label-review" data-entry-step="2">
           <div className="no-print">

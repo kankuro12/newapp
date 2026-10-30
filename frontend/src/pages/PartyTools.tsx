@@ -64,10 +64,7 @@ export function Collections() {
   >(`${base}/collections?channel=${channel}&q=${encodeURIComponent(query)}&page=${page}`, revision);
   return (
     <>
-      <Heading
-        title={t('Collections / payments')}
-        description={t('Net party balances include starting amounts, returns and unapplied money.')}
-      >
+      <Heading title={t('Collections / payments')}>
         <Link to={path + '/followups'}>{t('Follow-ups')}</Link>
         <Link
           to={
@@ -165,10 +162,7 @@ export function Followups() {
   }, [initial.data]);
   return (
     <>
-      <Heading
-        title={t('Follow-ups')}
-        description={t('Plan a call or visit; record what happened. No message is sent.')}
-      >
+      <Heading title={t('Follow-ups')}>
         <Link to={path + '/collections'}>{t('Collections / payments')}</Link>
         <IonButton onClick={() => setAdding(!adding)}>
           {t(adding ? 'Close' : 'Add follow-up')}
@@ -422,7 +416,6 @@ export function FollowupDetail() {
             </IonButton>
           ))}
         </div>
-        <small>{t('Recording a follow-up does not settle any balance.')}</small>
       </section>
       <section className="panel narrow-form">
         <h2>{t('Follow-up history')}</h2>
@@ -549,9 +542,6 @@ export function PartyTrading() {
             value={purchaseDays}
             onChange={(e) => setPurchaseDays(e.target.value)}
           />
-          <small>
-            {t('Calendar days use BS dates. Explicit bill due dates override defaults.')}
-          </small>
         </fieldset>
         <Submit
           busy={policy.busy}
