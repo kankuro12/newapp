@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { request, send, useData } from '../lib/api';
 import type { Business } from '../lib/types';
 import { Check, Errors, Field, Heading, Loading, Select, Submit } from '../components/ui';
-import { PanelHelp } from '../components/PanelHelp';
 import { HelpLink } from '../components/Help';
 
 interface AgentToken {
@@ -62,7 +61,6 @@ export default function Agents() {
             <HelpLink section="agents" />
           </header>
           <Heading title="AI agents" />
-          <PanelHelp guide="agents" />
           <form className="panel narrow-form section" onSubmit={create}>
             <h2>Create agent access</h2>
             <Errors error={error} />

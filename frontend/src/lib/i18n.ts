@@ -132,8 +132,6 @@ export const ne: Record<string, string> = {
     '१००% / वास्तविक आकारमा छाप्नुहोस्; ब्राउजर शीर्षक बन्द गर्नुहोस्। प्रिन्टरको कागज मिलाएर पहिले एउटा लेबल जाँच्नुहोस्।',
   'Preview labels': 'लेबल जाँच्नुहोस्',
   'Print labels': 'लेबल छाप्नुहोस्',
-  'Printing refreshes item codes and prices again. Changes require a new preview.':
-    'छाप्दा कोड र हालको मूल्य फेरि ल्याइन्छ। विवरण बदलेपछि फेरि जाँच गर्नुहोस्।',
   'Printed contents do not fit. Use a larger label or hide optional fields.':
     'छापिने विवरण अटेन। ठूलो लेबल प्रयोग गर्नुहोस् वा ऐच्छिक विवरण हटाउनुहोस्।',
   'incl. tax': 'कर सहित',
@@ -1031,7 +1029,6 @@ Object.assign(ne, {
   booked: 'बुकिङ भयो',
   'checked in.': 'हाजिर भयो।',
   days: 'दिन',
-  'How to use this screen': 'यो स्क्रिन कसरी चलाउने',
   visits: 'भ्रमण',
 });
 export const translator = (locale: 'en' | 'ne') => (text: string) =>

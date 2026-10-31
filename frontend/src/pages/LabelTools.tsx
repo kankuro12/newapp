@@ -380,8 +380,8 @@ export default function LabelTools() {
           </p>
         </section>
         <section className="panel label-review" data-entry-step="2">
+          <h2>{t('Review & print')}</h2>
           <div className="no-print">
-            <h2>{t('Review & print')}</h2>
             <Errors error={error} />
             <p>
               {rows.length} {t('Items')} · {rows.reduce((sum, row) => sum + row.copies, 0)}{' '}
@@ -393,9 +393,6 @@ export default function LabelTools() {
             <IonButton disabled={busy || !online || !ready} onClick={() => void preview(true)}>
               {t('Print labels')}
             </IonButton>
-            <p>
-              {t('Printing refreshes item codes and prices again. Changes require a new preview.')}
-            </p>
             {ready && (
               <p>
                 {proof!.layout.pages.length} {t('Pages')} · {format.width} × {format.height} mm

@@ -173,13 +173,24 @@ export function Heading({
   description?: string;
 }) {
   const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches);
+  const [wide, setWide] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
   const [backSlot, setBackSlot] = useState<HTMLElement | null>(null);
+  const [titleSlot, setTitleSlot] = useState<HTMLElement | null>(null);
   useEffect(() => {
     const query = window.matchMedia('(max-width: 767px)');
-    const update = () => setMobile(query.matches);
+    const wideQuery = window.matchMedia('(min-width: 1024px)');
+    const update = () => {
+      setMobile(query.matches);
+      setWide(wideQuery.matches);
+    };
     setBackSlot(document.querySelector<HTMLElement>('.topbar .mobile-back-slot'));
+    setTitleSlot(document.querySelector<HTMLElement>('.topbar .topbar-title'));
     query.addEventListener?.('change', update);
-    return () => query.removeEventListener?.('change', update);
+    wideQuery.addEventListener?.('change', update);
+    return () => {
+      query.removeEventListener?.('change', update);
+      wideQuery.removeEventListener?.('change', update);
+    };
   }, []);
   const actions = Children.toArray(children);
   const back = actions.find(
@@ -197,7 +208,7 @@ export function Heading({
       'aria-label'?: string;
       title?: string;
     }>(back);
-  return (
+  const heading = (
     <div className="page-heading">
       <div>
         <h1>{title}</h1>
@@ -219,6 +230,8 @@ export function Heading({
         )}
     </div>
   );
+  // Wide workspace screens: the title and its actions live in the topbar instead of a page header.
+  return wide && titleSlot ? createPortal(heading, titleSlot) : heading;
 }
 export function Submit({
   busy,

@@ -171,3 +171,17 @@ page/panel/section/table padding; removed sidebar promo and WORKSPACE label, foo
 regular payment amount kept). Removed duplicate Home New sale button, More manual link and section
 title, POS branch row, and explanatory hint sentences; rules that prevent errors stay. In-panel
 help is a one-line link until opened.
+
+## Compact layout pass (31 October 2026)
+
+Owner request: show as many controls as possible, keep elements aligned, move the large page
+header into the navbar. From 1024px the page title and its actions render in the topbar (Heading
+portals into `.topbar-title`); 768-1023px keep a compact 24px in-page title; phones keep the
+existing mobile header. Desktop topbar drops the business name/type (the sidebar shows them);
+below 1280px the date hides and Help is icon-only. Help stays page-specific; User manual is the
+last sidebar link. Sidebar links are 34px. Removed the in-panel help link. Stepped-form card
+titles are visually hidden (screen readers keep them) since the step tabs name each step; corner
+links (Add party, Add product) share the first label row. Fields: 12px gap, 4px label gap, 42px
+inputs (44px on phones). Cards drop the last element's bottom margin; filter rows bottom-align.
+Checked: 38 workspace routes at 320px, 768px, 1024px and full width for overflow, topbar
+height/title truncation and control-row alignment.

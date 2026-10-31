@@ -415,7 +415,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                       : 'Who are you buying from?'}
                 </h2>
               </div>
-              <div className="form-grid">
+              <div className="form-grid party-date">
                 <div>
                   {party ? (
                     <div className="selected-party">
@@ -426,24 +426,12 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                       </IonButton>
                     </div>
                   ) : (
-                    <>
-                      {(sale || expense) && (
-                        <p className="default-party">
-                          <strong>{sale ? 'Walk-in customer' : 'General expense'}</strong>
-                          <small>
-                            {sale
-                              ? 'Paid in full. Choose customer for credit.'
-                              : 'Choose supplier, employee or rent payee for an unpaid expense.'}
-                          </small>
-                        </p>
-                      )}
-                      <Picker
-                        kind="contacts"
-                        customer={sale}
-                        payable={expense}
-                        onPick={(row) => setParty(row as Party)}
-                      />
-                    </>
+                    <Picker
+                      kind="contacts"
+                      customer={sale}
+                      payable={expense}
+                      onPick={(row) => setParty(row as Party)}
+                    />
                   )}
                   <Link to={path + '/contacts/new'} className="form-link">
                     {t('Add party')}

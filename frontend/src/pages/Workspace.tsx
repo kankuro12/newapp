@@ -3,6 +3,7 @@ import { IonContent, IonIcon, IonPage } from '@ionic/react';
 import {
   barbellOutline,
   barChartOutline,
+  bookOutline,
   cashOutline,
   cubeOutline,
   gridOutline,
@@ -36,8 +37,6 @@ import { WorkflowList, WorkflowDetail, WorkflowEditor } from './Workflows';
 import FulfilmentDetail from './FulfilmentDetail';
 import UserManual from './UserManual';
 import { HelpLink } from '../components/Help';
-import { PanelHelp } from '../components/PanelHelp';
-import { panelGuideKey } from '../lib/panelHelp';
 import { manualSection } from '../lib/manual';
 import Gym from './Gym';
 import FullPos from './FullPos';
@@ -172,6 +171,7 @@ function Shell({
           ['/settings', 'Settings', settingsOutline],
         ]
       : []),
+    ['/help', 'User manual', bookOutline],
     ['/more', 'More', gridOutline],
   ];
   if (location.pathname === path + '/pos/full')
@@ -255,13 +255,14 @@ function Shell({
                 <div className="topbar-business">
                   <span className="mobile-back-slot" />
                   <span className="mobile-logo brand-mark">b</span>
-                  <strong>{business.name}</strong>
+                  <strong className="topbar-name">{business.name}</strong>
                   <span className="badge active business-type">
                     {t(businessTypeLabel(profile))}
                   </span>
-                  <span className="topbar-date">{bsDisplay(today)} BS</span>
                 </div>
+                <div className="topbar-title" />
                 <div className="topbar-actions">
+                  <span className="topbar-date">{bsDisplay(today)} BS</span>
                   {!location.pathname.endsWith('/help') && (
                     <HelpLink
                       path={path}
@@ -323,15 +324,6 @@ function Shell({
                 className="page-wrap"
                 key={location.pathname.includes('/new') ? location.pathname : business.slug}
               >
-                <PanelHelp
-                  key={location.pathname}
-                  path={path}
-                  label={t('How to use this screen')}
-                  guide={panelGuideKey(
-                    location.pathname.slice(path.length),
-                    jobTypes.includes(profile),
-                  )}
-                />
                 <Routes>
                   <Route index element={<Dashboard />} />
                   <Route path="pos" element={<Pos />} />

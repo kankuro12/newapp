@@ -139,6 +139,14 @@ ion-spinner {
   padding: 18px;
   box-shadow: 0 2px 5px #1e382504;
 }
+/* Equal space above and below card content: the last element's bottom margin is dropped. */
+.panel > :last-child,
+.panel > :last-child > :last-child,
+.panel > :last-child > .field:last-child,
+.panel > .form-grid:last-child > .field,
+.panel > .form-grid:last-child > div > .field:last-child {
+  margin-bottom: 0;
+}
 .section {
   margin-top: 16px;
 }
@@ -170,8 +178,8 @@ ion-spinner {
   background: #f7f8f5;
   border: 1px solid #e4e8df;
   border-radius: 10px;
-  padding: 8px 9px;
-  margin-bottom: 12px;
+  padding: 6px 8px;
+  margin-bottom: 8px;
 }
 .business-symbol {
   width: 34px;
@@ -194,21 +202,21 @@ ion-spinner {
 }
 .sidebar nav {
   display: grid;
-  gap: 2px;
+  gap: 1px;
 }
 .nav-link {
-  min-height: 40px;
+  min-height: 34px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   color: #58675a;
-  border-radius: 9px;
-  padding: 10px 14px;
+  border-radius: 8px;
+  padding: 6px 12px;
   font-size: 13px;
   font-weight: 500;
 }
 .nav-link ion-icon {
-  font-size: 19px;
+  font-size: 17px;
 }
 .nav-link:hover {
   background: #f6f8f4;
@@ -237,6 +245,7 @@ ion-spinner {
   background: #fff;
   border-bottom: 1px solid #e5e9e2;
   min-height: 56px;
+  gap: 16px;
   padding: 6px 24px;
 }
 .topbar-business {
@@ -250,9 +259,67 @@ ion-spinner {
 }
 .topbar-date {
   color: #58675a;
-  border-left: 1px solid #e4e8e0;
-  padding-left: 17px;
   font-size: 12px;
+  white-space: nowrap;
+}
+/* Desktop page title and its actions, moved here from the page by Heading. */
+.topbar-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.topbar-title .page-heading {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  gap: 12px;
+}
+.topbar-title .page-heading > div:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+.topbar-title h1 {
+  font-size: 20px;
+  letter-spacing: -0.4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar-title .page-heading p {
+  margin: 0;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.topbar-title .heading-actions {
+  flex-wrap: nowrap;
+  gap: 10px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.topbar-title .heading-actions ion-button {
+  height: 34px;
+  margin: 0;
+  font-size: 13px;
+}
+@media (max-width: 1279px) {
+  /* Narrower desktops: keep room for the page title and its actions. */
+  .topbar-date,
+  .topbar .help-link span {
+    display: none;
+  }
+  .topbar .help-link ion-icon {
+    font-size: 22px;
+  }
+}
+@media (min-width: 768px) {
+  /* The sidebar already names the business. */
+  .topbar-name,
+  .topbar .business-type {
+    display: none;
+  }
 }
 .topbar-actions {
   display: flex;
@@ -293,6 +360,10 @@ ion-spinner {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 16px;
+}
+.page-heading h1 {
+  font-size: 24px;
+  letter-spacing: -0.5px;
 }
 .page-heading p {
   font-size: 13px;
@@ -372,6 +443,21 @@ ion-spinner {
 .purple {
   background: #f1ecf4;
   color: #58675a;
+}
+@media (min-width: 768px) {
+  .form-grid.party-date {
+    grid-template-columns: minmax(0, 1fr) 160px;
+  }
+}
+/* "Add party" sits in the Customer label row instead of taking its own line. */
+.party-date > div:first-child {
+  position: relative;
+}
+.party-date .form-link {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
 }
 .section-title {
   display: flex;
@@ -623,7 +709,7 @@ ion-spinner {
 }
 .field {
   display: block;
-  margin-bottom: 19px;
+  margin-bottom: 12px;
   flex: 1;
   min-width: 0;
 }
@@ -632,15 +718,15 @@ ion-spinner {
   font-size: 12px;
   font-weight: 600;
   color: #58675a;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 .field input,
 .field select {
   width: 100%;
   border: 1px solid #dfe5d8;
   border-radius: 8px;
-  padding: 11px 12px;
-  min-height: 46px;
+  padding: 9px 12px;
+  min-height: 42px;
   background: #fff;
   color: #3c5140;
   font-size: 16px;
@@ -686,6 +772,8 @@ ion-spinner {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0 20px;
+  /* A wrapped label must not push its input below its neighbour's. */
+  align-items: end;
 }
 .form-link {
   display: block;
@@ -730,12 +818,24 @@ ion-spinner {
 }
 .list-tools {
   display: flex;
-  align-items: center;
-  gap: 18px;
-  margin-bottom: 22px;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
 }
-.list-tools .field {
-  margin-bottom: 0;
+.list-tools .field,
+.list-tools > *,
+.list-tools .category-filter,
+.list-tools .check,
+.list-tools .optional-details {
+  margin: 0;
+}
+/* Filter fold-outs sit on the same line as the search input. */
+.list-tools .optional-details {
+  border: 0;
+}
+.list-tools .optional-details summary {
+  min-height: 42px;
+  padding: 11px 0;
 }
 .list-tools .field:first-child {
   max-width: 380px;
@@ -752,7 +852,7 @@ ion-spinner {
   grid-template-columns: 1.5fr 1fr 1.2fr 0.7fr;
   gap: 20px;
   align-items: center;
-  padding: 20px 0;
+  padding: 12px 0;
 }
 .record-header {
   color: #58675a;
@@ -791,8 +891,8 @@ ion-spinner {
 .master-row {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 19px 0;
+  gap: 14px;
+  padding: 10px 0;
   border-bottom: 1px solid #edf0e6;
   color: #516648;
 }
@@ -946,21 +1046,6 @@ ion-spinner {
 }
 .selected-party small {
   font-size: 11px;
-}
-.default-party {
-  font-size: 12px;
-  margin-bottom: 15px;
-}
-.default-party strong {
-  display: block;
-  color: #58675a;
-  font-weight: 600;
-}
-.default-party small {
-  display: block;
-  font-size: 10px;
-  color: #58675a;
-  margin-top: 5px;
 }
 .picker {
   position: relative;
@@ -1619,7 +1704,7 @@ th {
     flex-direction: row;
   }
   .topbar {
-    padding: 15px 28px;
+    padding: 6px 20px;
   }
   .topbar-date {
     display: none;
@@ -1635,6 +1720,11 @@ th {
   }
 }
 @media (max-width: 767px) {
+  /* Phones keep 44px touch targets. */
+  .field input,
+  .field select {
+    min-height: 44px;
+  }
   .sidebar {
     display: none;
   }
@@ -1653,6 +1743,9 @@ th {
     gap: 9px;
     font-size: 12px;
     max-width: 60%;
+  }
+  .topbar-title:empty {
+    display: none;
   }
   .topbar-business strong {
     overflow: hidden;
@@ -2100,7 +2193,6 @@ th {
   .topbar,
   .bottom-nav,
   .no-print,
-  .panel-help,
   .form-submit,
   .detail-actions,
   .offline-banner {
@@ -2230,11 +2322,12 @@ th {
 .optional-details {
   border-top: 1px solid #e5e9e2;
   border-bottom: 1px solid #e5e9e2;
-  margin: 18px 0;
+  margin: 12px 0;
 }
 .optional-details summary {
-  min-height: 48px;
-  padding: 15px 0;
+  min-height: 40px;
+  padding: 10px 0;
+  line-height: 20px;
   font-size: 13px;
   font-weight: 600;
 }
@@ -2278,7 +2371,7 @@ th {
     font-size: 14px;
   }
   .entry-master .field {
-    margin-bottom: 18px;
+    margin-bottom: 12px;
   }
   .entry-master {
     padding: 20px 18px;
@@ -3143,8 +3236,8 @@ th {
 /* Keep primary mobile tasks compact without clipping expanded forms or records. */
 @media screen and (max-width: 767px) {
   .topbar {
-    min-height: 60px;
-    padding: 8px 18px;
+    min-height: 56px;
+    padding: 6px 14px;
   }
   .page-heading {
     margin-bottom: 14px;
@@ -3161,6 +3254,9 @@ th {
   }
   .entry-master .field {
     margin-bottom: 12px;
+  }
+  .entry-master .field:last-child {
+    margin-bottom: 0;
   }
   .entry-master .party-roles {
     margin: 4px 0 12px;
@@ -3844,69 +3940,24 @@ th {
   font-size: 0.875rem;
   text-decoration: none;
 }
-
-/* In-panel "How to use this screen" card; collapsed by default. */
-.panel-help {
-  margin: 0 0 8px;
-  color: #17352c;
-  font-size: 14px;
+/* Stepped forms: card titles repeat the step tabs, so hide them visually but keep them for screen readers. */
+[data-entry-step] > h2,
+[data-entry-step] > .section-title > h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
-
-.panel-help[open] {
-  background: #f3f8f4;
-  border: 1px solid #d9e8df;
-  border-radius: 12px;
+[data-entry-step]:has(> .section-title) {
+  position: relative;
 }
-
-.panel-help summary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 24px;
-  padding: 0;
-  color: #16614a;
-  font-size: 12px;
-  font-weight: 600;
-  list-style: none;
-  cursor: pointer;
-}
-
-.panel-help summary::-webkit-details-marker {
-  display: none;
-}
-
-.panel-help[open] summary {
-  padding: 10px 14px;
-}
-
-.panel-help-body {
-  padding: 0 18px 16px;
-  line-height: 1.5;
-}
-
-.panel-help-body p {
-  margin: 0 0 10px;
-}
-
-.panel-help-body ol,
-.panel-help-body ul {
-  margin: 0 0 10px;
-  padding-left: 20px;
-}
-
-.panel-help-body li {
-  margin: 4px 0;
-}
-
-.panel-help-tips {
-  color: #4b5f57;
-}
-
-.panel-help-link {
-  display: inline-block;
-  margin-top: 4px;
-  font-weight: 600;
-  color: #16614a;
+[data-entry-step] > .section-title {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  margin: 0;
 }
 
 .agent-token {

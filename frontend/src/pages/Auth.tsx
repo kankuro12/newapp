@@ -5,7 +5,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { send, resetSession } from '../lib/api';
 import { Errors, Field, Select, Submit } from '../components/ui';
-import { PanelHelp } from '../components/PanelHelp';
 import type { User } from '../lib/types';
 import callingCodes from '../../../backend/resources/country-calling-codes.json';
 
@@ -122,7 +121,6 @@ export default function Auth({ reload, admin = false }: { reload: () => void; ad
             <div className="auth-form">
               <h2>{title}</h2>
               {register && <p>Start your 14-day trial.</p>}
-              <PanelHelp guide="auth" />
               <form onSubmit={submit}>
                 <Errors error={error} />
                 {message && (
@@ -321,7 +319,6 @@ export function AccountPage({ user, reload }: { user: User; reload: () => void }
           <Link to="/businesses">Back to businesses</Link>
           <h1>My account</h1>
           <Link to="/notifications">Notifications</Link>
-          <PanelHelp guide="auth" />
           <Errors error={error} />
           {message && <p role="status">{message}</p>}
           <form

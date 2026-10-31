@@ -19,7 +19,7 @@ import type { Dashboard as DashboardData } from '../lib/types';
 import { Empty, Heading, Loading, Status } from '../components/ui';
 
 export default function Dashboard() {
-  const { base, path, business, revision, t, today } = useWorkspace();
+  const { base, path, business, revision, t } = useWorkspace();
   const navigate = useNavigate();
   const { data, error, loading, reload } = useData<{ data: DashboardData }>(base, revision);
   const [params, setParams] = useSearchParams();
@@ -69,7 +69,7 @@ export default function Dashboard() {
   const currentStock = Math.min(stockPage, stockPages);
   return (
     <div className="home-tools">
-      <Heading title={t('Home')} description={`${bsDisplay(today)} BS`} />
+      <Heading title={t('Home')} />
       {Number(home.negative_stock?.count || 0) > 0 && (
         <section className="negative-stock-notice" role="status">
           <strong>
