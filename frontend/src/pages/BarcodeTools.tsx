@@ -99,6 +99,7 @@ export function ScanItem({
       <Errors error={error} />
       <Field
         label={t('Scan / enter product code')}
+        placeholder={t('Scan or type code')}
         value={code}
         autoComplete="off"
         maxLength={100}

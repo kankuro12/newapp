@@ -45,7 +45,14 @@ export function MasterList({ resource }: { resource: 'contacts' | 'items' }) {
             {t(contacts ? 'Add party' : 'Add product')}
           </IonButton>
         )}
-        {!cashier && <Link to={`${path}/imports?resource=${resource}`}>{t('Import CSV')}</Link>}
+        {!cashier && (
+          <IonButton
+            fill="outline"
+            onClick={() => navigate(`${path}/imports?resource=${resource}`)}
+          >
+            {t('Import CSV')}
+          </IonButton>
+        )}
         {!contacts && !cashier && (
           <>
             <Link to={path + '/item-categories'}>{t('Item categories')}</Link>

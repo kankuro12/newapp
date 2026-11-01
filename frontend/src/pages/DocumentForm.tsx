@@ -403,7 +403,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
           }}
         >
           <div className="form-main">
-            <Errors error={form.error || previewError || lookup.error} />
+            <Errors error={previewError || lookup.error} />
             <section className="panel" data-entry-step="0">
               <div className="section-title">
                 <h2>
@@ -827,6 +827,8 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                 )}
               </>
             )}
+            {/* Save errors (e.g. expired access) sit beside the button the user just pressed. */}
+            <Errors error={form.error} />
             <div className="form-submit">
               <Submit
                 busy={form.busy}

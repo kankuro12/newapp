@@ -1050,6 +1050,18 @@ ion-spinner {
 .picker {
   position: relative;
 }
+.picker-added {
+  margin: 4px 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1d6b4f;
+  animation: picker-added 1.2s ease-out;
+}
+@keyframes picker-added {
+  from {
+    background: #dff0e3;
+  }
+}
 .picker-results {
   border: 1px solid #dce9ca;
   background: #fff;
@@ -2943,7 +2955,32 @@ th {
   flex-wrap: wrap;
 }
 .scan-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 16px;
+}
+.scan-entry > .field {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+.scan-entry > .error-box {
+  flex-basis: 100%;
+  margin: 0;
+}
+.scan-entry > ion-button {
+  margin: 0;
+}
+/* The placeholder names the scan box; the label stays for screen readers. */
+.scan-entry .field > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .scan-entry small {
   display: block;
@@ -4077,11 +4114,12 @@ th {
 .full-pos-search {
   display: flex;
   gap: 10px;
-  align-items: start;
+  align-items: center;
 }
 .full-pos-search > input {
   flex: 1;
-  padding: 10px 12px;
+  min-height: 42px;
+  padding: 9px 12px;
   border: 1px solid #d7d3c8;
   border-radius: 8px;
   font: inherit;
@@ -4327,7 +4365,7 @@ th {
 .full-pos-search > :last-child {
   flex: 1.2;
   display: flex;
-  align-items: end;
+  align-items: center;
   gap: 8px;
   padding: 0;
   border: 0;

@@ -36,6 +36,8 @@ export default function Picker({
     (payable ? 'payable' : customer === undefined ? '' : customer ? 'customer' : 'supplier');
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
+  // The box clears after each item pick, so name the item that was just added.
+  const [added, setAdded] = useState<{ name: string; count: number }>();
   const { data, error, loading } = useData<{ data: Lookup }>(
     open
       ? `${base}/lookup?q=${encodeURIComponent(query)}&party_role=${partyRole}&contact_id=${contactId || ''}&price_channel=${priceChannel}&${priceListId ? 'price_list_id=' + priceListId + '&' : ''}${businessDate ? 'business_date_bs=' + encodeURIComponent(businessDate) + '&' : ''}item_categories=${kind === 'item_categories' ? 1 : 0}`
@@ -47,6 +49,8 @@ export default function Picker({
   function choose(row: Item | Party | ItemCategory) {
     if (kind === 'item_categories') onPick(row as ItemCategory);
     else onPick(row as Item | Party);
+    if (kind === 'items')
+      setAdded((previous) => ({ name: row.name, count: (previous?.count || 0) + 1 }));
     setQuery('');
     setOpen(false);
   }
@@ -139,6 +143,11 @@ export default function Picker({
             Close search
           </IonButton>
         </div>
+      )}
+      {added && (
+        <p className="picker-added" role="status" key={added.count}>
+          {t('Added')}: {added.name}
+        </p>
       )}
     </div>
   );

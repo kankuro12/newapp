@@ -145,6 +145,7 @@ export const ne: Record<string, string> = {
   'Ask owner or manager to change product codes or scale formats.':
     'सामानको कोड वा तौल लेबलको ढाँचा बदल्न मालिक वा व्यवस्थापकलाई भन्नुहोस्।',
   'Scan / enter product code': 'सामानको कोड स्क्यान / लेख्नुहोस्',
+  'Scan or type code': 'कोड स्क्यान / लेख्नुहोस्',
   'Checking code…': 'कोड जाँच हुँदैछ…',
   'Add scanned item': 'स्क्यान गरेको सामान थप्नुहोस्',
   'Alternate product codes': 'सामानका वैकल्पिक कोड',
@@ -457,6 +458,7 @@ export const ne: Record<string, string> = {
   'Fulfilment overdue': 'काम बुझाउने म्याद नाघ्यो',
   Fulfilment: 'काम बुझाउने मिति',
   'Valid until': 'मान्य मिति',
+  Added: 'थपियो',
   'Cancel / reject reason': 'रद्द / अस्वीकृत गर्ने कारण',
   'Pay full amount': 'पूरै रकम तिर्नुहोस्',
   'Collections / payments': 'उठाउन / तिर्न बाँकी',

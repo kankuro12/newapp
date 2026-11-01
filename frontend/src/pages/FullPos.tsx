@@ -4,7 +4,7 @@ import { useWorkspace } from '../lib/context';
 import { request, useData, useSave } from '../lib/api';
 import { amount, bsDisplay, currency, format } from '../lib/money';
 import type { Doc, Item, ItemCategory, Lookup, Page, Party, Workflow } from '../lib/types';
-import { businessTypeLabel, jobTypes } from '../lib/businessTypes';
+import { jobTypes } from '../lib/businessTypes';
 import { Errors, Loading } from '../components/ui';
 import Picker from '../components/Picker';
 import { HelpLink } from '../components/Help';
@@ -85,7 +85,6 @@ export default function FullPos() {
         <div className="full-pos-business">
           <span className="brand-mark">b</span>
           <strong>{business.name}</strong>
-          <span className="badge active">{t(businessTypeLabel(profile))}</span>
           <span className="subtle">{bsDisplay(today)} BS</span>
         </div>
         <nav className="full-pos-modes" aria-label={t('POS modes')}>
@@ -496,31 +495,34 @@ function ProductGrid({
         />
         <ScanItem contactId={contactId} businessDate={today} disabled={disabled} onScan={onScan} />
       </div>
-      <div className="full-pos-categories">
-        <button
-          type="button"
-          aria-pressed={!category}
-          onClick={() => {
-            setCategory('');
-            setPage(1);
-          }}
-        >
-          {t('All')}
-        </button>
-        {categories.data?.data.slice(0, 9).map((row) => (
+      {/* Category chips only help when there is more than "All". */}
+      {!!categories.data?.data.length && (
+        <div className="full-pos-categories">
           <button
-            key={row.id}
             type="button"
-            aria-pressed={category === row.id}
+            aria-pressed={!category}
             onClick={() => {
-              setCategory(row.id);
+              setCategory('');
               setPage(1);
             }}
           >
-            {row.name}
+            {t('All')}
           </button>
-        ))}
-      </div>
+          {categories.data?.data.slice(0, 9).map((row) => (
+            <button
+              key={row.id}
+              type="button"
+              aria-pressed={category === row.id}
+              onClick={() => {
+                setCategory(row.id);
+                setPage(1);
+              }}
+            >
+              {row.name}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="full-pos-grid">
         {items.loading || items.error ? (
           <Loading error={items.error} retry={items.reload} />

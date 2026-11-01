@@ -143,7 +143,7 @@ export function MoneyForm() {
               input.allocations = Object.entries(allocations)
                 .filter(([, value]) => {
                   try {
-                    return amount(value) > 0n;
+                    return amount(value || '0') > 0n;
                   } catch {
                     return true;
                   }
@@ -271,7 +271,7 @@ export function MoneyForm() {
                         key={b.id}
                         label={`${b.number} · ${t('Available')} ${currency(b.available_paisa)}`}
                         inputMode="decimal"
-                        value={allocations[b.id] || '0'}
+                        value={allocations[b.id] ?? '0'}
                         onChange={(e) =>
                           setAllocations((previous) => ({ ...previous, [b.id]: e.target.value }))
                         }
@@ -435,7 +435,7 @@ export function ReturnForm() {
                         : undefined
                     }
                     inputMode="decimal"
-                    value={quantities[line.id] || '0'}
+                    value={quantities[line.id] ?? '0'}
                     onChange={(e) =>
                       setQuantities((previous) => ({ ...previous, [line.id]: e.target.value }))
                     }

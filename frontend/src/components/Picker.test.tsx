@@ -122,3 +122,51 @@ it('does not select one of several parties sharing same name', async () => {
   expect(pick).not.toHaveBeenCalled();
   expect(screen.getAllByRole('button', { name: /Ram/ })[0]).toHaveFocus();
 });
+it('confirms each picked item below the cleared search box', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            data: {
+              items: [
+                {
+                  id: '3',
+                  name: 'Energy bar',
+                  kind: 'service',
+                  sale_price_paisa: '12000',
+                  qty_milli: '0',
+                  unit_label: 'pc',
+                },
+              ],
+              contacts: [],
+              accounts: [],
+              categories: [],
+            },
+          }),
+        ),
+    ),
+  );
+  const pick = vi.fn();
+  const context = {
+    base: '/api/app/shop',
+    path: '/app/shop',
+    revision: 0,
+    t: (s: string) => s,
+  } as WorkspaceContext;
+  render(
+    <Context.Provider value={context}>
+      <Picker kind="items" onPick={pick} />
+    </Context.Provider>,
+  );
+  const input = screen.getByRole('textbox', { name: 'Add item' });
+  fireEvent.focus(input);
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: /Energy bar/ })).toBeInTheDocument(),
+  );
+  fireEvent.click(screen.getByRole('button', { name: /Energy bar/ }));
+  expect(pick).toHaveBeenCalledWith(expect.objectContaining({ id: '3' }));
+  expect(input).toHaveValue('');
+  expect(screen.getByRole('status')).toHaveTextContent('Added: Energy bar');
+});

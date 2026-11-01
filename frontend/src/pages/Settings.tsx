@@ -119,7 +119,7 @@ export function Opening() {
                 key={a.id}
                 label={`${a.name} (NPR)`}
                 inputMode="decimal"
-                value={money[a.id] || '0'}
+                value={money[a.id] ?? '0'}
                 onChange={(e) => setMoney((previous) => ({ ...previous, [a.id]: e.target.value }))}
               />
             ))}
