@@ -27,6 +27,9 @@ const kinds: Record<string, string> = {
   sales_order: 'Sales order',
   purchase_order: 'Purchase order',
 };
+/** Job-work businesses run each job as a sales order, so call it a job card there. */
+const kindLabel = (kind: string, profile?: string | null) =>
+  kind === 'sales_order' && jobTypes.includes(profile || '') ? 'Job card' : kinds[kind];
 const stages: Record<string, string> = {
   draft: 'Draft',
   sent: 'Sent',
@@ -51,7 +54,14 @@ const transitions: Record<string, string[]> = {
 
 export function WorkflowEditor() {
   const { kind = 'quote' } = useParams();
-  if (!kinds[kind]) return <p>Choose quote, sales order or purchase order.</p>;
+  const { path, t } = useWorkspace();
+  if (!kinds[kind])
+    return (
+      <p>
+        {t('This order type does not exist.')}{' '}
+        <Link to={path + '/workflows'}>{t('Open quotes / orders / jobs')}</Link>
+      </p>
+    );
   return <DocumentForm workflowKind={kind} />;
 }
 
@@ -83,8 +93,13 @@ export function WorkflowList() {
               )
         }
       >
+        {jobTypes.includes(business.pos_profile || '') && (
+          <Link to={path + '/workflows/new/sales_order'}>{t('New job card')}</Link>
+        )}
         <Link to={path + '/workflows/new/quote'}>{t('New quote')}</Link>
-        <Link to={path + '/workflows/new/sales_order'}>{t('New sales order')}</Link>
+        {!jobTypes.includes(business.pos_profile || '') && (
+          <Link to={path + '/workflows/new/sales_order'}>{t('New sales order')}</Link>
+        )}
         {!cashier && (
           <Link to={path + '/workflows/new/purchase_order'}>{t('New purchase order')}</Link>
         )}
@@ -109,9 +124,9 @@ export function WorkflowList() {
           <option value="">{t('All')}</option>
           {Object.entries(kinds)
             .filter(([key]) => !cashier || key !== 'purchase_order')
-            .map(([key, label]) => (
+            .map(([key]) => (
               <option key={key} value={key}>
-                {t(label)}
+                {t(kindLabel(key, business.pos_profile))}
               </option>
             ))}
         </Select>
@@ -149,7 +164,7 @@ export function WorkflowList() {
               <Link className="record-row" to={path + '/workflow/' + row.id} key={row.id}>
                 <div>
                   <strong>
-                    {row.number} · {t(kinds[row.kind])}
+                    {row.number} · {t(kindLabel(row.kind, business.pos_profile))}
                   </strong>
                   <small>
                     {[
@@ -220,7 +235,7 @@ export function WorkflowDetail() {
   return (
     <>
       <div className="no-print">
-        <Heading title={row.number + ' · ' + t(kinds[row.kind])}>
+        <Heading title={row.number + ' · ' + t(kindLabel(row.kind, business.pos_profile))}>
           <Status value={row.status} />
           <Link to={path + '/workflows'}>{t('Back')}</Link>
           {editable && (
@@ -343,7 +358,7 @@ export function WorkflowDetail() {
         <div className="invoice-party">
           <strong>{row.party_snapshot.name}</strong>
           <span>
-            {row.party_snapshot.phone} · {row.party_snapshot.address}
+            {[row.party_snapshot.phone, row.party_snapshot.address].filter(Boolean).join(' · ')}
           </span>
         </div>
         {row.title && <h2>{row.title}</h2>}
@@ -356,7 +371,7 @@ export function WorkflowDetail() {
         <p>
           {row.valid_until_bs && (
             <span>
-              {t('Valid until')}: {bsDisplay(row.valid_until_bs)} BS ·{' '}
+              {t('Valid until')}: {bsDisplay(row.valid_until_bs)} BS{row.due_date_bs ? ' · ' : ''}
             </span>
           )}
           {row.due_date_bs && (
@@ -563,7 +578,7 @@ export function WorkflowDetail() {
             {t('Post bill + payment')}
           </Submit>
           {!business.opening_finalized_at && (
-            <Link to={path + '/opening'}>{t('Starting balances')}</Link>
+            <Link to={path + '/opening'}>{t('Complete starting balances to post.')}</Link>
           )}
         </form>
       )}

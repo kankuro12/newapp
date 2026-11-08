@@ -55,9 +55,14 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
   const expense = type === 'expense';
   const sale = type === 'sale';
   const title = workflowKind
-    ? { quote: 'New quote', sales_order: 'New sales order', purchase_order: 'New purchase order' }[
-        workflowKind
-      ] || 'New order'
+    ? {
+        quote: 'New quote',
+        // Job-work businesses run each job as a sales order printed as a job card.
+        sales_order: jobTypes.includes(business.pos_profile || '')
+          ? 'New job card'
+          : 'New sales order',
+        purchase_order: 'New purchase order',
+      }[workflowKind] || 'New order'
     : sale
       ? 'New sale'
       : expense
@@ -846,16 +851,18 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                         ? 'Save changes'
                         : workflowKind === 'quote'
                           ? 'Save quote'
-                          : 'Save order',
+                          : title === 'New job card'
+                            ? 'Save job card'
+                            : 'Save order',
                     )
                   : draftId
-                    ? 'Save draft changes'
+                    ? t('Save draft changes')
                     : t('Post ' + type)}
               </Submit>
-              {!workflowKind && (
+              {!workflowKind && !draftId && (
                 <IonButton
                   fill="clear"
-                  disabled={locked || offerBlocked || !!previewError || !lines.length || !!draftId}
+                  disabled={locked || offerBlocked || !!previewError || !lines.length}
                   onClick={() => void save(true)}
                 >
                   {t('Save draft')}

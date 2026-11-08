@@ -197,6 +197,7 @@ export interface Doc {
   basket_offer_snapshot?: OfferProof | null;
   draft_input?: OfferEntry;
   due_date_bs?: number | null;
+  source_document_id?: string | null;
   id: string;
   type: string;
   status: string;

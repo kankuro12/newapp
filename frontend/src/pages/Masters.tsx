@@ -6,6 +6,7 @@ import { useWorkspace } from '../lib/context';
 import { send, useData, useSave } from '../lib/api';
 import { currency, format } from '../lib/money';
 import EntrySteps from '../components/EntrySteps';
+import { measurementUnits } from '../lib/measurement';
 import MeasurementUnits from '../components/MeasurementUnits';
 import type { Item, ItemCategory, Page, Party } from '../lib/types';
 import {
@@ -290,6 +291,11 @@ export function MasterForm({ resource }: { resource: 'contacts' | 'items' }) {
         }}
       >
         <Errors error={form.error || archiveError} />
+        {row?.archived_at && (
+          <p className="error-box" role="status">
+            {t('Archived. Restore it under Balances / actions to use it again.')}
+          </p>
+        )}
         <fieldset className="entry-lock" disabled={blocked || !canEdit}>
           <section className="panel entry-master" data-entry-step="0">
             <h2>{t(contacts ? 'Party' : 'Product')}</h2>
@@ -349,7 +355,12 @@ export function MasterForm({ resource }: { resource: 'contacts' | 'items' }) {
                     label={t('Unit')}
                     name="unit_label"
                     value={unit}
-                    onChange={(e) => setUnit(e.target.value)}
+                    onChange={(e) => {
+                      setUnit(e.target.value);
+                      // A typed known unit (kg, l, m…) also sets the billed base unit on new items.
+                      const code = e.target.value.trim().toLowerCase();
+                      if (!id && Object.hasOwn(measurementUnits, code)) setPosUnit(code);
+                    }}
                     required
                   />
                   <Field

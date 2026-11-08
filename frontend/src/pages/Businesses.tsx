@@ -54,6 +54,8 @@ export default function Businesses({ user, logout }: { user: User; logout: () =>
             >
               Packages
             </Link>
+            <Link to="/agents">{t('AI agents')}</Link>
+            <HelpLink section="start" />
             <IonButton
               fill="clear"
               disabled={blocked}
@@ -65,8 +67,6 @@ export default function Businesses({ user, logout }: { user: User; logout: () =>
             >
               {t('Sign out')}
             </IonButton>
-            <Link to="/agents">{t('AI agents')}</Link>
-            <HelpLink section="start" />
           </header>
           <Heading title={t(creating ? 'Start your business book' : 'Choose your business')}>
             {!creating && (

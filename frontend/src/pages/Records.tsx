@@ -74,9 +74,13 @@ export function DocumentList({ type }: { type: string }) {
                 <div>
                   <strong>{currency(doc.total_paisa)}</strong>
                   <small>
-                    {BigInt(doc.credit_paisa)
-                      ? `${t('Refund pending')}: ${currency(doc.credit_paisa)}`
-                      : `${t('Due')}: ${currency(doc.due_paisa)}`}
+                    {doc.source_document_id
+                      ? t('Return')
+                      : doc.status === 'draft'
+                        ? t('Not posted')
+                        : BigInt(doc.credit_paisa)
+                          ? `${t('Refund pending')}: ${currency(doc.credit_paisa)}`
+                          : `${t('Due')}: ${currency(doc.due_paisa)}`}
                   </small>
                 </div>
                 <Status value={doc.status} />
@@ -164,7 +168,17 @@ export function DocumentDetail() {
       <div className="panel invoice">
         <header className="invoice-header">
           <div>
-            <span className="eyebrow">BOOKKEEPING INVOICE</span>
+            <span className="eyebrow">
+              {doc.type === 'purchase'
+                ? 'PURCHASE BILL'
+                : doc.type === 'expense'
+                  ? 'EXPENSE RECORD'
+                  : doc.type === 'sale_return'
+                    ? 'SALES RETURN'
+                    : doc.type === 'purchase_return'
+                      ? 'PURCHASE RETURN'
+                      : 'BOOKKEEPING INVOICE'}
+            </span>
             <h2>{doc.business_snapshot.name}</h2>
             <p>
               {doc.business_snapshot.address}
@@ -251,14 +265,19 @@ export function DocumentDetail() {
             <span>{t('Total')}</span>
             <strong>{currency(doc.total_paisa)}</strong>
           </p>
-          <p>
-            <span>{t('Paid')}</span>
-            <strong>{currency(doc.net_settled_paisa)}</strong>
-          </p>
-          <p>
-            <span>{t('Due')}</span>
-            <strong>{currency(doc.due_paisa)}</strong>
-          </p>
+          {/* Returns only reduce their source bill, and drafts have nothing to pay yet. */}
+          {!doc.source_document_id && doc.status !== 'draft' && (
+            <>
+              <p>
+                <span>{t('Paid')}</span>
+                <strong>{currency(doc.net_settled_paisa)}</strong>
+              </p>
+              <p>
+                <span>{t('Due')}</span>
+                <strong>{currency(doc.due_paisa)}</strong>
+              </p>
+            </>
+          )}
           {BigInt(doc.credit_paisa) > 0n && (
             <p>
               <span>{t('Refund pending')}</span>
@@ -294,7 +313,7 @@ export function DocumentDetail() {
         )}
         {doc.status === 'posted' && (
           <div className="detail-actions">
-            {BigInt(doc.due_paisa) > 0n && (
+            {!doc.source_document_id && BigInt(doc.due_paisa) > 0n && (
               <IonButton
                 onClick={() =>
                   navigate(
@@ -372,7 +391,17 @@ export function DocumentDetail() {
             }}
           >
             <h2>Cancel mistaken entry</h2>
-            <p>Creates a linked reversal. Related payments and returns must be cancelled first.</p>
+            <p>
+              Creates a linked reversal. Related payments and returns must be cancelled first
+              {doc.payments.some((payment) => payment.status === 'posted') && (
+                <>
+                  {' '}
+                  —{' '}
+                  <Link to={`${path}/money?section=history`}>cancel payments in Money history</Link>
+                </>
+              )}
+              .
+            </p>
             <Errors error={form.error} />
             <Field
               label={t('Business date (BS)')}

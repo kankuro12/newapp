@@ -19,6 +19,9 @@ class BillingService
 
     private const WATCH_DAYS = 7;
 
+    /** Business access date stamped on businesses of an unlimited (platform test) account. */
+    public const UNLIMITED_UNTIL = '2037-12-31 23:59:59'; // TIMESTAMP columns end in Jan 2038.
+
     public function account(int $actor, int $account, array $roles = ['owner']): object
     {
         abort_if(DB::table('users')->where('id', $actor)->whereNotNull('disabled_at')->exists(), 403);
@@ -117,6 +120,10 @@ class BillingService
     public function entitlements(int $account): array
     {
         $row = DB::table('billing_accounts')->where('id', $account)->first() ?? abort(404);
+        if ($row->unlimited && $row->status !== 'suspended') {
+            return ['status' => 'active', 'unlimited' => true, 'end_at' => self::UNLIMITED_UNTIL, 'products' => self::products(), 'max_businesses' => null,
+                'package' => ['name' => 'Unlimited test account'], 'next' => null];
+        }
         $subscriptions = DB::table('billing_subscriptions')->where('billing_account_id', $account);
         // Terms run back to back, so the current one is the earliest-starting term not yet ended;
         // a renewal bought early is stacked after it and its terms apply only once it starts.
@@ -134,6 +141,41 @@ class BillingService
 
         return ['status' => $status, 'end_at' => $subscription->end_at, 'products' => $snapshot['products'], 'max_businesses' => $snapshot['max_businesses'], 'subscription_id' => (string) $subscription->id, 'package' => $snapshot,
             'next' => $next ? ['subscription_id' => (string) $next->id, 'start_at' => $next->start_at, 'end_at' => $next->end_at, 'package' => json_decode($next->package_snapshot, true, 512, JSON_THROW_ON_ERROR)] : null];
+    }
+
+    public function isUnlimited(int $account): bool
+    {
+        return (bool) DB::table('billing_accounts')->where('id', $account)->value('unlimited');
+    }
+
+    /**
+     * Platform switch for test/demo accounts. On: all business types, no limit, no expiry.
+     * Off: businesses fall back to the account's own package or trial (expired when none is live).
+     */
+    public function setUnlimited(int $admin, int $account, bool $unlimited, int $version, string $reason): object
+    {
+        return DB::transaction(function () use ($admin, $account, $unlimited, $version, $reason) {
+            $row = DB::table('billing_accounts')->where('id', $account)->lockForUpdate()->first() ?? abort(404);
+            abort_unless((int) $row->version === $version, 409, 'Account changed. Reload.');
+            DB::table('billing_accounts')->where('id', $account)->update(['unlimited' => $unlimited, 'version' => $row->version + 1, 'updated_at' => now()]);
+            $tenants = DB::table('tenants')->where('billing_account_id', $account)->where('access_status', '!=', 'suspended');
+            if ($unlimited) {
+                (clone $tenants)->update(['access_status' => 'active', 'access_until' => self::UNLIMITED_UNTIL, 'package_enabled' => true, 'data_version' => DB::raw('data_version + 1')]);
+            } else {
+                $terms = $this->entitlements($account);
+                $live = in_array($terms['status'], ['trial', 'active'], true);
+                (clone $tenants)->update($live
+                    ? ['access_status' => $terms['status'], 'access_until' => $terms['end_at'], 'trial_ends_at' => $terms['end_at'], 'data_version' => DB::raw('data_version + 1')]
+                    : ['access_status' => 'expired', 'access_until' => now(), 'data_version' => DB::raw('data_version + 1')]);
+                if ($live && $terms['max_businesses'] !== null) {
+                    $keep = (clone $tenants)->orderByDesc('package_enabled')->orderBy('id')->limit($terms['max_businesses'])->pluck('id');
+                    DB::table('tenants')->where('billing_account_id', $account)->whereNotIn('id', $keep)->update(['package_enabled' => false]);
+                }
+            }
+            DB::table('billing_audit_logs')->insert(['actor_id' => $admin, 'actor_guard' => 'superadmin', 'action' => $unlimited ? 'account.unlimited' : 'account.limited', 'subject_id' => $account, 'metadata' => json_encode(['reason' => $reason]), 'created_at' => now()]);
+
+            return DB::table('billing_accounts')->where('id', $account)->first();
+        }, 3);
     }
 
     public function businessAccess(Tenant $tenant, bool $write, string $role): void
@@ -158,7 +200,7 @@ class BillingService
 
     public function requireProduct(int $account, string $product): void
     {
-        abort_unless(in_array($product, $this->entitlements($account)['products'], true), 403, 'Product unavailable in this package.');
+        abort_unless(in_array($product, $this->entitlements($account)['products'], true), 403, 'This business type is not in your package. Choose another type, or get a package that includes it from Packages.');
     }
 
     public function prepareBusiness(int $actor, int $account): array
@@ -418,7 +460,9 @@ class BillingService
             DB::table('subscription_payments')->where('id', $attemptId)->update(['status' => 'verified', 'provider_transaction_id' => $verified['provider_transaction_id'], 'subscription_id' => $subscription, 'updated_at' => now()]);
             DB::table('billing_accounts')->where('id', $attempt->billing_account_id)->update(['legacy_access' => false, 'version' => DB::raw('version + 1'), 'updated_at' => now()]);
             // Retained businesses keep working through the whole paid span; the allowance switches when the term starts.
-            DB::table('tenants')->where('billing_account_id', $attempt->billing_account_id)->whereIn('id', $retained)->where('access_status', '!=', 'suspended')->update(['access_status' => 'active', 'access_until' => $end]);
+            if (! $this->isUnlimited((int) $attempt->billing_account_id)) {
+                DB::table('tenants')->where('billing_account_id', $attempt->billing_account_id)->whereIn('id', $retained)->where('access_status', '!=', 'suspended')->update(['access_status' => 'active', 'access_until' => $end]);
+            }
             if ($start->lte(now())) {
                 $this->applyTerms($subscription);
             }
@@ -442,6 +486,10 @@ class BillingService
             DB::table('billing_accounts')->where('id', $candidate->billing_account_id)->lockForUpdate()->first();
             $subscription = DB::table('billing_subscriptions')->where('id', $subscriptionId)->lockForUpdate()->first();
             if ($subscription->applied_at || $subscription->revoked_at || now()->lt($subscription->start_at)) {
+                return false;
+            }
+            if ($this->isUnlimited((int) $subscription->billing_account_id)) {
+                // Unlimited accounts keep every business; the allowance applies if the flag is removed.
                 return false;
             }
             $tenants = DB::table('tenants')->where('billing_account_id', $subscription->billing_account_id);

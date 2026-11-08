@@ -77,7 +77,7 @@ export default function FulfilmentDetail() {
           <div className="invoice-party">
             <strong>{row.party_snapshot.name}</strong>
             <span>
-              {row.party_snapshot.phone} · {row.party_snapshot.address}
+              {[row.party_snapshot.phone, row.party_snapshot.address].filter(Boolean).join(' · ')}
             </span>
           </div>
         )}

@@ -387,7 +387,13 @@ export function PriceListEditor() {
     try {
       const percent = amount(draft.adjustment_percent);
       if (percent > (draft.adjustment_mode === 'decrease' ? 9999n : 100000n))
-        throw new Error(t('Percentage exceeds supported limit.'));
+        throw new Error(
+          t(
+            draft.adjustment_mode === 'decrease'
+              ? 'Decrease must be less than 100%.'
+              : 'Increase can be at most 1000%.',
+          ),
+        );
       const seen = new Map<string, Set<string>>();
       for (const row of draft.rules) {
         const qty = quantity(row.min_qty),
@@ -696,6 +702,7 @@ export function PartyListAssignments({
   const [sale, setSale] = useState(party.sales_price_list_id || '');
   const [purchase, setPurchase] = useState(party.purchase_price_list_id || '');
   const version = useRef(party.trading_version);
+  const [saved, setSaved] = useState(false);
   const baseline = useRef(JSON.stringify([sale, purchase]));
   const dirty = JSON.stringify([sale, purchase]) !== baseline.current;
   const locked = form.busy || form.uncertain || !!party.archived_at || disabled;
@@ -727,6 +734,7 @@ export function PartyListAssignments({
           (row) => {
             version.current = row.trading_version;
             baseline.current = JSON.stringify([sale, purchase]);
+            setSaved(true);
             changed();
           },
           'PATCH',
@@ -736,6 +744,9 @@ export function PartyListAssignments({
       <h2>{t('Shared price lists')}</h2>
       <Link to={path + '/price-lists'}>{t('Manage price lists')}</Link>
       <Errors error={form.error} />
+      {saved && !dirty && !form.busy && !form.error && (
+        <p role="status">{t('Price list assignment saved.')}</p>
+      )}
       {form.uncertain && (
         <IonButton disabled={form.busy} onClick={() => void form.retry()}>
           {t('Retry original action')}

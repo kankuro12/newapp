@@ -292,7 +292,7 @@ export function Followups() {
               <div>
                 <strong>{row.title}</strong>
                 <small>
-                  {row.party_name} · {row.phone} · {row.assigned_name}
+                  {[row.party_name, row.phone, row.assigned_name].filter(Boolean).join(' · ')}
                 </small>
               </div>
               <span>
@@ -360,9 +360,7 @@ export function FollowupDetail() {
         <Link to={path + '/contacts/' + row.contact_id}>
           <h2>{row.party_name}</h2>
         </Link>
-        <p>
-          {row.phone} · {row.channel} · {row.assigned_name}
-        </p>
+        <p>{[row.phone, row.channel, row.assigned_name].filter(Boolean).join(' · ')}</p>
         <p>
           {bsDisplay(row.due_date_bs)} BS{' '}
           {row.overdue && <strong className="error-text">{t('Overdue')}</strong>}
@@ -448,6 +446,7 @@ export function PartyTrading() {
   const [price, setPrice] = useState('');
   const [enabled, setEnabled] = useState(true);
   const policy = useSave();
+  const [termsSaved, setTermsSaved] = useState(false);
   const pricing = useSave();
   const [cached, setCached] = useState<Party>();
   const policyVersion = useRef<number | undefined>(undefined);
@@ -500,6 +499,7 @@ export function PartyTrading() {
             (row) => {
               baseline.current = JSON.stringify([limit, saleDays, purchaseDays]);
               policyVersion.current = row.trading_version;
+              setTermsSaved(true);
               changed();
             },
             'PATCH',
@@ -509,6 +509,9 @@ export function PartyTrading() {
         <h2>{t('Payment terms / credit')}</h2>
         <Errors error={policy.error} />
         <Retry form={policy} />
+        {termsSaved && !policy.busy && !policy.error && (
+          <p role="status">{t('Payment terms saved.')}</p>
+        )}
         <fieldset
           className="import-fields"
           disabled={policy.busy || policy.uncertain || unavailable || !!party.archived_at}

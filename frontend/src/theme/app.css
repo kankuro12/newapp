@@ -568,6 +568,10 @@ ion-spinner {
   color: #58675a;
 }
 .badge.draft,
+.badge.unlimited {
+  background: #e3eefc;
+  color: #2c4a6b;
+}
 .badge.trial {
   background: #fdf2e3;
   color: #58675a;
@@ -1070,7 +1074,18 @@ ion-spinner {
   max-height: 290px;
   overflow: auto;
   padding: 5px;
-  margin: -10px 0 20px;
+  /* Float over the form so opening the list never pushes or reflows the page. */
+  position: absolute;
+  z-index: 30;
+  /* No top: the static position keeps it right under the search field. */
+  margin-top: 4px;
+  left: 0;
+  width: 100%;
+  min-width: min(280px, calc(100vw - 32px));
+}
+.picker-results.align-right {
+  left: auto;
+  right: 0;
 }
 .picker-option {
   display: flex;
@@ -1091,6 +1106,12 @@ ion-spinner {
 }
 .picker-option strong {
   font-size: 13px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.picker-option small {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .picker-option small {
   font-size: 10px;

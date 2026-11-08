@@ -1363,7 +1363,15 @@ function Appointments({ config }: { config: Config }) {
           ['new', 'Book appointment'],
           ['walk_in', 'Walk-in sale'],
         ].map(([key, label]) => (
-          <button type="button" key={key} aria-pressed={view === key} onClick={() => setView(key)}>
+          <button
+            type="button"
+            key={key}
+            aria-pressed={view === key}
+            onClick={() => {
+              form.clear(); // an old booking error should not follow the user to another tab
+              setView(key);
+            }}
+          >
             {t(label)}
           </button>
         ))}
@@ -1583,9 +1591,7 @@ function Appointments({ config }: { config: Config }) {
               <h2>
                 {fresh.client_name} · {time(fresh.start_minute)}
               </h2>
-              <p>
-                {fresh.resource_name} · {fresh.phone} · {fresh.notes}
-              </p>
+              <p>{[fresh.resource_name, fresh.phone, fresh.notes].filter(Boolean).join(' · ')}</p>
               <Status value={fresh.status} />
               {fresh.document_id ? (
                 <Link to={path + '/document/' + fresh.document_id}>{t('Open bill')}</Link>
@@ -1802,7 +1808,7 @@ export function PosSetup() {
           <Select label={t('Business type')} value={profile} onChange={setProfile}>
             {config.data?.data.profiles.map((key) => (
               <option key={key} value={key}>
-                {t(titles[key])}
+                {t(businessTypeLabel(key))}
               </option>
             ))}
           </Select>
@@ -1893,11 +1899,13 @@ export function PosSetup() {
                 <span>
                   {row.name}
                   <small>
-                    {row.kind} ·{' '}
-                    {row.kind === 'staff'
-                      ? `${time(row.start_minute)}–${time(row.end_minute)}`
-                      : ''}{' '}
-                    · {row.active ? t('Enabled') : t('Disabled')}
+                    {[
+                      t(row.kind === 'table' ? 'Restaurant table' : 'Staff / chair'),
+                      row.kind === 'staff' && `${time(row.start_minute)}–${time(row.end_minute)}`,
+                      t(row.active ? 'Enabled' : 'Disabled'),
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
                   </small>
                 </span>
                 <IonButton
@@ -1971,7 +1979,7 @@ export function PosSetup() {
           <Select label={t('Business type')} value={branchProfile} onChange={setBranchProfile}>
             {config.data?.data.profiles.map((key) => (
               <option key={key} value={key}>
-                {t(titles[key])}
+                {t(businessTypeLabel(key))}
               </option>
             ))}
           </Select>

@@ -100,6 +100,10 @@ class BusinessFlowTest extends TestCase
         $this->assertSame([-3000, -30000], [(int) $pool->qty_milli, (int) $pool->value_paisa]);
         $this->assertDatabaseHas('journal_entries', ['source_type' => 'stock_cost', 'source_event' => 'reverse']);
         $balanced();
+        // The negative-stock notice points owners to a stock count, so counting from below zero must work.
+        $this->postAction($url.'/stock-adjustments', ['business_date_bs' => $date, 'item_id' => $item, 'counted_qty' => '5', 'expected_qty_milli' => '-3000', 'unit_cost' => '100', 'reason' => 'Shelf count'])->assertCreated();
+        $this->assertSame(5000, (int) DB::table('inventory_balances')->where('item_id', $item)->value('qty_milli'));
+        $balanced();
     }
 
     public function test_tenants_and_super_admin_guards_are_isolated(): void

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Tenant;
 use App\NepaliDate;
 use App\Service\AccountingService;
+use App\Service\CatalogService;
 use App\Service\DocumentService;
 use App\Service\FulfilmentService;
 use App\Service\InventoryService;
@@ -32,6 +33,9 @@ class BusinessController extends Controller
         }
         if ($value instanceof Arrayable) {
             $value = $value->toArray();
+        }
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format(\DateTimeInterface::ATOM);
         }
         if (is_object($value)) {
             $value = (array) $value;
@@ -74,13 +78,20 @@ class BusinessController extends Controller
     {
         abort_if(auth('tenant')->user()?->disabled_at, 401);
         $rows = DB::table('tenant_user')->where('user_id', auth('tenant')->id())->where('active', true)->join('tenants', 'tenants.id', '=', 'tenant_user.tenant_id')->select('tenants.*', 'tenant_user.role')->orderBy('tenants.name')->get();
+        foreach ($rows as $row) {
+            // Same expiry rule as ResolveTenant, so a lapsed trial is not shown as "trial".
+            $expiry = $row->access_status === 'trial' ? $row->trial_ends_at : $row->access_until;
+            if (in_array($row->access_status, ['trial', 'active'], true) && (! $expiry || now()->gte($expiry))) {
+                $row->access_status = 'expired';
+            }
+        }
 
         return response()->json(['data' => self::json($rows)])->header('Cache-Control', 'no-store');
     }
 
     public function createBusiness(Request $r, TenantService $service): JsonResponse
     {
-        $input = $r->validate(['billing_account_id' => 'sometimes|integer|min:1', 'name' => 'required|string|max:150', 'business_type' => ['sometimes', Rule::in(PosService::PROFILES)], 'address' => 'nullable|string|max:500', 'phone' => 'nullable|string|max:30', 'pan' => 'nullable|string|max:30', 'default_locale' => 'sometimes|in:en,ne']);
+        $input = $r->validate(['billing_account_id' => 'sometimes|integer|min:1', 'name' => 'required|string|max:150', 'business_type' => ['sometimes', Rule::in(PosService::PROFILES)], 'address' => 'nullable|string|max:500', 'phone' => ['nullable', 'string', 'max:30', CatalogService::PHONE_FORMAT], 'pan' => 'nullable|string|max:30', 'default_locale' => 'sometimes|in:en,ne']);
 
         return response()->json(['data' => self::json($service->create(auth('tenant')->id(), $input))], 201);
     }
@@ -303,7 +314,7 @@ class BusinessController extends Controller
 
     public function countStock(Request $r, InventoryService $stock): JsonResponse
     {
-        $input = $r->validate(['mutation_uuid' => 'required|uuid', 'item_id' => 'required|integer|min:1', 'counted_qty' => 'required|string|max:20', 'expected_qty_milli' => 'required|regex:/^\d{1,18}$/', 'unit_cost' => 'sometimes|string|max:20', 'zero_cost_confirmed' => 'sometimes|boolean', 'business_date_bs' => $this->dateRule(), 'reason' => 'required|string|min:5|max:500']);
+        $input = $r->validate(['mutation_uuid' => 'required|uuid', 'item_id' => 'required|integer|min:1', 'counted_qty' => 'required|string|max:20', 'expected_qty_milli' => 'required|regex:/^-?\d{1,18}$/', 'unit_cost' => 'sometimes|string|max:20', 'zero_cost_confirmed' => 'sometimes|boolean', 'business_date_bs' => $this->dateRule(), 'reason' => 'required|string|min:5|max:500']);
 
         return $this->result($stock->adjust(auth('tenant')->id(), $input, $input['mutation_uuid']));
     }

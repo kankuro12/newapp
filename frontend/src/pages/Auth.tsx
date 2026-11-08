@@ -258,7 +258,9 @@ export function Verify({ user, reload }: { user: User; reload: () => void }) {
               onClick={async () => {
                 try {
                   await send('/email/verification-notification', {});
-                  setMessage('Verification link sent.');
+                  setMessage(
+                    'New link on its way. It can take a few minutes; check Spam and Promotions. Use the newest email: each link works for 60 minutes.',
+                  );
                 } catch (e) {
                   setError(e as Error);
                 }

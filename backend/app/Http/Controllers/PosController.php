@@ -7,6 +7,7 @@ use App\NepaliDate;
 use App\Service\AccountingService;
 use App\Service\AppointmentService;
 use App\Service\BillingService;
+use App\Service\CatalogService;
 use App\Service\PosService;
 use App\Service\RestaurantService;
 use App\Service\TenantService;
@@ -184,7 +185,7 @@ class PosController extends Controller
     public function booking(Request $r): JsonResponse
     {
         $actor = $this->staff();
-        $input = $r->validate(['mutation_uuid' => 'required|uuid', 'resource_id' => 'required|integer|min:1', 'business_date_bs' => $this->business->dateRule(), 'start_minute' => 'required|integer|min:0|max:1439', 'client_name' => 'required|string|max:150', 'phone' => 'nullable|string|max:30', 'contact_id' => 'nullable|integer|min:1', 'item_ids' => 'sometimes|array|max:30', 'item_ids.*' => 'required|integer|min:1', 'duration_minutes' => 'sometimes|integer|min:1|max:720', 'status' => 'required|in:booked,blocked', 'notes' => 'nullable|string|max:1000']);
+        $input = $r->validate(['mutation_uuid' => 'required|uuid', 'resource_id' => 'required|integer|min:1', 'business_date_bs' => $this->business->dateRule(), 'start_minute' => 'required|integer|min:0|max:1439', 'client_name' => 'required|string|max:150', 'phone' => ['nullable', 'string', 'max:30', CatalogService::PHONE_FORMAT], 'contact_id' => 'nullable|integer|min:1', 'item_ids' => 'sometimes|array|max:30', 'item_ids.*' => 'required|integer|min:1', 'duration_minutes' => 'sometimes|integer|min:1|max:720', 'status' => 'required|in:booked,blocked', 'notes' => 'nullable|string|max:1000']);
 
         return $this->result($this->appointments->create($actor, $input, $input['mutation_uuid']));
     }

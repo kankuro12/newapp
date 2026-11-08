@@ -11,6 +11,7 @@ interface AccountRow {
   id: string;
   name: string;
   status: string;
+  unlimited: boolean;
   version: string;
   package_status: string;
   package: string | null;
@@ -127,7 +128,7 @@ function Accounts() {
     `/api/platform/accounts?page=${page}&q=${encodeURIComponent(query)}`,
     revision,
   );
-  const [selected, setSelected] = useState<AccountRow>();
+  const [selected, setSelected] = useState<{ row: AccountRow; action: 'status' | 'unlimited' }>();
   return (
     <>
       <Field
@@ -148,12 +149,23 @@ function Accounts() {
                 <strong>{row.name}</strong>
                 <small>{row.owner_email}</small>
                 <small>
-                  {row.business_count} businesses · {row.package || 'No package'} · until{' '}
-                  {nepal(row.end_at)}
+                  {row.business_count} businesses · {row.package || 'No package'}
+                  {row.unlimited ? ' · no expiry or limits' : ` · until ${nepal(row.end_at)}`}
                 </small>
               </div>
-              <Status value={row.status === 'suspended' ? 'suspended' : row.package_status} />
-              <IonButton fill="outline" onClick={() => setSelected(row)}>
+              <Status
+                value={
+                  row.status === 'suspended'
+                    ? 'suspended'
+                    : row.unlimited
+                      ? 'unlimited'
+                      : row.package_status
+                }
+              />
+              <IonButton fill="outline" onClick={() => setSelected({ row, action: 'unlimited' })}>
+                {row.unlimited ? 'Remove unlimited' : 'Make unlimited'}
+              </IonButton>
+              <IonButton fill="outline" onClick={() => setSelected({ row, action: 'status' })}>
                 {row.status === 'suspended' ? 'Restore' : 'Suspend'}
               </IonButton>
             </div>
@@ -163,23 +175,46 @@ function Accounts() {
       </section>
       {selected && (
         <Confirm
-          title={`${selected.status === 'suspended' ? 'Restore' : 'Suspend'} ${selected.name}`}
+          key={selected.row.id + selected.action}
+          title={
+            selected.action === 'unlimited'
+              ? `${selected.row.unlimited ? 'Remove unlimited from' : 'Make unlimited:'} ${selected.row.name}`
+              : `${selected.row.status === 'suspended' ? 'Restore' : 'Suspend'} ${selected.row.name}`
+          }
           submit={(secret) =>
-            send(
-              `/api/platform/accounts/${selected.id}/status`,
-              {
-                ...secret,
-                status: selected.status === 'suspended' ? 'active' : 'suspended',
-                version: Number(selected.version),
-              },
-              'PATCH',
-            )
+            selected.action === 'unlimited'
+              ? send(
+                  `/api/platform/accounts/${selected.row.id}/unlimited`,
+                  {
+                    ...secret,
+                    unlimited: !selected.row.unlimited,
+                    version: Number(selected.row.version),
+                  },
+                  'PATCH',
+                )
+              : send(
+                  `/api/platform/accounts/${selected.row.id}/status`,
+                  {
+                    ...secret,
+                    status: selected.row.status === 'suspended' ? 'active' : 'suspended',
+                    version: Number(selected.row.version),
+                  },
+                  'PATCH',
+                )
           }
           onDone={() => {
             setSelected(undefined);
             setRevision((n) => n + 1);
           }}
-        />
+        >
+          {selected.action === 'unlimited' && (
+            <p className="subtle">
+              {selected.row.unlimited
+                ? 'Businesses go back to this account’s own package or trial. With none live they become read-only.'
+                : 'For test and demo accounts: every business type, no business limit and no expiry until removed.'}
+            </p>
+          )}
+        </Confirm>
       )}
     </>
   );

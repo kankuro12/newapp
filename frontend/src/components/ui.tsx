@@ -108,11 +108,16 @@ export function OptionalDetails({ label, children }: { label: string; children: 
 export function Errors({ error }: { error?: Error }) {
   return error ? (
     <div className="error-box" role="alert">
-      <strong>{error.message}</strong>
-      {error instanceof ApiError &&
+      {error instanceof ApiError && Object.keys(error.errors).length ? (
+        // Laravel's headline only repeats the first field message ("…(and 2 more errors)").
         Object.entries(error.errors).map(([key, messages]) => (
-          <p key={key}>{messages.join(' ')}</p>
-        ))}
+          <p key={key}>
+            <strong>{messages.join(' ')}</strong>
+          </p>
+        ))
+      ) : (
+        <strong>{error.message}</strong>
+      )}
     </div>
   ) : null;
 }

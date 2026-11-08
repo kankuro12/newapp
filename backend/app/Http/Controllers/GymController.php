@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Service\AccountingService;
+use App\Service\CatalogService;
 use App\Service\GymService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -58,7 +59,7 @@ class GymController extends Controller
     public function createMember(Request $request): JsonResponse
     {
         $input = $request->validate(['mutation_uuid' => 'required|uuid', 'business_date_bs' => $this->business->dateRule(), 'contact_id' => 'nullable|integer|min:1',
-            'name' => 'nullable|string|max:150', 'phone' => 'nullable|string|max:30', 'member_code' => 'nullable|string|max:30', 'notes' => 'nullable|string|max:500']);
+            'name' => 'nullable|string|max:150', 'phone' => ['nullable', 'string', 'max:30', CatalogService::PHONE_FORMAT], 'member_code' => 'nullable|string|max:30', 'notes' => 'nullable|string|max:500']);
 
         return $this->result($this->gym->createMember($this->actor(), $input, $input['mutation_uuid']));
     }

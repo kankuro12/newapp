@@ -296,6 +296,8 @@ export function ReportTable({
     'normal_side',
     'system_key',
     'money_kind',
+    'fulfilment_line_id',
+    'variance_journal_id',
   ];
   const keys = Object.keys(rows[0]).filter((key) => !ignored.includes(key));
   const label = (key: string) =>
@@ -305,6 +307,7 @@ export function ReportTable({
       ] ||
         key
           .replace(/_(paisa|milli)$/, '')
+          .replace(/_bs$/, ' (BS)')
           .replaceAll('_', ' ')
           .replace(/^received$/, 'Money in')
           .replace(/^paid$/, 'Money out'),
@@ -335,9 +338,13 @@ export function ReportTable({
                         ? format(String(row[key] ?? 0), 3)
                         : key.endsWith('_bs')
                           ? bsDisplay(String(row[key] || ''))
-                          : typeof row[key] === 'object'
-                            ? JSON.stringify(row[key])
-                            : String(row[key] ?? '')}
+                          : row[key] === null
+                            ? ''
+                            : typeof row[key] === 'object'
+                              ? JSON.stringify(row[key])
+                              : ['bucket', 'type', 'source_type', 'channel'].includes(key)
+                                ? String(row[key]).replaceAll('_', ' ')
+                                : String(row[key] ?? '')}
                   </td>
                 ))}
               </tr>

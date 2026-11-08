@@ -89,6 +89,15 @@ class PartyTradingTest extends TestCase
         $this->getJson($s['url'].'/lookup?contact_id='.$s['party'])->assertUnprocessable();
     }
 
+    public function test_party_phone_format_and_overpaid_bill_message(): void
+    {
+        $s = $this->shop();
+        $this->postJson($s['url'].'/contacts', ['name' => 'Bad phone', 'phone' => 'abc123', 'is_customer' => true, 'is_supplier' => false])->assertUnprocessable()->assertJsonValidationErrors('phone');
+        $this->postJson($s['url'].'/contacts', ['name' => 'Nepali phone', 'phone' => '९८४१-२३४५६७', 'is_customer' => true, 'is_supplier' => false])->assertCreated();
+        $this->postJson($s['url'].'/contacts', ['name' => 'Office', 'phone' => '+977 (01) 4412345', 'is_customer' => true, 'is_supplier' => false])->assertCreated();
+        $this->postJson($s['url'].'/documents/sale', $this->sale($s, '150'))->assertUnprocessable()->assertJsonFragment(['Paid now cannot be more than the bill total.']);
+    }
+
     public function test_followup_history_assignment_roles_and_collection_balances(): void
     {
         $s = $this->shop();

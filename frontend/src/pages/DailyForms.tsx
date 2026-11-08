@@ -551,6 +551,7 @@ export function CountForm() {
   const [reason, setReason] = useState('');
   const [date, setDate] = useState(bsDisplay(today));
   const [zero, setZero] = useState(false);
+  const [saved, setSaved] = useState('');
   const form = useSave();
   const cancel = useSave();
   const locked = form.busy || form.uncertain;
@@ -629,130 +630,137 @@ export function CountForm() {
           )}
         </section>
       ) : (
-        <EntrySteps
-          key={entry}
-          labels={['Item', 'Count', 'Review'].map(t)}
-          dirty={!!item}
-          busy={locked}
-          error={form.error}
-          t={t}
-          canContinue={[!!item, validCount]}
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (locked) return;
-            void form.save(
-              `${base}/stock-adjustments`,
-              {
-                item_id: item?.id,
-                counted_qty: count,
-                expected_qty_milli: item?.qty_milli,
-                unit_cost: cost,
-                business_date_bs: date,
-                reason,
-                zero_cost_confirmed: zero,
-              },
-              () => {
-                changed();
-                setItem(undefined);
-                setCount('0');
-                setCost('0');
-                setReason('');
-                setZero(false);
-                setEntry((value) => value + 1);
-              },
-            );
-          }}
-        >
-          <Errors error={form.error} />
-          {form.uncertain && (
-            <IonButton disabled={form.busy} onClick={() => void form.retry()}>
-              {t('Retry original action')}
-            </IonButton>
-          )}
-          <fieldset className="entry-lock" disabled={locked}>
-            <div className="form-main">
-              <section className="panel" data-entry-step="0">
-                <h2>{t('Item')}</h2>
-                {item ? (
-                  <div className="selected-party">
-                    <div>
-                      <strong>{item.name}</strong>
-                      <small>
-                        {t('Recorded stock')} {format(item.qty_milli, 3)} {item.unit_label}
-                      </small>
+        <>
+          {saved && <p role="status">{saved}</p>}
+          <EntrySteps
+            key={entry}
+            labels={['Item', 'Count', 'Review'].map(t)}
+            dirty={!!item}
+            busy={locked}
+            error={form.error}
+            t={t}
+            canContinue={[!!item, validCount]}
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (locked) return;
+              setSaved('');
+              void form.save(
+                `${base}/stock-adjustments`,
+                {
+                  item_id: item?.id,
+                  counted_qty: count,
+                  expected_qty_milli: item?.qty_milli,
+                  unit_cost: cost,
+                  business_date_bs: date,
+                  reason,
+                  zero_cost_confirmed: zero,
+                },
+                () => {
+                  changed();
+                  setSaved(
+                    `${t('Stock count saved')}: ${item?.name} → ${count} ${item?.unit_label || ''}`,
+                  );
+                  setItem(undefined);
+                  setCount('0');
+                  setCost('0');
+                  setReason('');
+                  setZero(false);
+                  setEntry((value) => value + 1);
+                },
+              );
+            }}
+          >
+            <Errors error={form.error} />
+            {form.uncertain && (
+              <IonButton disabled={form.busy} onClick={() => void form.retry()}>
+                {t('Retry original action')}
+              </IonButton>
+            )}
+            <fieldset className="entry-lock" disabled={locked}>
+              <div className="form-main">
+                <section className="panel" data-entry-step="0">
+                  <h2>{t('Item')}</h2>
+                  {item ? (
+                    <div className="selected-party">
+                      <div>
+                        <strong>{item.name}</strong>
+                        <small>
+                          {t('Recorded stock')} {format(item.qty_milli, 3)} {item.unit_label}
+                        </small>
+                      </div>
+                      <IonButton fill="clear" onClick={() => setItem(undefined)}>
+                        {t('Change')}
+                      </IonButton>
                     </div>
-                    <IonButton fill="clear" onClick={() => setItem(undefined)}>
-                      {t('Change')}
-                    </IonButton>
-                  </div>
-                ) : (
-                  <Picker
-                    kind="items"
-                    stockOnly
-                    onPick={(row) => {
-                      setItem(row as Item);
-                      setCount(format((row as Item).qty_milli, 3));
-                      setZero(false);
-                    }}
+                  ) : (
+                    <Picker
+                      kind="items"
+                      stockOnly
+                      onPick={(row) => {
+                        setItem(row as Item);
+                        setCount(format((row as Item).qty_milli, 3));
+                        setZero(false);
+                      }}
+                    />
+                  )}
+                </section>
+                <section className="panel" data-entry-step="1">
+                  <h2>{t('Count')}</h2>
+                  <Field
+                    label={t('Physically counted quantity')}
+                    name="counted_qty"
+                    inputMode="decimal"
+                    value={count}
+                    onChange={(e) => setCount(e.target.value)}
+                    required
                   />
-                )}
-              </section>
-              <section className="panel" data-entry-step="1">
-                <h2>{t('Count')}</h2>
-                <Field
-                  label={t('Physically counted quantity')}
-                  name="counted_qty"
-                  inputMode="decimal"
-                  value={count}
-                  onChange={(e) => setCount(e.target.value)}
-                  required
-                />
-                <Field
-                  label={t('Cost per extra unit (NPR)')}
-                  name="unit_cost"
-                  inputMode="decimal"
-                  value={cost}
-                  onChange={(e) => setCost(e.target.value)}
-                />
-                <OptionalDetails label={t('Zero-cost extra stock')}>
-                  <Check checked={zero} onChange={setZero}>
-                    {t('Confirm extra stock has zero cost')}
-                  </Check>
-                </OptionalDetails>
-              </section>
-              <section className="panel" data-entry-step="2">
-                <h2>{t('Review')}</h2>
-                <p className="daily-review">
-                  {item?.name} · {t('Recorded stock')} {item && format(item.qty_milli, 3)} → {count}{' '}
-                  {item?.unit_label}
-                </p>
-                <p className="daily-review">
-                  {t('Extra unit cost')}: {cost} NPR{zero && ` · ${t('Zero cost confirmed')}`}
-                </p>
-                <Field
-                  label={t('Business date (BS)')}
-                  name="business_date_bs"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  required
-                />
-                <Field
-                  label={t('Reason')}
-                  name="reason"
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  minLength={5}
-                  required
-                />
-                <div className="daily-submit">
-                  <Submit busy={form.busy} disabled={locked || !item || !validCount}>
-                    {t('Save count')}
-                  </Submit>
-                </div>
-              </section>
-            </div>
-          </fieldset>
-        </EntrySteps>
+                  <Field
+                    label={t('Cost per extra unit (NPR)')}
+                    name="unit_cost"
+                    inputMode="decimal"
+                    value={cost}
+                    onChange={(e) => setCost(e.target.value)}
+                  />
+                  <OptionalDetails label={t('Zero-cost extra stock')}>
+                    <Check checked={zero} onChange={setZero}>
+                      {t('Confirm extra stock has zero cost')}
+                    </Check>
+                  </OptionalDetails>
+                </section>
+                <section className="panel" data-entry-step="2">
+                  <h2>{t('Review')}</h2>
+                  <p className="daily-review">
+                    {item?.name} · {t('Recorded stock')} {item && format(item.qty_milli, 3)} →{' '}
+                    {count} {item?.unit_label}
+                  </p>
+                  <p className="daily-review">
+                    {t('Extra unit cost')}: {cost} NPR{zero && ` · ${t('Zero cost confirmed')}`}
+                  </p>
+                  <Field
+                    label={t('Business date (BS)')}
+                    name="business_date_bs"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    required
+                  />
+                  <Field
+                    label={t('Reason')}
+                    name="reason"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    minLength={5}
+                    required
+                  />
+                  <div className="daily-submit">
+                    <Submit busy={form.busy} disabled={locked || !item || !validCount}>
+                      {t('Save count')}
+                    </Submit>
+                  </div>
+                </section>
+              </div>
+            </fieldset>
+          </EntrySteps>
+        </>
       )}
     </div>
   );

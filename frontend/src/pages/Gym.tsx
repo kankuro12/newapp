@@ -128,7 +128,8 @@ function Today() {
         <Errors error={checkin.error} />
         {message && <p role="status">{message}</p>}
         <MemberSearch
-          onPick={(member) =>
+          onPick={(member) => {
+            setMessage('');
             void checkin.save(
               `${base}/gym/checkins`,
               { member_id: member.id, business_date_bs: today, minute: nowMinute() },
@@ -136,8 +137,8 @@ function Today() {
                 setMessage(`${member.name} ${t('checked in.')}`);
                 changed();
               },
-            )
-          }
+            );
+          }}
         />
       </section>
       {day.loading || day.error ? (

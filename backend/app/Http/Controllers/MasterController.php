@@ -190,7 +190,7 @@ class MasterController extends Controller
         if ($r->isMethod('GET')) {
             return response()->json(['data' => BusinessController::json($r->attributes->get('tenant'))]);
         }
-        $input = $r->validate(['name' => 'required|string|max:150', 'address' => 'nullable|string|max:500', 'phone' => 'nullable|string|max:30', 'pan' => 'nullable|string|max:30', 'default_locale' => 'required|in:en,ne', 'tax_recording_enabled' => 'required|boolean', 'default_tax_bps' => 'required|integer|min:0|max:10000']);
+        $input = $r->validate(['name' => 'required|string|max:150', 'address' => 'nullable|string|max:500', 'phone' => ['nullable', 'string', 'max:30', CatalogService::PHONE_FORMAT], 'pan' => 'nullable|string|max:30', 'default_locale' => 'required|in:en,ne', 'tax_recording_enabled' => 'required|boolean', 'default_tax_bps' => 'required|integer|min:0|max:10000']);
         DB::transaction(function () use ($input) {
             $tenant = $this->a->lockTenant(app(CurrentTenant::class)->id(), auth('tenant')->id());
             $tenant->update($input);
@@ -251,7 +251,12 @@ class MasterController extends Controller
     {
         $this->a->authorize(auth('tenant')->id(), ['owner', 'accountant']);
 
-        return response()->json(BusinessController::json($this->a->rows('audit_logs')->orderByDesc('id')->paginate(30)->toArray()));
+        $page = $this->a->rows('audit_logs')->orderByDesc('id')->paginate(30);
+        $names = DB::table('users')->whereIn('id', collect($page->items())->where('actor_guard', 'tenant')->pluck('actor_id'))->pluck('name', 'id');
+        // Readable columns only; raw ids and guards meant nothing to owners.
+        $page->through(fn ($row) => ['when' => (string) $row->created_at, 'who' => $row->actor_guard === 'tenant' ? ($names[$row->actor_id] ?? 'User '.$row->actor_id) : 'Platform admin', 'action' => str_replace(['.', '_'], ' ', $row->action), 'record' => str_replace('_', ' ', (string) $row->subject_type).' #'.$row->subject_id]);
+
+        return response()->json(BusinessController::json($page->toArray()));
     }
 
     private function attachmentParent(?int $document, ?int $payment): void

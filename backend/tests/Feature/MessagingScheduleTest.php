@@ -48,6 +48,8 @@ class MessagingScheduleTest extends TestCase
     public function test_reminders_are_queued_once_per_threshold_and_whatsapp_needs_consent(): void
     {
         Queue::fake();
+        // Start at Nepal midday: "+1 hour" below must not cross a Nepal midnight and change the day count.
+        $this->travelTo(Carbon::parse('2026-10-01 12:00:00', 'Asia/Kathmandu'));
         [$owner, , $trial] = $this->trialOwner();
         $this->travelTo(Carbon::parse($trial->end_at)->subDays(3)->addHour());
         $this->artisan('app:send-package-reminders')->assertSuccessful();

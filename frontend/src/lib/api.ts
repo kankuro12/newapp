@@ -46,7 +46,14 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
     if (response.status === 419) resetSession();
     throw new ApiError(
       response.status,
-      data?.message || 'Could not confirm save. Retry safely.',
+      data?.message ||
+        (response.status === 403
+          ? 'Your role cannot open or change this.'
+          : response.status === 404
+            ? 'Not found. It may have been removed.'
+            : ['GET', 'HEAD'].includes(method)
+              ? 'Could not load. Retry.'
+              : 'Could not confirm save. Retry safely.'),
       data?.errors,
     );
   }

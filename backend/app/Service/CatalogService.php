@@ -12,12 +12,15 @@ use Illuminate\Validation\Rule;
 
 class CatalogService
 {
+    /** Phone digits (ASCII or Nepali) with + ( ) - and spaces; blocks free text in party phones. */
+    public const PHONE_FORMAT = 'regex:/^[+0-9०-९ ()\-]{5,30}$/u';
+
     public function __construct(private AccountingService $a, private PartyService $parties) {}
 
     public static function masterRules(string $resource): array
     {
         $rules = match ($resource) {
-            'contacts' => ['name' => 'required|string|max:150', 'phone' => 'nullable|string|max:30', 'email' => 'nullable|email|max:255', 'address' => 'nullable|string|max:500', 'pan' => 'nullable|string|max:30', 'is_customer' => 'required|boolean', 'is_supplier' => 'required|boolean', 'is_employee' => 'sometimes|boolean', 'is_rent' => 'sometimes|boolean'],
+            'contacts' => ['name' => 'required|string|max:150', 'phone' => ['nullable', 'string', 'max:30', self::PHONE_FORMAT], 'email' => 'nullable|email|max:255', 'address' => 'nullable|string|max:500', 'pan' => 'nullable|string|max:30', 'is_customer' => 'required|boolean', 'is_supplier' => 'required|boolean', 'is_employee' => 'sometimes|boolean', 'is_rent' => 'sometimes|boolean'],
             'items' => ['name' => 'required|string|max:150', 'sku' => 'nullable|string|max:100', 'kind' => 'required|in:stock,service', 'unit_label' => 'required|string|max:30', 'sale_price' => 'required|string|max:20', 'pos_unit' => ['sometimes', Rule::in(array_keys(PosService::UNITS))], 'pos_methods' => 'sometimes|array|min:1|max:6', 'pos_methods.*' => ['required', Rule::in(PosService::METHODS)], 'pos_custom_units' => 'sometimes|array|max:50', 'pos_custom_units.*.label' => 'required|string|max:50', 'pos_custom_units.*.qty' => 'required|string|max:20', 'service_minutes' => 'sometimes|integer|min:1|max:720', 'category_id' => 'nullable|integer|min:1', 'preferred_supplier_id' => 'nullable|integer|min:1', 'reorder_target_qty' => 'sometimes|string|max:20', 'low_stock_qty' => 'sometimes|string|max:20', 'default_tax_bps' => 'sometimes|integer|min:0|max:10000', 'default_tax_category' => 'sometimes|in:standard,zero,exempt,outside_scope'],
             'accounts' => ['name' => 'required|string|max:150', 'money_kind' => 'required|in:cash,bank'],
             'expense-categories' => ['name' => 'required|string|max:150'],default => abort(404),

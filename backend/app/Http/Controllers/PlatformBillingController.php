@@ -33,7 +33,7 @@ class PlatformBillingController extends Controller
         $page->getCollection()->transform(function ($account) use ($billing) {
             $entitlements = $billing->entitlements((int) $account->id);
 
-            return ['id' => (string) $account->id, 'name' => $account->name, 'status' => $account->status, 'version' => (string) $account->version,
+            return ['id' => (string) $account->id, 'name' => $account->name, 'status' => $account->status, 'unlimited' => (bool) $account->unlimited, 'version' => (string) $account->version,
                 'package_status' => $entitlements['status'], 'package' => $entitlements['package']['name'] ?? null, 'end_at' => $entitlements['end_at'],
                 'owner_email' => DB::table('billing_account_user')->join('users', 'users.id', '=', 'billing_account_user.user_id')->where('billing_account_id', $account->id)->where('role', 'owner')->where('active', true)->value('users.email'),
                 'business_count' => (string) DB::table('tenants')->where('billing_account_id', $account->id)->count()];
@@ -56,6 +56,13 @@ class PlatformBillingController extends Controller
         }, 3);
 
         return response()->json(['data' => BusinessController::json($row)]);
+    }
+
+    public function accountUnlimited(Request $request, int $id, BillingService $billing): JsonResponse
+    {
+        $input = [...$this->confirmPassword($request), ...$request->validate(['unlimited' => 'required|boolean', 'version' => 'required|integer|min:1'])];
+
+        return response()->json(['data' => BusinessController::json($billing->setUnlimited(auth('superadmin')->id(), $id, (bool) $input['unlimited'], (int) $input['version'], $input['reason']))]);
     }
 
     public function payments(Request $request, BillingService $billing): JsonResponse

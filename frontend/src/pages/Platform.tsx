@@ -93,8 +93,25 @@ export default function Platform() {
                       {row.staff_count} staff · {row.document_count} documents
                     </small>
                   </div>
-                  <Status value={row.access_status} />
-                  <span>{row.access_until || row.trial_ends_at || 'No expiry'}</span>
+                  {/* Same lapse rule as the business list: a past expiry reads as expired. */}
+                  <Status
+                    value={
+                      ['trial', 'active'].includes(row.access_status) &&
+                      !(
+                        Date.parse(
+                          (row.access_status === 'trial' ? row.trial_ends_at : row.access_until) ||
+                            '',
+                        ) > Date.now()
+                      )
+                        ? 'expired'
+                        : row.access_status
+                    }
+                  />
+                  <span>
+                    {row.access_until || row.trial_ends_at
+                      ? new Date(row.access_until || row.trial_ends_at || '').toLocaleString()
+                      : 'No expiry'}
+                  </span>
                   <IonButton
                     fill="outline"
                     onClick={() => {

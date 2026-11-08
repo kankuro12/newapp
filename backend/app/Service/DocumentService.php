@@ -314,8 +314,11 @@ class DocumentService
         $journal = $this->a->post($actor, $doc->business_date_bs, ['type' => 'document', 'id' => $id], $lines, $number);
         $this->a->rows('documents')->where('id', $id)->update(['business_snapshot' => json_encode($tenant->only(['name', 'address', 'phone', 'pan'])), 'party_snapshot' => json_encode($party), 'status' => 'posted', 'posted_at' => now(), 'posted_by' => $actor, 'number' => $number, 'fiscal_year_label' => NepaliDate::fiscalYearLabel($doc->business_date_bs), 'journal_id' => $journal, 'draft_input' => null, 'version' => $doc->version + 1]);
         $paid = Money::parse($input['paid_now'] ?? '0');
-        if ($paid > $doc->total_paisa || ($party->is_system && $paid !== (int) $doc->total_paisa)) {
-            $this->a->fail('Walk-in/expense payee must be fully paid; amount cannot exceed bill total.', 'paid_now');
+        if ($paid > $doc->total_paisa) {
+            $this->a->fail('Paid now cannot be more than the bill total.', 'paid_now');
+        }
+        if ($party->is_system && $paid !== (int) $doc->total_paisa) {
+            $this->a->fail('Walk-in/expense payee must be fully paid.', 'paid_now');
         }
         if ($paid > 0) {
             $this->money->create($actor, $tenant, ['kind' => $doc->type === 'sale' ? 'receipt' : 'supplier_payment', 'amount' => Money::format($paid), 'contact_id' => $doc->contact_id, 'money_account_id' => $input['money_account_id'] ?? 0, 'business_date_bs' => $doc->business_date_bs, 'overdraft_confirmed' => $input['overdraft_confirmed'] ?? false, 'allocations' => [['document_id' => $id, 'amount' => Money::format($paid)]]]);

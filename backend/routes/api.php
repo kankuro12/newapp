@@ -205,6 +205,7 @@ Route::middleware('auth:superadmin')->group(function () {
     Route::patch('api/platform/packages/{id}', [PackageController::class, 'save'])->whereNumber('id');
     Route::get('api/platform/accounts', [PlatformBilling::class, 'accounts']);
     Route::patch('api/platform/accounts/{id}/status', [PlatformBilling::class, 'accountStatus'])->whereNumber('id');
+    Route::patch('api/platform/accounts/{id}/unlimited', [PlatformBilling::class, 'accountUnlimited'])->whereNumber('id');
     Route::get('api/platform/payments', [PlatformBilling::class, 'payments']);
     Route::post('api/platform/payments/{id}/revoke', [PlatformBilling::class, 'revokePayment'])->whereNumber('id');
     Route::get('api/platform/deliveries', [PlatformBilling::class, 'deliveries']);

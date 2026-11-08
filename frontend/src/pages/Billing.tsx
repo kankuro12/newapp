@@ -24,6 +24,7 @@ interface BillingAccount {
 }
 interface Entitlements {
   status: string;
+  unlimited?: boolean;
   end_at: string | null;
   products: string[];
   max_businesses: number | null;
@@ -54,7 +55,8 @@ function AccountSubscription({
           <>
             <Status value={subscription.data.data.status} />
             <h3>{subscription.data.data.package?.name || 'Existing business access'}</h3>
-            {subscription.data.data.end_at && (
+            {subscription.data.data.unlimited && <p>No expiry. Every business type included.</p>}
+            {subscription.data.data.end_at && !subscription.data.data.unlimited && (
               <p>
                 Access until:{' '}
                 {new Date(subscription.data.data.end_at.replace(' ', 'T') + 'Z').toLocaleString(
@@ -70,7 +72,11 @@ function AccountSubscription({
                 {nepalTime(subscription.data.data.next.end_at)}.
               </p>
             )}
-            <p>Business limit: {subscription.data.data.max_businesses ?? 'Existing terms'}</p>
+            <p>
+              Business limit:{' '}
+              {subscription.data.data.max_businesses ??
+                (subscription.data.data.unlimited ? 'No limit' : 'Existing terms')}
+            </p>
             <p>Products: {subscription.data.data.products.join(', ')}</p>
           </>
         )

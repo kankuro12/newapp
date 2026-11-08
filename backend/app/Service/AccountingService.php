@@ -72,11 +72,18 @@ class AccountingService
     public function assertOpenDate(Tenant $tenant, int $date, bool $opening = false): void
     {
         NepaliDate::normalize($date);
-        if ($date > NepaliDate::today() || $date <= ($tenant->closed_through_bs ?? 0)) {
-            $this->fail('Date is future or locked.', 'business_date_bs');
+        $bs = fn (string $d): string => substr($d, 0, 4).'-'.substr($d, 4, 2).'-'.substr($d, 6, 2);
+        if ($date > NepaliDate::today()) {
+            $this->fail('Date cannot be in the future.', 'business_date_bs');
         }
-        if (! $opening && (! $tenant->opening_finalized_at || $date < $tenant->opening_date_bs)) {
-            $this->fail('Complete starting balances first; date must follow starting date.', 'business_date_bs');
+        if ($date <= ($tenant->closed_through_bs ?? 0)) {
+            $this->fail('Date is in a locked period (closed through '.$bs((string) $tenant->closed_through_bs).' BS).', 'business_date_bs');
+        }
+        if (! $opening && ! $tenant->opening_finalized_at) {
+            $this->fail('Complete starting balances first.', 'business_date_bs');
+        }
+        if (! $opening && $date < $tenant->opening_date_bs) {
+            $this->fail('Date is before the starting balances date ('.$bs((string) $tenant->opening_date_bs).' BS).', 'business_date_bs');
         }
     }
 
@@ -241,8 +248,9 @@ class AccountingService
             }
             if ($minimum < 0) {
                 $account = $this->requireRow('accounts', $id);
-                if ($account->system_key === 'cash' || $account->money_kind === 'cash' || ! $overdraft || ! in_array($this->role($actor), ['owner', 'accountant'])) {
-                    $this->fail('Insufficient funds on this or a later business date. Bank overdraft requires owner/accountant confirmation.', 'money_account_id');
+                $cash = $account->system_key === 'cash' || $account->money_kind === 'cash';
+                if ($cash || ! $overdraft || ! in_array($this->role($actor), ['owner', 'accountant'])) {
+                    $this->fail('Not enough money in '.$account->name.' on this or a later business date.'.($cash ? '' : ' An owner or accountant can tick "Allow confirmed bank overdraft".'), 'money_account_id');
                 }
                 $this->audit($actor, 'bank.overdraft', 'accounts', (int) $id, ['business_date_bs' => $date, 'lowest_balance_paisa' => $minimum]);
             }

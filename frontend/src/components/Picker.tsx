@@ -30,12 +30,14 @@ export default function Picker({
   businessDate?: string;
   priceChannel?: 'sale' | 'purchase';
 }) {
-  const { base, t } = useWorkspace();
+  const { base, path, t } = useWorkspace();
   const partyRole =
     role ||
     (payable ? 'payable' : customer === undefined ? '' : customer ? 'customer' : 'supplier');
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
+  // Narrow right-hand columns: open the list leftwards so it stays on screen.
+  const [alignRight, setAlignRight] = useState(false);
   // The box clears after each item pick, so name the item that was just added.
   const [added, setAdded] = useState<{ name: string; count: number }>();
   const { data, error, loading } = useData<{ data: Lookup }>(
@@ -82,7 +84,11 @@ export default function Picker({
               ? t('Search category')
               : 'Search contact name…'
         }
-        onFocus={() => setOpen(true)}
+        onFocus={(event) => {
+          const box = event.currentTarget.closest('.picker')?.getBoundingClientRect();
+          setAlignRight(!!box && box.left + 296 > window.innerWidth);
+          setOpen(true);
+        }}
         onChange={(e) => {
           setQuery(e.target.value);
           setOpen(true);
@@ -112,7 +118,7 @@ export default function Picker({
         }}
       />
       {open && (
-        <div className="picker-results">
+        <div className={alignRight ? 'picker-results align-right' : 'picker-results'}>
           {loading || error ? (
             <Loading error={error} />
           ) : rows.length ? (
@@ -135,8 +141,16 @@ export default function Picker({
             ))
           ) : (
             <p className="subtle">
-              No matches. Add{' '}
-              {kind === 'items' ? 'item' : kind === 'item_categories' ? 'category' : 'party'} first.
+              No matches.{' '}
+              {/* New tab keeps the half-filled form here; search again after saving. */}
+              <a
+                href={`${path}/${kind === 'items' ? 'items/new' : kind === 'item_categories' ? 'item-categories' : 'contacts/new'}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Add {kind === 'items' ? 'item' : kind === 'item_categories' ? 'category' : 'party'}
+              </a>{' '}
+              then search again.
             </p>
           )}
           <IonButton fill="clear" size="small" onClick={() => setOpen(false)}>
