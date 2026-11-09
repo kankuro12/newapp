@@ -32,7 +32,7 @@ export function DocumentList({ type }: { type: string }) {
       <div className="list-tools">
         <Field
           label={t('Search')}
-          placeholder="Bill number…"
+          placeholder={t('Bill number…')}
           value={query}
           onChange={(e) => {
             setPage(1);

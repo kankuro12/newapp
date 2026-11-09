@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useWorkspace } from '../lib/context';
 import { request, useData, useOnline, useSave } from '../lib/api';
-import { amount, bsDisplay, currency, format, quantity } from '../lib/money';
+import { amount, bsDisplay, currency, format, quantity, typedCurrency } from '../lib/money';
 import type { Item, Page, Party, PriceList, PriceListRule } from '../lib/types';
 import Picker from '../components/Picker';
 import EntrySteps from '../components/EntrySteps';
@@ -649,7 +649,7 @@ export function PriceListEditor() {
                 <small>{rangeLabel(row)}</small>
               </span>
               <strong>
-                {row.price} NPR / {row.unit_snapshot}
+                {typedCurrency(row.price)} / {row.unit_snapshot}
               </strong>
             </div>
           ))}

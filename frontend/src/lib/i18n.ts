@@ -1167,6 +1167,13 @@ Object.assign(ne, {
   transfer: 'रकम सार्ने',
   withdrawal: 'मालिकले झिकेको',
   capital: 'मालिकको लगानी',
+  'Search products': 'सामान खोज्नुहोस्',
+  'POS modes': 'बिक्री काउन्टरका मोड',
+  'Payment status': 'भुक्तानीको स्थिति',
+  'Name or contact…': 'नाम वा सम्पर्क…',
+  'Item name…': 'सामानको नाम…',
+  'Bill number…': 'बिल नम्बर…',
+  'Regular payment type': 'नियमित भुक्तानीको प्रकार',
 });
 export const translator = (locale: 'en' | 'ne') => (text: string) =>
   locale === 'ne' ? ne[text] || text : text;

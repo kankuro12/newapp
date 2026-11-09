@@ -778,7 +778,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
             </div>
             {!workflowKind && (
               <>
-                <div className="payment-tabs" role="group" aria-label="Payment status">
+                <div className="payment-tabs" role="group" aria-label={t('Payment status')}>
                   {[
                     ['paid', 'Paid'],
                     ['partial', 'Part paid'],

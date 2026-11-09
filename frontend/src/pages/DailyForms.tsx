@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useWorkspace } from '../lib/context';
 import { ApiError, useData, useSave } from '../lib/api';
-import { amount, bsDisplay, currency, format, quantity, round } from '../lib/money';
+import { amount, bsDisplay, currency, format, quantity, round, typedCurrency } from '../lib/money';
 import type { Doc, Item, Lookup, Page, Party } from '../lib/types';
 import Picker from '../components/Picker';
 import EntrySteps from '../components/EntrySteps';
@@ -230,7 +230,7 @@ export function MoneyForm() {
                 {party?.name || accounts.find((a) => a.id === selected)?.name}
                 {(transfer || party) &&
                   ` ${transfer ? '→' : '·'} ${accounts.find((a) => a.id === (transfer ? destination || accounts[1]?.id : selected))?.name || ''}`}{' '}
-                · {validAmount ? currency(amount(value)) : value + ' NPR'}
+                · {typedCurrency(value)}
               </p>
               <Field
                 label={t('Business date (BS)')}
@@ -738,7 +738,8 @@ export function CountForm() {
                     {count} {item?.unit_label}
                   </p>
                   <p className="daily-review">
-                    {t('Extra unit cost')}: {cost} NPR{zero && ` · ${t('Zero cost confirmed')}`}
+                    {t('Extra unit cost')}: {typedCurrency(cost)}
+                    {zero && ` · ${t('Zero cost confirmed')}`}
                   </p>
                   <Field
                     label={t('Business date (BS)')}

@@ -19,6 +19,14 @@ export function overStock(qty: string, available: string) {
     return false;
   }
 }
+// Typed amount may be half-entered; format it once it parses, else show it as typed.
+export function typedCurrency(text: string) {
+  try {
+    return currency(amount(text || '0'));
+  } catch {
+    return text;
+  }
+}
 export function format(value: string | bigint, places = 2): string {
   const integer = BigInt(value || '0');
   const absolute = (integer < 0n ? -integer : integer).toString().padStart(places + 1, '0');

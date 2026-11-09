@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { amount, calculate, currency, format, overStock, quantity } from './money';
+import { amount, calculate, currency, format, overStock, quantity, typedCurrency } from './money';
 
 describe('exact previews', () => {
   it('normalizes Nepali digits and retains paisa', () => {
@@ -50,5 +50,13 @@ describe('overStock', () => {
     expect(overStock('', '10000')).toBe(false);
     expect(overStock('1.', '0')).toBe(false);
     expect(overStock('abc', '0')).toBe(false);
+  });
+});
+
+describe('typedCurrency', () => {
+  it('formats amounts once they parse and shows half-typed input as typed', () => {
+    expect(typedCurrency('3500')).toBe('रु 3,500.00');
+    expect(typedCurrency('')).toBe('रु 0.00');
+    expect(typedCurrency('12.')).toBe('12.');
   });
 });

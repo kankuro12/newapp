@@ -3,7 +3,7 @@ import { IonButton } from '@ionic/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useWorkspace } from '../lib/context';
 import { useData, useSave } from '../lib/api';
-import { bsDisplay, currency, format } from '../lib/money';
+import { bsDisplay, currency, format, typedCurrency } from '../lib/money';
 import type { Lookup, Page, Party } from '../lib/types';
 import {
   Check,
@@ -83,7 +83,7 @@ export default function RegularPayments() {
         />
       ) : (
         <>
-          <div className="payment-tabs" role="group" aria-label="Regular payment type">
+          <div className="payment-tabs" role="group" aria-label={t('Regular payment type')}>
             {kinds.map(([value, label]) => (
               <button
                 type="button"
@@ -311,7 +311,7 @@ function Setup({ kind, row, done }: { kind: Kind; row?: Regular; done: (row: Reg
           <section className="panel" data-entry-step={scheduleStep}>
             <h2>{t('Schedule')}</h2>
             <p className="regular-review">
-              {row?.payee_name || party?.name || name} · {amount} NPR ·{' '}
+              {row?.payee_name || party?.name || name} · {typedCurrency(amount)} ·{' '}
               {t(enabled ? 'Enabled' : 'Paused')}
             </p>
             {!row && (
