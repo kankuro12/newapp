@@ -90,7 +90,7 @@ export function MasterList({ resource }: { resource: 'contacts' | 'items' }) {
           />
         )}
         <Check checked={archived} onChange={setArchived}>
-          Include archived
+          {t('Include archived')}
         </Check>
       </div>
       <section className="panel">
@@ -123,10 +123,10 @@ export function MasterList({ resource }: { resource: 'contacts' | 'items' }) {
                   !cashier && (
                     <div className="party-balances">
                       <span>
-                        Customer owes <strong>{currency(row.receivable_paisa)}</strong>
+                        {t('Customer owes')} <strong>{currency(row.receivable_paisa)}</strong>
                       </span>
                       <span>
-                        Still to pay <strong>{currency(row.payable_paisa)}</strong>
+                        {t('Still to pay')} <strong>{currency(row.payable_paisa)}</strong>
                       </span>
                     </div>
                   )
@@ -135,7 +135,7 @@ export function MasterList({ resource }: { resource: 'contacts' | 'items' }) {
                     <strong>{currency(row.sale_price_paisa)}</strong>
                     <small>
                       {row.kind === 'stock'
-                        ? `${format(row.qty_milli, 3)} ${row.unit_label} available`
+                        ? `${format(row.qty_milli, 3)} ${row.unit_label} ${t('available')}`
                         : 'Service · no stock'}
                     </small>
                   </div>
@@ -675,18 +675,18 @@ export function MasterForm({ resource }: { resource: 'contacts' | 'items' }) {
                 {row && contacts && business.role !== 'cashier' && (
                   <div className="metrics compact">
                     <div className="panel metric">
-                      <span>Customer owes / credit</span>
+                      <span>{t('Customer owes / credit')}</span>
                       <strong>{currency(row.receivable_paisa)}</strong>
                     </div>
                     <div className="panel metric">
-                      <span>Payable due / advance</span>
+                      <span>{t('Payable due / advance')}</span>
                       <strong>{currency(row.payable_paisa)}</strong>
                     </div>
                     <Link
                       className="panel quick-action"
                       to={`${path}/reports?report=statement&contact=${id}`}
                     >
-                      View statement
+                      {t('View statement')}
                     </Link>
                     <Link className="panel quick-action" to={`${path}/contacts/${id}/trading`}>
                       {t('Payment terms / prices')}

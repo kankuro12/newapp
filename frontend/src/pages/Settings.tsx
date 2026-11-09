@@ -332,7 +332,7 @@ export function Settings() {
         ))}
         <Link to={path + '/opening'}>{t('Starting balances')}</Link>
         {['owner', 'accountant'].includes(business.role) && (
-          <Link to={path + '/audit'}>Audit history</Link>
+          <Link to={path + '/audit'}>{t('Audit history')}</Link>
         )}
       </div>
       {tab === 'business' && allowed ? (
@@ -351,7 +351,7 @@ export function Settings() {
         <p>Select available setting.</p>
       )}
       <IonButton fill="clear" onClick={changed}>
-        Refresh business data
+        {t('Refresh business data')}
       </IonButton>
     </>
   );
@@ -401,18 +401,18 @@ function BusinessSettings() {
       <Errors error={form.error} />
       {saved && <p role="status">Business updated.</p>}
       <Field
-        label="Business name"
+        label={t('Business name')}
         value={name}
         onChange={(e) => setName(e.target.value)}
         required
       />
-      <Field label="Address" value={address} onChange={(e) => setAddress(e.target.value)} />
+      <Field label={t('Address')} value={address} onChange={(e) => setAddress(e.target.value)} />
       <div className="form-grid">
         <Field label={t('Phone')} value={phone} onChange={(e) => setPhone(e.target.value)} />
         <Field label="PAN" value={pan} onChange={(e) => setPan(e.target.value)} />
       </div>
       <Select
-        label="Business language"
+        label={t('Business language')}
         value={locale}
         onChange={(value) => setLocale(value as 'en' | 'ne')}
       >
@@ -420,7 +420,7 @@ function BusinessSettings() {
         <option value="ne">नेपाली</option>
       </Select>
       <Check checked={tax} onChange={setTax}>
-        Record bookkeeping tax
+        {t('Record bookkeeping tax')}
       </Check>
       {tax && (
         <Field
@@ -655,7 +655,7 @@ function AccountsSettings() {
   );
 }
 function CategoriesSettings() {
-  const { base, revision, changed } = useWorkspace();
+  const { base, revision, changed, t } = useWorkspace();
   const [page, setPage] = useState(1);
   const data = useData<Page<Category>>(
     `${base}/settings/expense-categories?page=${page}`,
@@ -675,7 +675,7 @@ function CategoriesSettings() {
           });
         }}
       >
-        <h2>Add expense category</h2>
+        <h2>{t('Add expense category')}</h2>
         <Errors error={form.error} />
         <Field
           label="Category name"
@@ -706,7 +706,7 @@ function CategoriesSettings() {
   );
 }
 function PeriodLock() {
-  const { base, today, business, changed } = useWorkspace();
+  const { base, today, business, changed, t } = useWorkspace();
   const [date, setDate] = useState(bsDisplay(today));
   const [reason, setReason] = useState('');
   const [password, setPassword] = useState('');
@@ -758,12 +758,12 @@ function PeriodLock() {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
-      <Submit busy={form.busy}>Lock period</Submit>
+      <Submit busy={form.busy}>{t('Lock period')}</Submit>
     </form>
   );
 }
 function OwnerHistory() {
-  const { base, revision, today, changed } = useWorkspace();
+  const { base, revision, today, changed, t } = useWorkspace();
   const [page, setPage] = useState(1);
   const data = useData<
     Page<{
@@ -778,7 +778,7 @@ function OwnerHistory() {
   const form = useSave();
   return (
     <section className="panel">
-      <h2>Owner money history</h2>
+      <h2>{t('Owner money history')}</h2>
       <Errors error={form.error} />
       {(data.loading || data.error) && <Loading error={data.error} retry={data.reload} />}
       {data.data?.data.map((row) => (
@@ -815,12 +815,12 @@ function OwnerHistory() {
   );
 }
 export function Audit() {
-  const { base, revision } = useWorkspace();
+  const { base, revision, t } = useWorkspace();
   const [page, setPage] = useState(1);
   const data = useData<Page<Record<string, unknown>>>(`${base}/audit?page=${page}`, revision);
   return (
     <>
-      <Heading title="Audit history" />
+      <Heading title={t('Audit history')} />
       {data.loading || data.error ? (
         <Loading error={data.error} retry={data.reload} />
       ) : (

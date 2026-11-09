@@ -640,11 +640,16 @@ function Counter({ config, profile }: { config: Config; profile: string }) {
             </>
           )}
           <OptionalDetails label={t('Customer (optional)')}>
-            <Picker kind="contacts" customer onPick={(row) => setParty(row as Party)} />
+            {!party && <Picker kind="contacts" customer onPick={(row) => setParty(row as Party)} />}
             {party && (
               <div className="mini-row">
                 <strong>{party.name}</strong>
-                <button type="button" onClick={() => setParty(undefined)}>
+                <button
+                  type="button"
+                  className="icon-button"
+                  aria-label={t('Remove customer')}
+                  onClick={() => setParty(undefined)}
+                >
                   ×
                 </button>
               </div>
@@ -1507,6 +1512,8 @@ function Appointments({ config }: { config: Config }) {
                         </span>
                         <button
                           type="button"
+                          className="icon-button"
+                          aria-label={`${t('Remove')} ${row.name}`}
                           onClick={() =>
                             setServices((rows) => rows.filter((item) => item.id !== row.id))
                           }

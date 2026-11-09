@@ -533,9 +533,9 @@ function RecordMonth({ row }: { row: Regular }) {
           </Select>
           {['owner', 'accountant'].includes(business.role) && (
             <details>
-              <summary>Bank overdraft</summary>
+              <summary>{t('Bank overdraft')}</summary>
               <Check checked={overdraft} onChange={setOverdraft}>
-                Confirm bank overdraft if needed
+                {t('Confirm bank overdraft if needed')}
               </Check>
             </details>
           )}

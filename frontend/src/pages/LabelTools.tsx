@@ -384,8 +384,8 @@ export default function LabelTools() {
           <div className="no-print">
             <Errors error={error} />
             <p>
-              {rows.length} {t('Items')} · {rows.reduce((sum, row) => sum + row.copies, 0)}{' '}
-              {t('Labels')}
+              {rows.length} {t(rows.length === 1 ? 'Item' : 'Items')} ·{' '}
+              {rows.reduce((sum, row) => sum + row.copies, 0)} {t('Labels')}
             </p>
             <Submit busy={busy} disabled={busy || !online || !rows.length}>
               {t('Preview labels')}

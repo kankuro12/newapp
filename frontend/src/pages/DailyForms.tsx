@@ -485,7 +485,8 @@ export function ReturnForm() {
             <section className="panel" data-entry-step="2">
               <h2>{t('Review')}</h2>
               <p className="daily-review">
-                {doc.number} · {returns.length} {t('Items')} · {date} BS
+                {doc.number} · {returns.length} {t(returns.length === 1 ? 'Item' : 'Items')} ·{' '}
+                {date} BS
               </p>
               <div className="grand-total">
                 <span>{t('Bill reduction')}</span>

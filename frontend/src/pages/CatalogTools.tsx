@@ -416,7 +416,7 @@ export function Reorders() {
         <aside className="panel form-summary" data-entry-step="2">
           <h2>{t('Review & save')}</h2>
           <p>
-            {supplier?.name} · {lines.length} {t('items')}
+            {supplier?.name} · {lines.length} {t(lines.length === 1 ? 'item' : 'items')}
           </p>
           <Errors error={invalid} />
           {selections.map(({ row, qty, price }, index) => (

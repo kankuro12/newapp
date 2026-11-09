@@ -59,10 +59,10 @@ export function DocumentList({ type }: { type: string }) {
         ) : data?.data.length ? (
           <>
             <div className="record-header">
-              <span>Bill / party</span>
-              <span>Date (BS)</span>
-              <span>Total / due</span>
-              <span>Status</span>
+              <span>{t('Bill / party')}</span>
+              <span>{t('Date (BS)')}</span>
+              <span>{t('Total / due')}</span>
+              <span>{t('Status')}</span>
             </div>
             {data.data.map((doc) => (
               <Link className="record-row" to={`${path}/document/${doc.id}`} key={doc.id}>
@@ -108,17 +108,18 @@ export function Pagination({
   pages: number;
   change: (page: number) => void;
 }) {
+  const { t } = useWorkspace();
   if (pages <= 1 && page <= 1) return null;
   return (
     <div className="pagination">
       <IonButton fill="clear" disabled={page <= 1} onClick={() => change(page - 1)}>
-        Previous
+        {t('Previous')}
       </IonButton>
       <span>
         {page} / {pages}
       </span>
       <IonButton fill="clear" disabled={page >= pages} onClick={() => change(page + 1)}>
-        Next
+        {t('Next')}
       </IonButton>
     </div>
   );

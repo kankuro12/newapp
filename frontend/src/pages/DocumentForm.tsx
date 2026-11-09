@@ -414,10 +414,10 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                 <h2>
                   <span className="step-dot">1</span>
                   {sale
-                    ? 'Who are you selling to?'
+                    ? t('Who are you selling to?')
                     : expense
-                      ? 'Who was paid?'
-                      : 'Who are you buying from?'}
+                      ? t('Who was paid?')
+                      : t('Who are you buying from?')}
                 </h2>
               </div>
               <div className="form-grid party-date">
@@ -456,7 +456,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
               </div>
               {!workflowKind && !sale && !expense && (
                 <Field
-                  label="Supplier bill reference"
+                  label={t('Supplier bill reference')}
                   name="supplier_bill_number"
                   value={supplierRef}
                   onChange={(e) => setSupplierRef(e.target.value)}
@@ -486,7 +486,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
               <div className="section-title">
                 <h2>
                   <span className="step-dot">2</span>
-                  {expense ? 'What did you spend on?' : 'Add your items'}
+                  {expense ? t('What did you spend on?') : t('Add your items')}
                 </h2>
                 <Link to={path + '/items/new'}>{!expense && t('Add product')}</Link>
               </div>
@@ -510,7 +510,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                   }
                 >
                   <IonIcon icon={addOutline} slot="start" />
-                  Add expense
+                  {t('Add expense')}
                 </IonButton>
               ) : (
                 <Picker
@@ -546,8 +546,8 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                   <IonIcon icon={receiptOutline} />
                   <span>
                     {expense
-                      ? 'Add an expense category and amount.'
-                      : 'Search and add your first item.'}
+                      ? t('Add an expense category and amount.')
+                      : t('Search and add your first item.')}
                   </span>
                 </div>
               )}
@@ -622,8 +622,8 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                         value={line.discount_mode || 'fixed'}
                         onChange={(value) => changeLine(i, 'discount_mode', value)}
                       >
-                        <option value="fixed">Amount (NPR)</option>
-                        <option value="percent">Percent (%)</option>
+                        <option value="fixed">{t('Amount (NPR)')}</option>
+                        <option value="percent">{t('Percent (%)')}</option>
                       </Select>
                       <Field
                         label={
@@ -665,7 +665,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
               ))}
               <details className="bill-extras">
                 <summary>
-                  {workflowKind ? t('Discount & notes') : 'Bill discount, due date & notes'}
+                  {workflowKind ? t('Discount & notes') : t('Bill discount, due date & notes')}
                 </summary>
                 {!workflowKind && party && (
                   <small>
@@ -675,21 +675,21 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                 )}
                 {!workflowKind && (
                   <Field
-                    label="Due date (BS, optional)"
+                    label={t('Due date (BS, optional)')}
                     value={due}
                     onChange={(e) => setDue(e.target.value)}
                   />
                 )}
                 {!workflowKind && !sale && !expense && (
                   <Field
-                    label="Supplier bill date (BS, optional)"
+                    label={t('Supplier bill date (BS, optional)')}
                     value={supplierDate}
                     onChange={(e) => setSupplierDate(e.target.value)}
                   />
                 )}
                 <fieldset disabled={!!basketOffer} className="entry-lock">
                   <Select
-                    label="Bill discount type"
+                    label={t('Bill discount type')}
                     value={discountMode}
                     onChange={setDiscountMode}
                   >
@@ -697,7 +697,9 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                     <option value="percent">Percent (%)</option>
                   </Select>
                   <Field
-                    label={discountMode === 'percent' ? 'Bill discount (%)' : 'Bill discount (NPR)'}
+                    label={t(
+                      discountMode === 'percent' ? 'Bill discount (%)' : 'Bill discount (NPR)',
+                    )}
                     inputMode="decimal"
                     value={discount}
                     onChange={(e) => setDiscount(e.target.value)}
@@ -705,7 +707,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                 </fieldset>
                 {sale && ['owner', 'manager'].includes(business.role) && (
                   <Check checked={promotional} onChange={setPromotional}>
-                    Confirm promotional free items
+                    {t('Confirm promotional free items')}
                   </Check>
                 )}
                 <Field
@@ -733,7 +735,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                   : expense
                     ? t('General expense')
                     : t('Supplier not chosen'))}{' '}
-              · {bsDisplay(date)} BS · {lines.length} {t('items')}
+              · {bsDisplay(date)} BS · {lines.length} {t(lines.length === 1 ? 'item' : 'items')}
             </p>
             {sale && (
               <BasketOfferSelect
@@ -819,7 +821,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                   payMode !== 'later' &&
                   accounts.find((a) => a.id === selectedAccount)?.system_key === 'cash' && (
                     <Field
-                      label="Cash tendered (optional)"
+                      label={t('Cash tendered (optional)')}
                       inputMode="decimal"
                       value={tender}
                       onChange={(e) => setTender(e.target.value)}
@@ -836,9 +838,9 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                 </p>
                 {!sale && ['owner', 'accountant'].includes(business.role) && (
                   <details>
-                    <summary>Bank overdraft</summary>
+                    <summary>{t('Bank overdraft')}</summary>
                     <Check checked={overdraft} onChange={setOverdraft}>
-                      Confirm bank overdraft if needed
+                      {t('Confirm bank overdraft if needed')}
                     </Check>
                   </details>
                 )}
@@ -887,7 +889,7 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
             <small className="subtle">
               {workflowKind
                 ? t('Review accepted prices before creating a bill.')
-                : 'Stock and dues update automatically. No accounting entries to enter.'}
+                : t('Stock and dues update automatically. No accounting entries to enter.')}
             </small>
           </aside>
         </EntrySteps>
