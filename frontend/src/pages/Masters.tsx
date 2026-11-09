@@ -108,15 +108,15 @@ export function MasterList({ resource }: { resource: 'contacts' | 'items' }) {
                   <small>
                     {contacts
                       ? [
-                          row.is_customer && 'Customer',
-                          row.is_supplier && 'Supplier',
-                          row.is_employee && 'Employee',
-                          row.is_rent && 'Rent',
+                          row.is_customer && t('Customer'),
+                          row.is_supplier && t('Supplier'),
+                          row.is_employee && t('Employee'),
+                          row.is_rent && t('Rent'),
                         ]
                           .filter(Boolean)
                           .join(' · ')
                       : `${row.sku || row.kind} · ${row.unit_label}${row.category_name ? ' · ' + row.category_name : ''}`}
-                    {row.archived_at && ' · Archived'}
+                    {row.archived_at && ` · ${t('Archived')}`}
                   </small>
                 </div>
                 {contacts ? (

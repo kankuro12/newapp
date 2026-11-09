@@ -152,7 +152,10 @@ export function MoneyForm() {
           }
           void form.save(`${base}/${owner ? 'owner-money' : 'payments'}`, input, () => {
             changed();
-            navigate(documentId ? `${path}/document/${documentId}` : path + '/money');
+            // History lists the new entry first, so the save is visibly confirmed.
+            navigate(
+              documentId ? `${path}/document/${documentId}` : path + '/money?section=history',
+            );
           });
         }}
       >

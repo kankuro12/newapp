@@ -4,7 +4,8 @@ import { expect, it, vi } from 'vitest';
 import FulfilmentDetail from './FulfilmentDetail';
 
 const fixture = vi.hoisted(() => ({ status: 'posted', role: 'owner' }));
-vi.mock('../lib/context', () => ({
+vi.mock('../lib/context', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/context')>()),
   useWorkspace: () => ({
     base: '/api/app/shop',
     path: '/app/shop',

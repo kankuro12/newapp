@@ -40,17 +40,17 @@ export function DocumentList({ type }: { type: string }) {
           }}
         />
         <Select
-          label="Status"
+          label={t('Status')}
           value={status}
           onChange={(value) => {
             setPage(1);
             setStatus(value);
           }}
         >
-          <option value="">All entries</option>
-          <option value="posted">Posted</option>
-          <option value="draft">Draft</option>
-          <option value="cancelled">Cancelled</option>
+          <option value="">{t('All entries')}</option>
+          <option value="posted">{t('Posted')}</option>
+          <option value="draft">{t('Draft')}</option>
+          <option value="cancelled">{t('Cancelled')}</option>
         </Select>
       </div>
       <div className="panel record-panel">
@@ -428,7 +428,7 @@ export function DocumentDetail() {
                 <div>
                   <strong>PAY-{payment.id}</strong>
                   <small>
-                    {payment.kind.replaceAll('_', ' ')} · {bsDisplay(payment.business_date_bs)} ·{' '}
+                    {t(payment.kind.replaceAll('_', ' '))} · {bsDisplay(payment.business_date_bs)} ·{' '}
                     {payment.status}
                   </small>
                 </div>
@@ -631,7 +631,7 @@ export function MoneyList() {
                       <div>
                         <strong>PAY-{payment.id}</strong>
                         <small>
-                          {payment.kind.replaceAll('_', ' ')} ·{' '}
+                          {t(payment.kind.replaceAll('_', ' '))} ·{' '}
                           {bsDisplay(payment.business_date_bs)} BS
                         </small>
                       </div>

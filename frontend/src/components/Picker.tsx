@@ -79,10 +79,10 @@ export default function Picker({
         value={query}
         placeholder={
           kind === 'items'
-            ? 'Search item name…'
+            ? t('Search item name…')
             : kind === 'item_categories'
               ? t('Search category')
-              : 'Search contact name…'
+              : t('Search contact name…')
         }
         onFocus={(event) => {
           const box = event.currentTarget.closest('.picker')?.getBoundingClientRect();
@@ -135,26 +135,32 @@ export default function Picker({
                     ? `${currency((row as Item).suggested_price_paisa || (row as Item).sale_price_paisa)} · ${(row as Item).kind === 'service' ? 'Service' : format((row as Item).qty_milli, 3) + ' ' + (row as Item).unit_label}`
                     : kind === 'item_categories'
                       ? t('Item category')
-                      : (row as Party).phone || 'Contact'}
+                      : (row as Party).phone || t('Contact')}
                 </small>
               </button>
             ))
           ) : (
             <p className="subtle">
-              No matches.{' '}
+              {t('No matches.')}{' '}
               {/* New tab keeps the half-filled form here; search again after saving. */}
               <a
                 href={`${path}/${kind === 'items' ? 'items/new' : kind === 'item_categories' ? 'item-categories' : 'contacts/new'}`}
                 target="_blank"
                 rel="noreferrer"
               >
-                Add {kind === 'items' ? 'item' : kind === 'item_categories' ? 'category' : 'party'}
+                {t(
+                  kind === 'items'
+                    ? 'Add item'
+                    : kind === 'item_categories'
+                      ? 'Add category'
+                      : 'Add party',
+                )}
               </a>{' '}
-              then search again.
+              {t('then search again.')}
             </p>
           )}
           <IonButton fill="clear" size="small" onClick={() => setOpen(false)}>
-            Close search
+            {t('Close search')}
           </IonButton>
         </div>
       )}

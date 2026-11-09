@@ -24,7 +24,7 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Context } from '../lib/context';
 import { request, resetSession, useData, useOnline } from '../lib/api';
 import { translator } from '../lib/i18n';
@@ -124,6 +124,10 @@ function Shell({
   const navigate = useNavigate();
   const location = useLocation();
   const t = translator(locale);
+  // Screen readers pick pronunciation from <html lang>.
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
   const path = `/app/${business.slug}`;
   const base = `/api/app/${business.slug}`;
   const cashier = business.role === 'cashier';

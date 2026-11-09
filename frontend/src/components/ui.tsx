@@ -6,11 +6,12 @@ import {
   checkmarkCircleOutline,
   receiptOutline,
 } from 'ionicons/icons';
-import { Children, cloneElement, isValidElement, useEffect, useState } from 'react';
+import { Children, cloneElement, isValidElement, useContext, useEffect, useState } from 'react';
 import type { ChangeEvent, InputHTMLAttributes, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { ApiError, useOnline } from '../lib/api';
+import { Context } from '../lib/context';
 
 export function Field({
   label,
@@ -166,7 +167,9 @@ export function Empty({
   );
 }
 export function Status({ value }: { value: string }) {
-  return <span className={`badge ${value}`}>{value.replaceAll('_', ' ')}</span>;
+  // Also used outside a business (billing, platform), where there is no translator.
+  const t = useContext(Context)?.t ?? ((text: string) => text);
+  return <span className={`badge ${value}`}>{t(value.replaceAll('_', ' '))}</span>;
 }
 export function Heading({
   title,

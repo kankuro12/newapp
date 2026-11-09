@@ -4,7 +4,8 @@ import { expect, it, vi } from 'vitest';
 import { WorkflowDetail } from './Workflows';
 
 const fixture = vi.hoisted(() => ({ row: {} as Record<string, unknown> }));
-vi.mock('../lib/context', () => ({
+vi.mock('../lib/context', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/context')>()),
   useWorkspace: () => ({
     base: '/api/app/shop',
     path: '/app/shop',
