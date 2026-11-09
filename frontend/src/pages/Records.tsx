@@ -3,8 +3,8 @@ import { SourceOrderAllocation } from '../components/SourceOrderAllocation';
 import { IonButton, IonIcon } from '@ionic/react';
 import { addOutline, arrowDownOutline, printOutline, returnDownBackOutline } from 'ionicons/icons';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useState } from 'react';
-import { useWorkspace } from '../lib/context';
+import { useContext, useState } from 'react';
+import { Context, useWorkspace } from '../lib/context';
 import { request, useData, useSave } from '../lib/api';
 import { bsDisplay, currency, format } from '../lib/money';
 import type { Doc, Page, Payment } from '../lib/types';
@@ -108,7 +108,8 @@ export function Pagination({
   pages: number;
   change: (page: number) => void;
 }) {
-  const { t } = useWorkspace();
+  // Shared with platform pages, which have no business context or translator.
+  const t = useContext(Context)?.t ?? ((text: string) => text);
   if (pages <= 1 && page <= 1) return null;
   return (
     <div className="pagination">
