@@ -434,7 +434,18 @@ export function DocumentDetail() {
                 <span>{currency(payment.amount_paisa)}</span>
               </div>
             ))}
-            {!doc.payments.length && <p className="subtle">No payments recorded.</p>}
+            {!doc.payments.length &&
+              (doc.source_document_id ? (
+                <p className="subtle">
+                  {t('Refunds for this return are listed on the')}{' '}
+                  <Link to={`${path}/document/${doc.source_document_id}`}>
+                    {t('original bill')}
+                  </Link>
+                  .
+                </p>
+              ) : (
+                <p className="subtle">No payments recorded.</p>
+              ))}
           </section>
           <section className="panel">
             <h3>Attachments</h3>

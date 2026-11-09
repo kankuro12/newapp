@@ -1152,6 +1152,10 @@ ion-spinner {
   font-size: 10px;
   color: #58675a;
 }
+.line-heading small.stock-short {
+  color: #b45309;
+  font-weight: 700;
+}
 .icon-button {
   border: 0;
   background: none;

@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react';
 import { useWorkspace } from '../lib/context';
 import { useData, useSave } from '../lib/api';
-import { bsDisplay, calculate, currency, format, amount, quantity } from '../lib/money';
+import { bsDisplay, calculate, currency, format, amount, quantity, overStock } from '../lib/money';
 import type { Doc, Item, Lookup, Party, Workflow } from '../lib/types';
 import Picker from '../components/Picker';
 import EntrySteps from '../components/EntrySteps';
@@ -438,9 +438,11 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                       onPick={(row) => setParty(row as Party)}
                     />
                   )}
-                  <Link to={path + '/contacts/new'} className="form-link">
-                    {t('Add party')}
-                  </Link>
+                  {!party && (
+                    <Link to={path + '/contacts/new'} className="form-link">
+                      {t('Add party')}
+                    </Link>
+                  )}
                 </div>
                 <Field
                   label={t('Business date (BS)')}
@@ -553,11 +555,16 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
                 <div className="line-editor" key={`${line.item_id || 'expense'}-${i}`}>
                   <div className="line-heading">
                     <strong>{line.name}</strong>
-                    {line.available && (
-                      <small>
-                        {format(line.available, 3)} {line.unit} available
-                      </small>
-                    )}
+                    {line.available &&
+                      (sale && overStock(line.qty, line.available) ? (
+                        <small className="stock-short" role="status">
+                          {t('Only')} {format(line.available, 3)} {line.unit} {t('in stock')}
+                        </small>
+                      ) : (
+                        <small>
+                          {format(line.available, 3)} {line.unit} available
+                        </small>
+                      ))}
                     <button
                       type="button"
                       className="icon-button"
@@ -720,8 +727,13 @@ export default function DocumentForm({ workflowKind }: { workflowKind?: string }
               {t('Review & save')}
             </h2>
             <p className="entry-review-party">
-              {party?.name || (sale ? t('Walk-in customer') : t('General expense'))} ·{' '}
-              {bsDisplay(date)} BS · {lines.length} {t('items')}
+              {party?.name ||
+                (sale
+                  ? t('Walk-in customer')
+                  : expense
+                    ? t('General expense')
+                    : t('Supplier not chosen'))}{' '}
+              · {bsDisplay(date)} BS · {lines.length} {t('items')}
             </p>
             {sale && (
               <BasketOfferSelect

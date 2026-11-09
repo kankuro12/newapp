@@ -11,6 +11,14 @@ function parse(text: string, places: number, cap = 1_000_000_000n): bigint {
 }
 export const amount = (text: string) => parse(text, 2);
 export const quantity = (text: string) => parse(text, 3);
+// Sales may oversell (stock goes negative) by design; only warn when quantity tops stock.
+export function overStock(qty: string, available: string) {
+  try {
+    return quantity(qty) > BigInt(available);
+  } catch {
+    return false;
+  }
+}
 export function format(value: string | bigint, places = 2): string {
   const integer = BigInt(value || '0');
   const absolute = (integer < 0n ? -integer : integer).toString().padStart(places + 1, '0');

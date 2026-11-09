@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { amount, calculate, currency, format, quantity } from './money';
+import { amount, calculate, currency, format, overStock, quantity } from './money';
 
 describe('exact previews', () => {
   it('normalizes Nepali digits and retains paisa', () => {
@@ -35,5 +35,20 @@ describe('exact previews', () => {
       ).total,
     ).toBe(125n);
     expect(calculate([{ qty: '1', unit_price: '100' }], '0', '1000').total).toBe(9000n);
+  });
+});
+
+describe('overStock', () => {
+  it('warns only when the typed quantity is above stock (milli units)', () => {
+    expect(overStock('25', '10000')).toBe(true);
+    expect(overStock('10', '10000')).toBe(false);
+    expect(overStock('10.001', '10000')).toBe(true);
+    expect(overStock('१२', '10000')).toBe(true);
+  });
+
+  it('stays quiet while the quantity is half-typed or invalid', () => {
+    expect(overStock('', '10000')).toBe(false);
+    expect(overStock('1.', '0')).toBe(false);
+    expect(overStock('abc', '0')).toBe(false);
   });
 });

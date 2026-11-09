@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useWorkspace } from '../lib/context';
 import { send, useData, useSave } from '../lib/api';
-import { currency, format } from '../lib/money';
+import { amount, currency, format } from '../lib/money';
 import EntrySteps from '../components/EntrySteps';
 import { measurementUnits } from '../lib/measurement';
 import MeasurementUnits from '../components/MeasurementUnits';
@@ -23,6 +23,15 @@ import {
 import { Pagination } from './Records';
 import Picker from '../components/Picker';
 import { CategoryFilter } from './CatalogTools';
+
+// Typed price may be half-entered; show it as typed until it parses.
+function previewPrice(price: string) {
+  try {
+    return currency(amount(price || '0'));
+  } catch {
+    return price;
+  }
+}
 
 export function MasterList({ resource }: { resource: 'contacts' | 'items' }) {
   const { base, path, revision, t, business } = useWorkspace();
@@ -400,7 +409,7 @@ export function MasterForm({ resource }: { resource: 'contacts' | 'items' }) {
                     {t(kind === 'stock' ? 'Stock item' : 'Service')} · {unit}
                   </span>
                   <span>
-                    {t('Selling price')}: NPR {price}
+                    {t('Selling price')}: {previewPrice(price)}
                   </span>
                 </>
               )}

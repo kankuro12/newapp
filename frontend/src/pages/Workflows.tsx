@@ -315,8 +315,8 @@ export function WorkflowDetail() {
         {row.overdue && <p className="error-text">{t('Fulfilment overdue')}</p>}
         <div className="list-tools">
           <Select label={t('Print layout')} value={printing} onChange={setPrinting}>
-            <option value="record">{t(kinds[row.kind])}</option>
-            <option value="job">{t('Job card')}</option>
+            <option value="record">{t(kindLabel(row.kind, business.pos_profile))}</option>
+            <option value="job">{t('Job card (no prices)')}</option>
             {!staged && <option value="delivery">{t('Delivery note')}</option>}
           </Select>
           <IonButton fill="outline" onClick={() => window.print()}>
@@ -338,7 +338,7 @@ export function WorkflowDetail() {
                   ? 'Job card'
                   : printing === 'delivery'
                     ? 'Delivery note'
-                    : kinds[row.kind],
+                    : kindLabel(row.kind, business.pos_profile),
               ).toUpperCase()}
             </span>
             <h2>{row.business_snapshot.name}</h2>
