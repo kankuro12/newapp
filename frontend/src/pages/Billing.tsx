@@ -2,7 +2,7 @@ import { IonContent, IonPage } from '@ionic/react';
 import { Link } from 'react-router-dom';
 import { useData } from '../lib/api';
 import { Heading, Loading, Status } from '../components/ui';
-import { format } from '../lib/money';
+import { format, nepalTime as nepalClock } from '../lib/money';
 import BillingCheckout from './BillingCheckout';
 import type { BillingGateway } from './BillingCheckout';
 import { HelpLink } from '../components/Help';
@@ -31,8 +31,7 @@ interface Entitlements {
   package?: PackageTerms;
   next?: { start_at: string; end_at: string; package: PackageTerms } | null;
 }
-const nepalTime = (value: string) =>
-  new Date(value.replace(' ', 'T') + 'Z').toLocaleString('en-NP', { timeZone: 'Asia/Kathmandu' });
+const nepalTime = (value: string) => nepalClock(new Date(value.replace(' ', 'T') + 'Z'));
 function AccountSubscription({
   account,
   packages,

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ApiError, request, resetSession, send, useData } from '../lib/api';
 import type { Business, Page } from '../lib/types';
 import { Errors, Field, Heading, Loading, Select, Status, Submit } from '../components/ui';
+import { nepalTime } from '../lib/money';
 import Auth from './Auth';
 import PlatformBilling from './PlatformBilling';
 import PlatformPackages from './PlatformPackages';
@@ -109,7 +110,7 @@ export default function Platform() {
                   />
                   <span>
                     {row.access_until || row.trial_ends_at
-                      ? new Date(row.access_until || row.trial_ends_at || '').toLocaleString()
+                      ? nepalTime(new Date(row.access_until || row.trial_ends_at || ''))
                       : 'No expiry'}
                   </span>
                   <IonButton

@@ -19,6 +19,13 @@ export function overStock(qty: string, available: string) {
     return false;
   }
 }
+// One unambiguous clock format for Nepal (en-NP alone falls back to US month/day order).
+export const nepalTime = (date: Date) =>
+  date.toLocaleString('en-NP', {
+    timeZone: 'Asia/Kathmandu',
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
 // Typed amount may be half-entered; format it once it parses, else show it as typed.
 export function typedCurrency(text: string) {
   try {

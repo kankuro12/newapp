@@ -331,7 +331,7 @@ function MemberDetail({ id, onClose }: { id: string; onClose: () => void }) {
         <p>{t('No active membership today.')}</p>
       )}
       <h3>{data.current ? t('Renew membership') : t('Join plan')}</h3>
-      <Select label={t('Plan')} value={plan} onChange={setPlan}>
+      <Select label={t('Plan')} value={plan} onChange={setPlan} required>
         <option value="">{t('Choose plan')}</option>
         {active.map((row) => (
           <option key={row.id} value={row.id}>
@@ -523,7 +523,7 @@ function Plans() {
             required
             onChange={(e) => setName(e.target.value)}
           />
-          <Select label={t('Bill as service item')} value={item} onChange={setItem}>
+          <Select label={t('Bill as service item')} value={item} onChange={setItem} required>
             <option value="">{t('Choose service item')}</option>
             {services.map((row) => (
               <option key={row.id} value={row.id}>

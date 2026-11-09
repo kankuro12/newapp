@@ -288,6 +288,8 @@ export function Verify({ user, reload }: { user: User; reload: () => void }) {
   );
 }
 
+// reload() remounts this page (session data is refetched), so the success notice rides across once.
+let accountNotice = '';
 export function AccountPage({ user, reload }: { user: User; reload: () => void }) {
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
@@ -296,7 +298,11 @@ export function AccountPage({ user, reload }: { user: User; reload: () => void }
   const [confirmation, setConfirmation] = useState('');
   const [error, setError] = useState<Error>();
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(() => {
+    const notice = accountNotice;
+    accountNotice = '';
+    return notice;
+  });
   async function update(path: string, input: Record<string, string>) {
     setBusy(true);
     setError(undefined);
@@ -306,7 +312,8 @@ export function AccountPage({ user, reload }: { user: User; reload: () => void }
       setCurrent('');
       setPassword('');
       setConfirmation('');
-      setMessage('Account updated.');
+      accountNotice = 'Account updated.';
+      setMessage(accountNotice);
       reload();
     } catch (e) {
       setError(e as Error);

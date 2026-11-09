@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { request, send, useData } from '../lib/api';
 import type { Business } from '../lib/types';
 import { Check, Errors, Field, Heading, Loading, Select, Submit } from '../components/ui';
+import { nepalTime } from '../lib/money';
 import { HelpLink } from '../components/Help';
 
 interface AgentToken {
@@ -16,8 +17,7 @@ interface AgentToken {
   last_used_at: string | null;
   expires_at: string | null;
 }
-const when = (value: string | null) =>
-  value ? new Date(value).toLocaleString('en-NP', { timeZone: 'Asia/Kathmandu' }) : 'never';
+const when = (value: string | null) => (value ? nepalTime(new Date(value)) : 'never');
 
 /** Per-business MCP tokens so AI agents can run daily shop tasks as this user. */
 export default function Agents() {
@@ -64,7 +64,7 @@ export default function Agents() {
           <form className="panel narrow-form section" onSubmit={create}>
             <h2>Create agent access</h2>
             <Errors error={error} />
-            <Select label="Business" value={business} onChange={setBusiness}>
+            <Select label="Business" value={business} onChange={setBusiness} required>
               <option value="">Choose business</option>
               {businesses.data?.data.map((row) => (
                 <option key={row.id} value={row.id}>
@@ -137,6 +137,8 @@ export default function Agents() {
                     fill="clear"
                     color="danger"
                     onClick={async () => {
+                      if (!window.confirm(`Revoke "${token.name}"? The agent loses access now.`))
+                        return;
                       await request(`/api/agent-tokens/${token.id}`, { method: 'DELETE' });
                       setRevision((n) => n + 1);
                     }}

@@ -4,7 +4,7 @@ import type { FormEvent, ReactNode } from 'react';
 import { request, send, useData } from '../lib/api';
 import type { Page } from '../lib/types';
 import { Check, Errors, Field, Heading, Loading, Select, Status, Submit } from '../components/ui';
-import { format } from '../lib/money';
+import { format, nepalTime } from '../lib/money';
 import { Pagination } from './Records';
 
 interface AccountRow {
@@ -59,11 +59,7 @@ interface Preview {
 }
 const tabs = ['accounts', 'payments', 'campaigns', 'deliveries'] as const;
 const nepal = (value: string | null) =>
-  value
-    ? new Date(value.replace(' ', 'T') + (value.includes('T') ? '' : 'Z')).toLocaleString('en-NP', {
-        timeZone: 'Asia/Kathmandu',
-      })
-    : '—';
+  value ? nepalTime(new Date(value.replace(' ', 'T') + (value.includes('T') ? '' : 'Z'))) : '—';
 
 /** Password and reason confirmation shared by every sensitive platform action. */
 function Confirm({

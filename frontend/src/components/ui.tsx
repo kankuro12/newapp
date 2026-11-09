@@ -49,6 +49,7 @@ export function Select({
   children,
   name,
   error,
+  required,
 }: {
   label: string;
   value: string;
@@ -56,11 +57,13 @@ export function Select({
   children: ReactNode;
   name?: string;
   error?: string[];
+  required?: boolean;
 }) {
   return (
     <Field label={label} error={error}>
       <select
         name={name}
+        required={required}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={!!error}
